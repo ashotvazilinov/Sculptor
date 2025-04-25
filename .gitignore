@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.env
+
+# IDE/Editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Медиа и видео
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+
+# Другие тяжёлые файлы
+*.zip
+*.rar
+*.exe
+*.iso
+*.tar
+*.gz
+*.log
+
+videos/
+tracing/
