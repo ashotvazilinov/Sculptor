@@ -69,5 +69,4 @@ def Bundle_Left_Sidebar_can_be_sorted_by_Displayed_fields(page, unique_number):
     
     assert titles
     print(titles)
-    # Проверка на сортировку по алфавиту
-    assert titles == sorted(titles, reverse=False), f"Элементы не в алфавитном порядке:\n{titles}"
+    assert titles == sorted(titles, reverse=False), f"The elements are NOT in the alphabetical order:\n{titles}"

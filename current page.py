@@ -26,6 +26,19 @@ def run_current_tasks(unique_number: int = 33):
         context = browser.contexts[0]  # Используем первый контекст
         page = context.pages[0]  # Берем первую открытую вкладку
 
+        Product_Filter_exists = page.locator("//*[text()='Product.Product Name']")
+        
+        page.wait_for_selector("//c-cpq-sidebar-product-list//button[@title='Filter']", state='visible')
+        page.click("//c-cpq-sidebar-product-list//button[@title='Filter']")
+        page.wait_for_selector("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]", state='visible')
+        if Product_Filter_exists.count() == 0:
+            page.click("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]")
+        else:
+            pass
+
+
+
+
 
 
 # Запуск
