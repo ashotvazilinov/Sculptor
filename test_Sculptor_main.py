@@ -11,3 +11,8 @@ def test_Bundle_contains_of_three_sections(page2):
 def test_Bundle_Left_Sidebar_can_be_sorted_by_Displayed_fields(page2):
     page, unique_number = page2
     Bundle_Left_Sidebar_can_be_sorted_by_Displayed_fields(page, unique_number)
+
+@pytest.mark.parametrize("page2", ["0220.2"], indirect=True)
+def test_Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page2):
+    page, unique_number = page2
+    Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page, unique_number)

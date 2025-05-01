@@ -44,21 +44,21 @@ def run_current_tasks(unique_number: int = 33):
         print('Field name Product Name is set by default')
         expect(filter_Operator_contains).to_be_visible()
         print('Operator is set to Contains by default')
-        test_product = 'Boat regatta'
-        page.fill("//c-cpq-side-panel-filter-item//input", f"{test_product}")
+        # test_product = 'Boat regatta'
+        page.fill("//c-cpq-side-panel-filter-item//input", "Test Product to be deleted 3")
         page.click("button[title='Accept']")
         # page.type('input[placeholder="Products"]', f"{test_product}")
         All_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]')
         First_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]').nth(0)
-
+        time.sleep(1)
         if All_Closed_Accordions.count() > 0:
             First_Closed_Accordions.click()
             print('accordion is expanded')
         else:
             pass
-        page.wait_for_selector(f'//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="{test_product}"]', state='visible')
-        expect(page.locator(f'//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="{test_product}"]')).to_be_visible()
-        print(f"the Product {test_product} is found")
+        page.wait_for_selector('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]', state='visible')
+        expect(page.locator('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]')).to_be_visible()
+        print("the Product Test Product to be deleted 3 is found")
         products = page.locator("//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem][@class='slds-truncate cpq-list-item-name cpq-locked slds-col cpq-list-item-name-top']")
         expect(products).to_have_count(1)
         page.click('//c-cpq-sidebar-product-list//button[contains(text(), "Remove All")]')
