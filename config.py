@@ -4,7 +4,7 @@ PASSWORD = 'FASD;KJNfdsa54'
 SECURITY_TOKEN = 'l6VUiezdZSG02hEL7dtaptlk'
 
 VIDEO_DIR = f"D:/vs code/Sculptor/videos"
-REPORT_DIR = "D:\\vs code\\Sculptor\\Reports"
+REPORT_DIR = f"D:/vs code/Sculptor/Reports"
 TRACING_DIR = f"D:/vs code/Sculptor/tracing"
 
 

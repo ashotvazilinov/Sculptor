@@ -82,6 +82,6 @@ def pytest_unconfigure():
         new_name = f"report_{timestamp}.html"
         new_path = os.path.join(reports_dir, new_name)
 
-        os.rename(original_report, new_path)
+        os.rename(original_report, new_path) #rename of report
         print(f"\n[INFO] The HTML report has been renamed to: {new_name}")
 
