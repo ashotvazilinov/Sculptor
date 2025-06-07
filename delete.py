@@ -37,8 +37,8 @@ def run_current_tasks(unique_number: int):
         delete_test_quote_salesforce(sf, unique_number)
 
 
-# Запуск
+# start
 if __name__ == "__main__":
-    unique_number = 33  # Можно передавать любое число
+    unique_number = 33  
     run_current_tasks(unique_number)
 

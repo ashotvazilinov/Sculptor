@@ -88,8 +88,6 @@ def Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page, unique_number)
         page.wait_for_selector("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]", state='visible') #find Add Filter button
         if Product_Filter_exists.count() == 0: #if there is 0 filter we click on it
             page.click("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]")
-        else:
-            pass
         page.click("//span[text()='Product.Product Name']")
         filter_Product_name = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'Product Name')]")
         filter_Operator_contains = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'CONTAINS')]")

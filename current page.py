@@ -27,9 +27,20 @@ def run_current_tasks(unique_number: int = 33):
         context = browser.contexts[0]  # Используем первый контекст
         page = context.pages[0]  # Берем первую открытую вкладку
 
-        
-        expect(page.locator(Bundle_builder_tab)).to_be_visible()
-        print("FOUNd")
+        # page.wait_for_selector(Sculptor_settings_tab, state='visible')
+        # page.click(Sculptor_settings_tab)
+        # page.wait_for_selector(Fields_and_layouts, state='visible')
+        # page.click(Fields_and_layouts)
+        # page.wait_for_selector(Sculptor_settings_Product_sidebar_group_active, state='visible')
+        # page.click(Sculptor_settings_Product_sidebar_group_active)
+        # page.wait_for_selector(Sculptor_settings_Product_sidebar_group_move_right, state='visible')
+        # page.click(Sculptor_settings_Product_sidebar_group_move_right)
+        # page.wait_for_selector(Save_Button, state='visible')
+        # page.click(Save_Button)
+        # page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+        # page.click(Sculptor_settings_Save_Success_message)
+        # page.wait_for_selector(Bundle_builder_tab, state='visible')
+        # page.click(Bundle_builder_tab)
 
 # Запуск
 if __name__ == "__main__":
