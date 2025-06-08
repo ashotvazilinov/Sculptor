@@ -27,23 +27,36 @@ def run_current_tasks(unique_number: int = 33):
         context = browser.contexts[0]  # Используем первый контекст
         page = context.pages[0]  # Берем первую открытую вкладку
 
-        # page.wait_for_selector(Sculptor_settings_tab, state='visible')
-        # page.click(Sculptor_settings_tab)
-        # page.wait_for_selector(Fields_and_layouts, state='visible')
-        # page.click(Fields_and_layouts)
-        # page.wait_for_selector(Sculptor_settings_Product_sidebar_group_active, state='visible')
-        # page.click(Sculptor_settings_Product_sidebar_group_active)
-        # page.wait_for_selector(Sculptor_settings_Product_sidebar_group_move_right, state='visible')
-        # page.click(Sculptor_settings_Product_sidebar_group_move_right)
-        # page.wait_for_selector(Save_Button, state='visible')
-        # page.click(Save_Button)
-        # page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
-        # page.click(Sculptor_settings_Save_Success_message)
-        # page.wait_for_selector(Bundle_builder_tab, state='visible')
-        # page.click(Bundle_builder_tab)
+
+        try:
+            if page.locator(BB_Active_exists).is_visible():
+                print("Active exists, go on.")
+            else:
+                raise Exception("Active not found")  
+        except:
+            print("Active not found — lets set Price Book.")
+            if page.locator(BB_Price_book_needs_to_be_selected).count() > 0:
+                print(">0")
+                page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
+                page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
+                pricebook_locator = page.locator("//span[@title='Pricebook']")
+                pricebook_locator.hover()
+                page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
+                page.click("//span[@title='Standard Price Book']")
+                time.sleep(2)
+
+        page.wait_for_selector(BB_Active_exists, state='visible')
+        print('Active exists')
+
+        # Убеждаемся, что нужный элемент точно появился после всего
+        page.wait_for_selector(BB_Active_exists, state='visible')
+        print('Active exists')
+
+
 
 # Запуск
 if __name__ == "__main__":
     unique_number = 33 
     run_current_tasks(unique_number)
+
 

@@ -1,6 +1,8 @@
 #html_elements.py
 #bundle builder
 Bundle_builder_tab = ('//span[contains(text(), "Bundle Builder")]')
+BB_Active_exists = ('//span[@title="Active"]//span')
+BB_Price_book_needs_to_be_selected = ('//*[text()="No products created/found or pricebook wasn\'t specified"]')
 
 #sculptor settings
 Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')

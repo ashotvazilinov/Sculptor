@@ -72,47 +72,104 @@ def Bundle_Left_Sidebar_can_be_sorted_by_Displayed_fields(page, unique_number):
     print(titles)
     assert titles == sorted(titles, reverse=False), f"The elements are NOT in the alphabetical order:\n{titles}"
 def Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page, unique_number):
-        page.wait_for_selector('text="Bundle Builder"', state='visible')
-        page.click('text="Bundle Builder"')
-        page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
-        page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
-        pricebook_locator = page.locator("//span[@title='Pricebook']")
-        pricebook_locator.hover()
-        page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
-        page.click("//span[@title='Standard Price Book']")
-        time.sleep(2)
-        
-        Product_Filter_exists = page.locator("//*[text()='Product.Product Name']")
-        page.wait_for_selector("//c-cpq-sidebar-product-list//button[@title='Filter']", state='visible') #find filter
-        page.click("//c-cpq-sidebar-product-list//button[@title='Filter']") #click on filter
-        page.wait_for_selector("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]", state='visible') #find Add Filter button
-        if Product_Filter_exists.count() == 0: #if there is 0 filter we click on it
-            page.click("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]")
-        page.click("//span[text()='Product.Product Name']")
-        filter_Product_name = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'Product Name')]")
-        filter_Operator_contains = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'CONTAINS')]")
-        
-        page.wait_for_selector("//c-cpq-side-panel-filter-item//input", state='visible')
-        expect(filter_Product_name).to_be_visible()
-        print('Field name Product Name is set by default')
-        expect(filter_Operator_contains).to_be_visible()
-        print('Operator is set to Contains by default')
-        # test_product = 'Boat regatta'
-        page.fill("//c-cpq-side-panel-filter-item//input", "Test Product to be deleted 3")
-        page.click("button[title='Accept']")
-        # page.type('input[placeholder="Products"]', f"{test_product}")
-        All_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]')
-        First_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]').nth(0)
-        time.sleep(1)
-        if All_Closed_Accordions.count() > 0:
-            First_Closed_Accordions.click()
-            print('accordion is expanded')
+    page.wait_for_selector('text="Bundle Builder"', state='visible')
+    page.click('text="Bundle Builder"')
+    page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
+    page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
+    pricebook_locator = page.locator("//span[@title='Pricebook']")
+    pricebook_locator.hover()
+    page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
+    page.click("//span[@title='Standard Price Book']")
+    time.sleep(2)
+    
+    Product_Filter_exists = page.locator("//*[text()='Product.Product Name']")
+    page.wait_for_selector("//c-cpq-sidebar-product-list//button[@title='Filter']", state='visible') #find filter
+    page.click("//c-cpq-sidebar-product-list//button[@title='Filter']") #click on filter
+    page.wait_for_selector("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]", state='visible') #find Add Filter button
+    if Product_Filter_exists.count() == 0: #if there is 0 filter we click on it
+        page.click("(//div[@sclp-cpqsidepanel_cpqsidepanel]//*[text()='Add Filter'])[1]")
+    page.click("//span[text()='Product.Product Name']")
+    filter_Product_name = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'Product Name')]")
+    filter_Operator_contains = page.locator("//c-cpq-side-panel-filter-item//span[contains(text(), 'CONTAINS')]")
+    
+    page.wait_for_selector("//c-cpq-side-panel-filter-item//input", state='visible')
+    expect(filter_Product_name).to_be_visible()
+    print('Field name Product Name is set by default')
+    expect(filter_Operator_contains).to_be_visible()
+    print('Operator is set to Contains by default')
+    # test_product = 'Boat regatta'
+    page.fill("//c-cpq-side-panel-filter-item//input", "Test Product to be deleted 3")
+    page.click("button[title='Accept']")
+    # page.type('input[placeholder="Products"]', f"{test_product}")
+    All_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]')
+    First_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]').nth(0)
+    time.sleep(1)
+    if All_Closed_Accordions.count() > 0:
+        First_Closed_Accordions.click()
+        print('accordion is expanded')
+    else:
+        pass
+    page.wait_for_selector('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]', state='visible')
+    expect(page.locator('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]')).to_be_visible()
+    print("the Product Test Product to be deleted 3 is found")
+    products = page.locator("//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem][@class='slds-truncate cpq-list-item-name cpq-locked slds-col cpq-list-item-name-top']")
+    expect(products).to_have_count(1)
+    page.click('//c-cpq-sidebar-product-list//button[contains(text(), "Remove All")]')
+    print("All the filters are removed")
+def Bundle_Left_Sidebar_Active_grouping(page, unique_number):
+    page.wait_for_selector(Sculptor_settings_tab, state='visible')
+    page.click(Sculptor_settings_tab)
+    page.wait_for_selector(Fields_and_layouts, state='visible')
+    page.click(Fields_and_layouts)
+    li_group = page.locator(Sculptor_settings_Product_sidebar_group_li_count)#convert to locator
+
+    
+    li_group.first.wait_for(state='visible')#wait for elements to be visible
+
+
+    while li_group.count() > 1: #while there are more than 1 element, click and move to left
+        li_group.nth(-1).click()
+        page.click(Sculptor_settings_Product_sidebar_group_move_left)
+
+    page.wait_for_selector(Sculptor_settings_Product_sidebar_group_active, state='visible')
+    page.click(Sculptor_settings_Product_sidebar_group_active) #select avitve
+
+    page.wait_for_selector(Sculptor_settings_Product_sidebar_group_move_right, state='visible')
+    page.click(Sculptor_settings_Product_sidebar_group_move_right)#move active to right
+
+    page.wait_for_selector(Save_Button, state='visible')
+    page.click(Save_Button)#save
+
+    page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+    page.click(Sculptor_settings_Save_Success_message)#check if it is saved
+    print("Active grouping is set successfully")
+
+    page.wait_for_selector(Bundle_builder_tab, state='visible')
+    page.click(Bundle_builder_tab)#go to bundle builder
+    print("Bundle Builder tab is opened")
+
+    try:
+        if page.locator(BB_Active_exists).is_visible():
+            print("Active exists, go on.")
         else:
-            pass
-        page.wait_for_selector('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]', state='visible')
-        expect(page.locator('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]')).to_be_visible()
-        print("the Product Test Product to be deleted 3 is found")
-        products = page.locator("//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem][@class='slds-truncate cpq-list-item-name cpq-locked slds-col cpq-list-item-name-top']")
-        expect(products).to_have_count(1)
-        page.click('//c-cpq-sidebar-product-list//button[contains(text(), "Remove All")]')
-        print("All the filters are removed")
+            raise Exception("Active not found")  
+    except:
+        print("Active not found — lets set Price Book.")
+        page.wait_for_selector(BB_Price_book_needs_to_be_selected, state='visible')
+        print("Price book needs to be selected")
+        if page.locator(BB_Price_book_needs_to_be_selected).count() > 0:
+            print(">0")
+            page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
+            page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
+            pricebook_locator = page.locator("//span[@title='Pricebook']")
+            pricebook_locator.hover()
+            page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
+            page.click("//span[@title='Standard Price Book']")
+            time.sleep(2)
+
+    page.wait_for_selector(BB_Active_exists, state='visible')
+    print('Active exists')
+
+    # Убеждаемся, что нужный элемент точно появился после всего
+    page.wait_for_selector(BB_Active_exists, state='visible')
+    print('Active exists')

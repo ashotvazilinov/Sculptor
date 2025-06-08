@@ -78,16 +78,16 @@ def delete_test_quote_salesforce(sf, unique_number: int):
     print("All Quote are deleted.")
 
 def create_products_and_pricebook_entries(sf, unique_number: int):
-    for i in range(1, 6):  # Цикл для создания 5 продуктов
+    for i in range(1, 6): 
         product_name = f"Test Product to be deleted {i}"
 
-        # Создаем продукт
+        
         product = sf.Product2.create({
             'Name': product_name,
             'IsActive': True
         })
 
-        # Получаем Id стандартного прайсбука
+        # Get standard PB id
         pricebook_id = None
         pricebook_entries = sf.query("SELECT Id, Name FROM Pricebook2 WHERE IsStandard = TRUE")
         for entry in pricebook_entries['records']:
@@ -99,13 +99,13 @@ def create_products_and_pricebook_entries(sf, unique_number: int):
             print("Standard Price Book not found!")
             continue
 
-        # Задаем цену для текущего продукта (1, 2, 3, 4, 5)
+        # set price for the current product (1, 2, 3, 4, 5)
         price = i  
 
-        # Проверяем, существует ли уже запись для данного продукта и прайсбука
+        # check if there is a record of the for the product and PB
         existing_entry = sf.query(f"SELECT Id FROM PricebookEntry WHERE Pricebook2Id = '{pricebook_id}' AND Product2Id = '{product['id']}'")
         if existing_entry['totalSize'] == 0:
-            # Если записи нет, создаем новую
+            # If there is no record we create one
             sf.PricebookEntry.create({
                 'Pricebook2Id': pricebook_id,
                 'Product2Id': product['id'],
