@@ -170,6 +170,5 @@ def Bundle_Left_Sidebar_Active_grouping(page, unique_number):
     page.wait_for_selector(BB_Active_exists, state='visible')
     print('Active exists')
 
-    # Убеждаемся, что нужный элемент точно появился после всего
     page.wait_for_selector(BB_Active_exists, state='visible')
     print('Active exists')

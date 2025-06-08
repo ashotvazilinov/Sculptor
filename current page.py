@@ -48,7 +48,7 @@ def run_current_tasks(unique_number: int = 33):
         page.wait_for_selector(BB_Active_exists, state='visible')
         print('Active exists')
 
-        # Убеждаемся, что нужный элемент точно появился после всего
+       
         page.wait_for_selector(BB_Active_exists, state='visible')
         print('Active exists')
 
