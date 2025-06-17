@@ -16,16 +16,16 @@ from salesforce_utils import *
 
 # set PWDEBUG=1 && python "D:\vs code\Sculptor\current page.py"
 
-# Авторизация в Salesforce API
+# Automation in Salesforce API
 sf = Salesforce(username=config.LOGIN, password=config.PASSWORD, security_token=config.SECURITY_TOKEN)
 
-# Основная функция
+# Main function
 def run_current_tasks(unique_number: int = 33):
     with sync_playwright() as p:
-        # Подключаемся к открытому браузеру через CDP
+        # Connect to the existing browser instance
         browser = p.chromium.connect_over_cdp("http://127.0.0.1:9222")
-        context = browser.contexts[0]  # Используем первый контекст
-        page = context.pages[0]  # Берем первую открытую вкладку
+        context = browser.contexts[0]  # Using the first context
+        page = context.pages[0]  # Taking the first tab
 
 
         try:
@@ -54,7 +54,7 @@ def run_current_tasks(unique_number: int = 33):
 
 
 
-# Запуск
+# Start
 if __name__ == "__main__":
     unique_number = 33 
     run_current_tasks(unique_number)
