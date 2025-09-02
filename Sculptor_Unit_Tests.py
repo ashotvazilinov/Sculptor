@@ -155,9 +155,9 @@ def Bundle_Left_Sidebar_Active_grouping(page, unique_number):
             raise Exception("Active not found")  
     except:
         print("Active not found — lets set Price Book.")
-        page.wait_for_selector(BB_Price_book_needs_to_be_selected, state='visible')
+        page.wait_for_selector(f"{BB_Price_book_needs_to_be_selected} | {BB_No_Products_were_found}", state="visible")
         print("Price book needs to be selected")
-        if page.locator(BB_Price_book_needs_to_be_selected).count() > 0:
+        if page.locator(f"{BB_Price_book_needs_to_be_selected} | {BB_No_Products_were_found}").count() > 0:
             print(">0")
             page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
             page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")

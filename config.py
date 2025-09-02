@@ -1,7 +1,7 @@
 #config.py
 LOGIN = 'wams.demo@twistellar.com'
-PASSWORD = 'gfdg3425234'
-SECURITY_TOKEN = 'mFDS2IYJeDX2H4lGqye6JlSYl' #U18rWw2i3smTOS1nLkx7akv7S
+PASSWORD = 'fsad;klnj5342'
+SECURITY_TOKEN = 'W2pqv71kHTYQ6F1ILRwJw6Ik9' #U18rWw2i3smTOS1nLkx7akv7S
 
 VIDEO_DIR = f"D:/vs code/Sculptor/videos"
 REPORT_DIR = f"D:/vs code/Sculptor/Reports"

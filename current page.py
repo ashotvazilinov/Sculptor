@@ -28,30 +28,8 @@ def run_current_tasks(unique_number: int = 33):
         page = context.pages[0]  # Taking the first tab
 
 
-        try:
-            if page.locator(BB_Active_exists).is_visible():
-                print("Active exists, go on.")
-            else:
-                raise Exception("Active not found")  
-        except:
-            print("Active not found — lets set Price Book.")
-            if page.locator(BB_Price_book_needs_to_be_selected).count() > 0:
-                print(">0")
-                page.wait_for_selector("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']", state='visible')
-                page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
-                pricebook_locator = page.locator("//span[@title='Pricebook']")
-                pricebook_locator.hover()
-                page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
-                page.click("//span[@title='Standard Price Book']")
-                time.sleep(2)
-
-        page.wait_for_selector(BB_Active_exists, state='visible')
-        print('Active exists')
-
-       
-        page.wait_for_selector(BB_Active_exists, state='visible')
-        print('Active exists')
-
+        page.wait_for_selector(f"{BB_Price_book_needs_to_be_selected} | {BB_No_Products_were_found}", state="visible")
+        print("Price book needs to be selected")
 
 
 # Start
