@@ -1,16 +1,20 @@
-from simple_salesforce import Salesforce, SalesforceLogin, SFType
+from simple_salesforce import Salesforce, SalesforceLogin
 from datetime import datetime
-import time
 
 session_id, instance = SalesforceLogin(
-    # username='testin1g1233211234@gmail.com', #орг Артема
-    # password='fsad534fsd',
-    # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
-    # domain='test'
-    username='test-vaslhuo2vcxg@example.com', #орг Димы
-    password='fyiv0%czSxeac',
-    # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
+    username='testin1g1233211234@gmail.com', #орг Артема
+    password='fsad534fsd',
+    security_token='eoVSG7DvEoLvOZxBzmBIlczL',
     domain='test'
+    # username='test-vaslhuo2vcxg@example.com', #орг Димы
+    # password='fyiv0%czSxeac',
+    # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
+    # domain='test'
+# git add .
+
+# git commit -m "обновил файлы"
+
+# git push origin HEAD:main
 )
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 print(timestamp)
@@ -69,7 +73,7 @@ def create_products_and_pricebook_entries(sf):
 
 def delete_test_product_salesforce(sf):
     print("Start Product Deleting...")
-    for i in range(1, 6):
+    for i in range(1, 9):
         query = f"SELECT Name, Id FROM Product2 WHERE Name = 'Test Product {i}'"
         results = sf.query(query) 
         while results.get('records'):
@@ -79,7 +83,7 @@ def delete_test_product_salesforce(sf):
 
                 try:
                     sf.Product2.delete(product_id) 
-                    print(f"product Deleted '{product_name}' с ID {product_id}")
+                    print(f"product Deleted '{product_name}' with ID {product_id}")
                 except Exception as e:
                     print(f"Error deleting '{product_name}': {e}")
 
@@ -262,7 +266,7 @@ def create_bundle(sf):
         print(f"Bundle Record Type id is {rt_id}")
         sf.product2.create({
             'Name': f'Test Bundle Created {timestamp}',
-            'RecordTypeId': f'{rt_id}',
+            'RecordTypeId': rt_id,
             'IsActive': 'true'
         })
         created_bundle_id = sf.query("select name, id from product2 where name like 'Test Bundle created%'")['records'][0]['Id']
@@ -276,6 +280,8 @@ def create_bundle(sf):
             'SCLP__Product__c': created_bundle_id,
             'SCLP__Required__c': 'false'
         })
+        first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
+        print(f'first feature id is {first_feature_id}')
         sf.SCLP__ProductFeature__c.create({
             'Name': 'Number two',
             'SCLP__HasGroup__c': 'false',
@@ -284,8 +290,7 @@ def create_bundle(sf):
             'SCLP__Product__c': created_bundle_id,
             'SCLP__Required__c': 'true'
         })
-        first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
-        print(f'first feature id is {first_feature_id}')
+
         second_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 2 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
         print(f'second feature id is {second_feature_id}\n Now lets create options')
         product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
@@ -308,7 +313,7 @@ def create_bundle(sf):
             'SCLP__ChildRequired__c': 'true'
         })
         option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1'")['records'][0]['Id']
-
+        print('Options 1 is created')
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
             'SCLP__Bundle__c': created_bundle_id,
@@ -318,6 +323,8 @@ def create_bundle(sf):
             'SCLP__Product__c': product2_id,
             'SCLP__MasterOption__c': option1_id 
         })
+        print('Options 2 is created')
+
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
             'SCLP__Bundle__c': created_bundle_id,
@@ -325,6 +332,8 @@ def create_bundle(sf):
             'SCLP__Order__c': '2',
             'SCLP__Product__c': product3_id
         })
+        print('Options 3 is created')
+
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
             'SCLP__Bundle__c': created_bundle_id,
@@ -332,6 +341,7 @@ def create_bundle(sf):
             'SCLP__Order__c': '1',
             'SCLP__Product__c': product4_id
         })
+        print('Options 4 is created')
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
             'SCLP__Bundle__c': created_bundle_id,
@@ -340,6 +350,8 @@ def create_bundle(sf):
             'SCLP__Product__c': product5_id,
             'SCLP__DefaultOption__c': 'true'
         })
+        print('Options 5 is created')
+
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
             'SCLP__Bundle__c': created_bundle_id,
@@ -359,7 +371,6 @@ def create_bundle(sf):
             'SCLP__MasterOption__c': option6_id
         })
         print('option 7 created')
-        option7_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 7'")['records'][0]['Id']
         print('query for 7 worked out')
         sf.SCLP__ProductOption__c.create({
             'SCLP__BundleQuantity__c': '1',
@@ -404,8 +415,8 @@ def delete_bundle(sf):
 
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# delete_test_product_salesforce(sf)
-# print("products deleted")
+# # delete_test_product_salesforce(sf)
+# # print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
