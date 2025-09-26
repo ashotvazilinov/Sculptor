@@ -382,11 +382,11 @@ def delete_bundle(sf):
     for o in options['records']:
         try:
             sf.SCLP__ProductOption__c.delete(o['Id'])
-            product_name = o.get('SCLP__Product__r', {}).get('Name', 'N/A')
-            print(f"Deleted option for product: {product_name} with Id {o['Id']}")
+            product_name = o['SCLP__Product__r']['Name']
+            print(f"Deleted option for product: {product_name} (ID: {o['Id']})")
         except Exception as e:
-            product_name = o.get('SCLP__Product__r', {}).get('Name', 'N/A')
-            print(f"Failed to delete option for product {product_name} ({o['Id']}): {e}")
+            product_name = o['SCLP__Product__r']['Name']
+            print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
     bundles = sf.query("SELECT Name, Id FROM Product2 WHERE Name LIKE 'Test Bundle created%'")
     if bundles['records']:
