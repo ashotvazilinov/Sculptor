@@ -12,7 +12,7 @@ session_id, instance = SalesforceLogin(
     # domain='test'
 # git add .
 
-# git commit -m "обновил файлы"
+# git commit -m "changed smth"
 
 # git push origin HEAD:main
 )
