@@ -376,23 +376,24 @@ def create_bundle(sf):
 def delete_bundle(sf):
     print('Start Bundle deletion')
 
-    # Удаляем опшены
+
     options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE 'Test Bundle created%' ORDER BY SCLP__Product__r.name DESC")
     
     for o in options['records']:
         try:
             sf.SCLP__ProductOption__c.delete(o['Id'])
-            print(f"Deleted option: ({o['Id']})")
+            product_name = o.get('SCLP__Product__r', {}).get('Name', 'N/A')
+            print(f"Deleted option for product: {product_name} with Id {o['Id']}")
         except Exception as e:
-            print(f"Failed to delete option {o['Id']}: {e}")
+            product_name = o.get('SCLP__Product__r', {}).get('Name', 'N/A')
+            print(f"Failed to delete option for product {product_name} ({o['Id']}): {e}")
 
-    # Удаляем бандлы (ОДИН раз, без лишних циклов)
     bundles = sf.query("SELECT Name, Id FROM Product2 WHERE Name LIKE 'Test Bundle created%'")
     if bundles['records']:
         for b in bundles['records']:
             try:
                 sf.Product2.delete(b['Id'])
-                print(f"Deleted: {b['Name']} ({b['Id']})")
+                print(f"Deleted bundle: {b['Name']} ({b['Id']})")
             except Exception as e:
                 print(f"Error deleting bundle: {e}")
     else:
