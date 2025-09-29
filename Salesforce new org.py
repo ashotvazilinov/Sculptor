@@ -2,13 +2,19 @@ from simple_salesforce import Salesforce, SalesforceLogin
 from datetime import datetime
 
 session_id, instance = SalesforceLogin(
-    username='testin1g1233211234@gmail.com', #орг Артема
-    password='fsad534fsd',
-    security_token='eoVSG7DvEoLvOZxBzmBIlczL',
-    domain='test'
-    # username='test-vaslhuo2vcxg@example.com', #орг Димы
-    # password='fyiv0%czSxeac',
+    # username='testin1g1233211234@gmail.com', #орг Артема
+    # password='fsad534fsd',
+    # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
+    # domain='test'
+    username='test-vaslhuo2vcxg@example.com', #орг Димы
+    password='fyiv0%czSxeac',
     # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
+    domain='test'  
+    # username='cpq.dev@twistellar.dev.com',#dev org 
+    # password='workhard2019',
+    # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
+    # domain='login' 
+
     # domain='test'
 # git add .
 
@@ -195,7 +201,7 @@ def create_Quote(sf):
         print ('test opportunity already exists')
     else:
         sf.opportunity.create({
-            'Name': 'Test Opportunity',
+            'Name': f'Test Opportunity Created {timestamp}',
             'CloseDate': '2025-09-04',
             'StageName': 'Qualification',
             'Pricebook2Id': SPB_id,
@@ -203,7 +209,7 @@ def create_Quote(sf):
             })
         print('test opportunity is created')          
     
-    opp_query = "select name, id from opportunity where name like 'test opportunity%'"
+    opp_query = "select name, id from opportunity where name like 'test opportunity created %'"
     opp_results = sf.query(opp_query)
     if opp_results.get('records'):
         for opps in opp_results['records']:
@@ -233,19 +239,6 @@ def create_Quote(sf):
     else:
         print("No quotes found")
     
-def just_test(sf):
-    sf.product2.create({
-        'Name': 'test pr',
-        'IsActive': True
-    })
-    print('created')
-
-    query = sf.query("select name, id, IsActive  from Product2 where name = 'test pr'")
-    if query.get('records'):
-        for i in query['records']:
-            id_for_products = i['Id']
-            sf.product2.delete(id_for_products)
-    print('deleted')
             
 
 def delete_all_quotes(sf):
@@ -410,13 +403,19 @@ def delete_bundle(sf):
     else:
         print("No bundles to delete")
 
-    
+def just_test(sf):
+    record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
+    print(record)
+    sf.SCLP__ProductCostPrice__c.update(record['Id'], {
+        'CommunityCostPriceEnabled__c': True
+    })
+    print("Updated successfully!")
 
 
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# # delete_test_product_salesforce(sf)
-# # print("products deleted")
+# delete_test_product_salesforce(sf)
+# print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
@@ -425,11 +424,11 @@ def delete_bundle(sf):
 # print('Opportunity ended')
 # create_Quote(sf)
 # print('Quote ended')
-# # just_test(sf)
-# # print('done')
-# # delete_all_quotes(sf)
-# # print('all quotes deleted')
+# delete_all_quotes(sf)
+# print('all quotes deleted')
 delete_bundle(sf)
 print('Bundle deleted')
 create_bundle(sf)
 print("bundle ended")
+# just_test(sf)
+# print('done')
