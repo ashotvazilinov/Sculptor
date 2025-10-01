@@ -6,8 +6,8 @@ session_id, instance = SalesforceLogin(
     # password='fsad534fsd',
     # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
     # domain='test'
-    username='test-vaslhuo2vcxg@example.com', #орг Димы
-    password='fyiv0%czSxeac',
+    username='test-cgvyjwv2fuev@example.com', #орг Димы
+    password='[admufwjcI7jd',
     # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
     domain='test'  
     # username='cpq.dev@twistellar.dev.com',#dev org 
@@ -120,7 +120,7 @@ def Standard_PriceBook_activation(sf):
         print("No inactive Standard Price Book found.")
 def create_account(sf):
     print('Start creating account')
-    abc = "select name, id from account where name = 'test account'"
+    abc = "select name, id from account where name like 'test account created%'"
     
 
     
@@ -130,7 +130,7 @@ def create_account(sf):
     if results.get('records') and len(results['records']) > 0:
         print ('test account already exists')
     else:
-        sf.account.create({'Name': 'Test Account'})
+        sf.account.create({'Name': f'Test Account created {timestamp}'})
         print('test account is created')        
 
 def create_opportunity(sf):
@@ -144,7 +144,7 @@ def create_opportunity(sf):
 
             print(f"found {SB_name} with id: {SPB_id}")
 
-    account_query = "select name, id from account where name = 'test account'"
+    account_query = "select name, id from account where name like 'test account created %'"
     acc_results = sf.query(account_query)
     if acc_results.get('records'):
         for Accs in acc_results['records']:
@@ -153,7 +153,7 @@ def create_opportunity(sf):
             print(f'Account found with the name {Acc_name} with id: {Acc_id}')
 
     print('now it\'s about opportunity')
-    opp = "select name, id from opportunity where name = 'test opportunity'"
+    opp = "select name, id from opportunity where name like 'test opportunity created%'"
     
     opp_results = sf.query(opp)
 
@@ -163,7 +163,7 @@ def create_opportunity(sf):
         print ('test opportunity already exists')
     else:
         sf.opportunity.create({
-            'Name': 'Test Opportunity',
+            'Name': f'Test Opportunity created {timestamp}',
             'CloseDate': '2025-09-04',
             'StageName': 'Qualification',
             'Pricebook2Id': SPB_id,
@@ -182,7 +182,7 @@ def create_Quote(sf):
 
             print(f"found {SPB_name} with id: {SPB_id}")
 
-    account_query = "select name, id from account where name = 'test account'"
+    account_query = "select name, id from account where name like 'test account created %'"
     acc_results = sf.query(account_query)
     if acc_results.get('records'):
         for Accs in acc_results['records']:
@@ -191,7 +191,7 @@ def create_Quote(sf):
             print(f'Account found with the name {Acc_name} with id: {Acc_id}')
 
     print('now it\'s about opportunity')
-    opp = "select name, id from opportunity where name = 'test opportunity'"
+    opp = "select name, id from opportunity where name like 'test opportunity created %'"
     
     opp_results = sf.query(opp)
 
@@ -271,7 +271,8 @@ def create_bundle(sf):
             'SCLP__Multiple__c': 'true',
             'SCLP__Order__c': '1',
             'SCLP__Product__c': created_bundle_id,
-            'SCLP__Required__c': 'false'
+            'SCLP__Required__c': 'false',
+            'SCLP__Tip__c': 'https://www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
         })
         first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
         print(f'first feature id is {first_feature_id}')
@@ -281,7 +282,8 @@ def create_bundle(sf):
             'SCLP__Multiple__c': 'false',
             'SCLP__Order__c': '2',
             'SCLP__Product__c': created_bundle_id,
-            'SCLP__Required__c': 'true'
+            'SCLP__Required__c': 'true',
+            'SCLP__Tip__c': 'Feature Number two tip'
         })
 
         second_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 2 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
@@ -303,7 +305,9 @@ def create_bundle(sf):
             'SCLP__Feature__c': first_feature_id,
             'SCLP__Order__c': '1',
             'SCLP__Product__c': product1_id,
-            'SCLP__ChildRequired__c': 'true'
+            'SCLP__ChildRequired__c': 'true',
+            'SCLP__Tip__c': 'Tip test 1',
+            'SCLP__HideInQuote__c': True
         })
         option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1'")['records'][0]['Id']
         print('Options 1 is created')
@@ -314,7 +318,9 @@ def create_bundle(sf):
             'SCLP__DefaultOption__c': 'false',
             'SCLP__Order__c': '2',
             'SCLP__Product__c': product2_id,
-            'SCLP__MasterOption__c': option1_id 
+            'SCLP__MasterOption__c': option1_id,
+            'SCLP__Tip__c': 'Tip test 2',
+            'SCLP__HideInQuote__c': True
         })
         print('Options 2 is created')
 
@@ -323,7 +329,8 @@ def create_bundle(sf):
             'SCLP__Bundle__c': created_bundle_id,
             'SCLP__Feature__c': first_feature_id,
             'SCLP__Order__c': '2',
-            'SCLP__Product__c': product3_id
+            'SCLP__Product__c': product3_id,
+            'SCLP__Tip__c': 'Tip test 3'
         })
         print('Options 3 is created')
 
@@ -332,7 +339,8 @@ def create_bundle(sf):
             'SCLP__Bundle__c': created_bundle_id,
             'SCLP__Feature__c': second_feature_id,
             'SCLP__Order__c': '1',
-            'SCLP__Product__c': product4_id
+            'SCLP__Product__c': product4_id,
+            'SCLP__Tip__c': 'Tip test 4'
         })
         print('Options 4 is created')
         sf.SCLP__ProductOption__c.create({
@@ -341,7 +349,8 @@ def create_bundle(sf):
             'SCLP__Feature__c': second_feature_id,
             'SCLP__Order__c': '2',
             'SCLP__Product__c': product5_id,
-            'SCLP__DefaultOption__c': 'true'
+            'SCLP__DefaultOption__c': 'true',
+            'SCLP__Tip__c': 'Tip test 5'
         })
         print('Options 5 is created')
 
@@ -350,7 +359,8 @@ def create_bundle(sf):
             'SCLP__Bundle__c': created_bundle_id,
             'SCLP__Order__c': '1',
             'SCLP__Product__c': product6_id,
-            'SCLP__DefaultOption__c': 'true'
+            'SCLP__DefaultOption__c': 'true',
+            'SCLP__Tip__c': 'Tip test 6'
         })
         print('option 6 created')
         option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6'")['records'][0]['Id']
@@ -361,7 +371,9 @@ def create_bundle(sf):
             'SCLP__Order__c': '1',
             'SCLP__Product__c': product7_id,
             'SCLP__DefaultOption__c': 'true',
-            'SCLP__MasterOption__c': option6_id
+            'SCLP__MasterOption__c': option6_id,
+            'SCLP__Tip__c': 'Tip test 7',
+            'SCLP__BundleQuantity__c': ''
         })
         print('option 7 created')
         print('query for 7 worked out')
@@ -371,6 +383,7 @@ def create_bundle(sf):
             'SCLP__Order__c': '2',
             'SCLP__Product__c': product8_id,
             'SCLP__DefaultOption__c': 'false',
+            'SCLP__Tip__c': 'Tip test 8'
         })
         print('option 8 created')
 
@@ -403,7 +416,8 @@ def delete_bundle(sf):
     else:
         print("No bundles to delete")
 
-def just_test(sf):
+def Community_Cost_Price_enabling(sf):
+    print('Now its about Cost Price')
     record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
     print(record)
     sf.SCLP__ProductCostPrice__c.update(record['Id'], {
@@ -414,8 +428,8 @@ def just_test(sf):
 
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# delete_test_product_salesforce(sf)
-# print("products deleted")
+# # delete_test_product_salesforce(sf)
+# # print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
@@ -424,11 +438,11 @@ def just_test(sf):
 # print('Opportunity ended')
 # create_Quote(sf)
 # print('Quote ended')
-# delete_all_quotes(sf)
-# print('all quotes deleted')
+# # delete_all_quotes(sf)
+# # print('all quotes deleted')
 delete_bundle(sf)
 print('Bundle deleted')
 create_bundle(sf)
 print("bundle ended")
-# just_test(sf)
-# print('done')
+# Community_Cost_Price_enabling(sf)
+# print('Cost Price enabled')
