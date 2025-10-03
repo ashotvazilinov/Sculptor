@@ -1,10 +1,10 @@
+# salesforce_utils.py
 from simple_salesforce import Salesforce
 import config
 
 def connect_to_salesforce():
     """ Connecting to the Salesforce API. """
-    return Salesforce(username=config.LOGIN, password=config.PASSWORD, security_token=config.SECURITY_TOKEN)
-
+    return Salesforce(username=config.LOGIN, password=config.PASSWORD, security_token=config.SECURITY_TOKEN, domain=config.DOMAIN)
 def delete_test_bundles_salesforce(sf, unique_number: int):
     """ Deletes test bundles from Salesforce. """
     print("Start Bundle Deleting...")
@@ -78,9 +78,14 @@ def delete_test_quote_salesforce(sf, unique_number: int):
     print("All Quote are deleted.")
 
 def create_products_and_pricebook_entries(sf, unique_number: int):
-    for i in range(1, 6): 
+    for i in range(1, 5): 
         product_name = f"Test Product to be deleted {i}"
+        existing_product  = sf.query(f"SELECT Id FROM Product2 WHERE Name = '{product_name}'")
+        
 
+        if existing_product.get('records'):
+            print(f"Product '{product_name}' already exists. Skip creation.")
+            continue
         
         product = sf.Product2.create({
             'Name': product_name,
@@ -100,7 +105,7 @@ def create_products_and_pricebook_entries(sf, unique_number: int):
             continue
 
         # set price for the current product (1, 2, 3, 4, 5)
-        price = i  
+        price = i * 100
 
         # check if there is a record of the for the product and PB
         existing_entry = sf.query(f"SELECT Id FROM PricebookEntry WHERE Pricebook2Id = '{pricebook_id}' AND Product2Id = '{product['id']}'")
@@ -117,3 +122,4 @@ def create_products_and_pricebook_entries(sf, unique_number: int):
             print(f"PricebookEntry for {product_name} already exists.")
 
     print("Products and Pricebook Entries created successfully!")
+

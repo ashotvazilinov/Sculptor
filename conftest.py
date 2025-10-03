@@ -61,6 +61,7 @@ def page2(request):
             delete_test_opportunity_salesforce(sf, unique_number)
             delete_test_bundles_salesforce(sf, unique_number)
             delete_test_quote_salesforce(sf, unique_number)
+            
 
             new_video_name = f"{request.node.name}_{current_time}.webm"
             new_video_path = os.path.join(config.VIDEO_DIR, new_video_name)

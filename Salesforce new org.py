@@ -2,20 +2,11 @@ from simple_salesforce import Salesforce, SalesforceLogin
 from datetime import datetime
 
 session_id, instance = SalesforceLogin(
-    # username='testin1g1233211234@gmail.com', #орг Артема
-    # password='fsad534fsd',
-    # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
-    # domain='test'
-    username='test-cgvyjwv2fuev@example.com', #орг Димы
-    password='[admufwjcI7jd',
-    # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
-    domain='test'  
-    # username='cpq.dev@twistellar.dev.com',#dev org 
-    # password='workhard2019',
-    # # security_token='eoVSG7DvEoLvOZxBzmBIlczL',
-    # domain='login' 
 
-    # domain='test'
+    username='test-cgvyjwv2fuev@example.com', 
+    password='[admufwjcI7jd',
+    security_token='',
+    domain='test' 
 # git add .
 
 # git commit -m "changed smth"
@@ -219,7 +210,7 @@ def create_Quote(sf):
 
     print('now it\'s about opportunity')
 
-    quote = "select name, id from sclp__quote__c where name like 'test quote%'"
+    quote = "select name, id from sclp__quote__c where name like 'test quote created%'"
     quote_result = sf.query(quote)
 
     if quote_result.get('records') and len(quote_result['records']) > 0:
@@ -242,10 +233,12 @@ def create_Quote(sf):
             
 
 def delete_all_quotes(sf):
-    quotes_query = sf.query("select id from sclp__quote__c")
+    quotes_query = sf.query("select id, name from sclp__quote__c")
     while quotes_query.get('records'):
         for record in quotes_query['records']:
             sf.sclp__quote__c.delete(record['Id'])
+            print(f"Deleted quote with ID: {record['Id']} with name {record['Name']}")
+            quotes_query = sf.query("select id from sclp__quote__c where isDeleted = false")
 
 def create_bundle(sf):
     print('Start Bundle creation')
@@ -425,9 +418,41 @@ def Community_Cost_Price_enabling(sf):
     })
     print("Updated successfully!")
 
+def create_multiple_quotes(sf):
+    print('Start creating Multiple Quotes')
+    Standard_Price_book_query = sf.query("select name, id from pricebook2 where name = 'Standard Price Book'")['records'][0]
+    print(f"pricebook {Standard_Price_book_query['Name']} with id {Standard_Price_book_query['Id']} is found")
+    account_query = sf.query("select name, id from account where name like 'test account created %'")['records'][0]
+    opp = sf.query("select name, id from opportunity where name like 'test opportunity created %'")['records'][0]
+    print('queries ended')
+    for i in range(1, 11):
+        sf.sclp__quote__c.create({
+            'Name': f'Test Quote Created Number {i} {timestamp}',
+            'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
+            'SCLP__Account__c': '001RR00000oBfrtYAC',
+            'OwnerId': '005RR00000FyXgxYAF'
+            })
+        print(f'Quote number {i} is created')
 
-# create_products_and_pricebook_entries(sf)
-# print("Product added ended")
+def create_test_acc_field(sf):
+    field_metadata = {
+        'FullName': 'Account.Test_acc__c',
+        'Metadata': {
+            'label': 'Test acc 3',
+            'length': 255,
+            'type': 'Text',
+            'description': 'Тестовое поле созданное через Tooling API'
+        }
+    }
+    
+
+    result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=field_metadata)
+    print("✅ Поле Test_acc успешно создано на объекте Account!")
+    print(f"Результат: {result}")
+
+
+create_products_and_pricebook_entries(sf)
+print("Product added ended")
 # # delete_test_product_salesforce(sf)
 # # print("products deleted")
 # Standard_PriceBook_activation(sf)
@@ -438,11 +463,15 @@ def Community_Cost_Price_enabling(sf):
 # print('Opportunity ended')
 # create_Quote(sf)
 # print('Quote ended')
-# # delete_all_quotes(sf)
-# # print('all quotes deleted')
-delete_bundle(sf)
-print('Bundle deleted')
-create_bundle(sf)
-print("bundle ended")
+# delete_all_quotes(sf)
+# print('all quotes deleted')
+# delete_bundle(sf)
+# print('Bundle deleted')
+# create_bundle(sf)
+# print("bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
+# create_multiple_quotes(sf)
+# print('Multiple Quotes created')
+# create_test_acc_field(sf)
+# print('field ended')

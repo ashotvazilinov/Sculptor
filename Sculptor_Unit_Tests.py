@@ -122,32 +122,42 @@ def Bundle_Left_Sidebar_Active_grouping(page, unique_number):
     page.wait_for_selector(Fields_and_layouts, state='visible')
     page.click(Fields_and_layouts)
     li_group = page.locator(Sculptor_settings_Product_sidebar_group_li_count)#convert to locator
-
+    active_is_already_right = page.locator(Sculptor_settings_Product_right_sidebar_contains_active)
+    page.wait_for_selector(Sculptor_settings_Product_sidebar_group_li_count, state='visible')
+    if active_is_already_right.count() == 0:
+        print("Active is not in right sidebar, proceeding with moving it...")
     
-    li_group.first.wait_for(state='visible')#wait for elements to be visible
+        li_group.first.wait_for(state='visible')#wait for elements to be visible
 
 
-    while li_group.count() > 1: #while there are more than 1 element, click and move to left
-        li_group.nth(-1).click()
-        page.click(Sculptor_settings_Product_sidebar_group_move_left)
+        while li_group.count() > 1: #while there are more than 1 element, click and move to left
+            li_group.nth(-1).click()
+            page.click(Sculptor_settings_Product_sidebar_group_move_left)
 
-    page.wait_for_selector(Sculptor_settings_Product_sidebar_group_active, state='visible')
-    page.click(Sculptor_settings_Product_sidebar_group_active) #select avitve
+        page.wait_for_selector(Sculptor_settings_Product_sidebar_group_active, state='visible')
+        page.click(Sculptor_settings_Product_sidebar_group_active) #select avitve
 
-    page.wait_for_selector(Sculptor_settings_Product_sidebar_group_move_right, state='visible')
-    page.click(Sculptor_settings_Product_sidebar_group_move_right)#move active to right
+        page.wait_for_selector(Sculptor_settings_Product_sidebar_group_move_right, state='visible')
+        page.click(Sculptor_settings_Product_sidebar_group_move_right)#move active to right
 
-    page.wait_for_selector(Save_Button, state='visible')
-    page.click(Save_Button)#save
+        page.wait_for_selector(Save_Button, state='visible')
+        page.click(Save_Button)#save
+        print('Save button is clicked')
 
-    page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
-    page.click(Sculptor_settings_Save_Success_message)#check if it is saved
-    print("Active grouping is set successfully")
+        page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+        print("Active grouping is set successfully")
+        active_is_already_right = page.locator(Sculptor_settings_Product_right_sidebar_contains_active)
+
 
     page.wait_for_selector(Bundle_builder_tab, state='visible')
     page.click(Bundle_builder_tab)#go to bundle builder
     print("Bundle Builder tab is opened")
 
+    Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]').nth(0)
+    while Accordions.count() > 0:
+        Accordions.click()
+        Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]').nth(0)
+    page.wait_for_selector(BB_Product_Name_exists, state='visible')
     try:
         if page.locator(BB_Active_exists).is_visible():
             print("Active exists, go on.")
@@ -166,9 +176,6 @@ def Bundle_Left_Sidebar_Active_grouping(page, unique_number):
             page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
             page.click("//span[@title='Standard Price Book']")
             time.sleep(2)
-
-    page.wait_for_selector(BB_Active_exists, state='visible')
-    print('Active exists')
 
     page.wait_for_selector(BB_Active_exists, state='visible')
     print('Active exists')
