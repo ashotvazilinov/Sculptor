@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.env
+
+# IDE/Editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Media and Video
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.mp3
+*.wav
+
+# Other files
+*.zip
+*.rar
+*.exe
+*.iso
+*.tar
+*.gz
+*.log
+
+videos/
+tracing/
+.sfdx/
+Reports/
