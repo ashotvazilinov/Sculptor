@@ -263,9 +263,6 @@ def create_Quote(sf):
         else:
             print("No quotes found")
 
-    
-            
-
 def delete_all_quotes(sf):
     try:
         quotes_query = sf.query("select id, name from sclp__quote__c")
@@ -624,7 +621,7 @@ def Community_Cost_Price_enabling(sf):
         record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
         print(record)
         sf.SCLP__ProductCostPrice__c.update(record['Id'], {
-            'CommunityCostPriceEnabled__c': True
+            'SCLPCE__CommunityCostPriceEnabled__c': True
         })
         print("Updated successfully!")
     except SalesforceError as e:
@@ -687,6 +684,121 @@ def create_test_acc_field(sf):
     print("✅ Поле Test_acc успешно создано на объекте Account!")
     print(f"Результат: {result}")
 
+def create_blocks(sf):
+    try:
+        for i in range(1, 6):
+            sf.SCLP__SculptorPDFTemplateBlock__c.create({
+            'Name': f'another Test Block {i} {timestamp}',
+            'SCLP__IsActive__c': True,
+            'OwnerId': '005RR00000FyXgxYAF'
+            })
+            print(f'Block number {i} is created')
+
+    except SalesforceError as e:
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        for i in range(1, 6):
+            sf.SculptorPDFTemplateBlock__c.create({
+            'Name': f'Test Block {i} {timestamp}',
+            'SCLP__IsActive__c': True,
+            })
+            print(f'Block number {i} is created')
+            
+def create_Pricing_Rule(sf):
+    try:
+        for z in range(1, 102):
+            sf.SCLP__Rule__c.create({
+            'Name': f'{z} Test Rule Number {timestamp}',
+            'SCLP__Active__c': True,
+            'SCLP__ExecutionOrder__c': z
+            })
+            print(f'Rule number {z} is created')
+            name = f'{z} Test Rule Number {timestamp}'
+            rule = sf.query(f"select name, id from SCLP__Rule__c where Name  = '{name}'")['records'][0]
+            ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
+            sf.SCLP__RuleAction__c.create({
+            'Name': 'Make a line absolute discount',
+            'SCLP__Action__c': '=',
+            'SCLP__Calc__c': f"- {z}",
+            'SCLP__Order__c': 1,
+            'SCLP__SourceField__c': 'SCLP__OriginalPrice__c',
+            'SCLP__SourceObject__c': 'QuoteLineItem__c',
+            'SCLP__TargetField__c': 'SCLP__RulePrice__c',
+            'SCLP__TargetObject__c': 'QuoteLineItem__c',
+            'SCLP__Rule__c': 'EDITING',
+            'SCLP__Rule__c': rule['Id'],
+            'SCLP__ExtendedValue__c': ExtendedValue__c_data,
+            'SCLP__Type__c': 'EDITING'
+            }) 
+            print(f'Action for Rule number {z} is created')
+            sf.SCLP__RuleCondition__c.create({
+                'SCLP__Rule__c': rule['Id'],
+                'SCLP__Operator__c': 'CONTAINS',
+                'SCLP__TargetField__c': 'Name',
+                'SCLP__TargetObject__c': 'Account',
+                'SCLP__Type__c': 'FIELD',
+                'SCLP__Value__c': 'partner',
+
+            }) 
+            print(f'Condition for Rule number {z} is created')
+    except SalesforceError as e:
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        for z in range(1, 3):
+            sf.Rule__c.create({
+            'Name': f'{z} Test Rule Number  {timestamp}',
+            'Active__c': True,
+            'ExecutionOrder__c': z
+            })
+            print(f'Rule number {z} is created')
+            name = f'{z} Test Rule Number {timestamp}'
+            rule = sf.query(f"select name, id from Rule__c where Name  = '{name}'")['records'][0]
+            ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
+            sf.RuleAction__c.create({
+            'Name': 'Make a line absolute discount',
+            'Action__c': '=',
+            'Calc__c': f"- {z}",
+            'Order__c': 1,
+            'SourceField__c': 'OriginalPrice__c',
+            'SourceObject__c': 'QuoteLineItem__c',
+            'TargetField__c': 'RulePrice__c',
+            'TargetObject__c': 'QuoteLineItem__c',
+            'Rule__c': 'EDITING',
+            'Rule__c': rule['Id'],
+            'ExtendedValue__c': ExtendedValue__c_data,
+            'Type__c': 'EDITING'
+            }) 
+            print(f'Action for Rule number {z} is created')
+            sf.RuleCondition__c.create({
+                'Rule__c': rule['Id'],
+                'Operator__c': 'CONTAINS',
+                'TargetField__c': 'Name',
+                'TargetObject__c': 'Account',
+                'Type__c': 'FIELD',
+                'Value__c': 'partner',
+
+            }) 
+            print(f'Condition for Rule number {z} is created')
+
+def delete_all_records(sf, x):
+    try:
+        records_query = sf.query(f"select id, name from {x}")
+        while records_query.get('records'):
+            for record in records_query['records']:
+                sobject = getattr(sf, x)
+                sobject.delete(record['Id'])
+                print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
+                records_query = sf.query(f"select id from {x} where isDeleted = false")
+    except SalesforceError as e:
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        records_query = sf.query(f"select id, name from {x}")
+        while records_query.get('records'):
+            for record in records_query['records']:
+                sobject = getattr(sf, x)
+                sobject.delete(record['Id'])
+                print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
+                records_query = sf.query(f"select id from {x} where isDeleted = false")
 
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
@@ -704,11 +816,17 @@ def create_test_acc_field(sf):
 # print('all quotes deleted')
 # delete_bundle(sf)
 # print('Bundle deleted')
-create_bundle(sf)
-print("bundle ended")
-# Community_Cost_Price_enabling(sf)
-# print('Cost Price enabled')
+# create_bundle(sf)
+# print("bundle ended")
+Community_Cost_Price_enabling(sf)
+print('Cost Price enabled')
 # create_multiple_quotes(sf)
 # print('Multiple Quotes created')
 # create_test_acc_field(sf)
 # print('field ended')
+# create_blocks(sf)
+# print('create_blocks ended')
+# create_Pricing_Rule(sf)
+# print('create_Pricing_Rule ended')
+# delete_all_records(sf, 'SCLP__Rule__c')
+# print('all rules deleted')
