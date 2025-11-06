@@ -3,9 +3,9 @@ from datetime import datetime
 
 session_id, instance = SalesforceLogin(
 
-    username='test-cgvyjwv2fuev@example.com', 
-    password='[admufwjcI7jd',
-    security_token='iFSgmj5ero4xMjk5U9PGYHT2',
+    username='test-pfdfy1mxejqp@example.com', 
+    password='dzofYnczo2x!r',
+    security_token='irWXWyzqIL0JKvZRZMvn7M1Bn',
     domain='test' 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
@@ -16,13 +16,11 @@ print("Connected!")
 
 # git push origin HEAD:main
 
+# _ui/system/security/ResetApiTokenEdit
+
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 print(timestamp)
 
-# for element in dir(sf):
-#     if not element.startswith('_'):
-#         if isinstance(getattr(sf, element), str):
-#             print('Poperty Name: {0} ; vale {1}'. format(element, getattr(sf, element)))
 product_qty = 10
 def create_products_and_pricebook_entries(sf):
     for i in range(1, product_qty): 
@@ -34,11 +32,31 @@ def create_products_and_pricebook_entries(sf):
             print(f"Product '{product_name}' already exists. Skip creation.")
             continue
         
-        product = sf.Product2.create({
-            'Name': product_name,
-            'IsActive': True
-        })
-
+        if i != 4:
+            product = sf.Product2.create({
+                'Name': product_name,
+                'IsActive': True,
+                'Description': 'This is a test description for Product {i}',
+                'ProductCode': f'TP-{i:03d}'
+            })
+        else:
+            try:
+                product = sf.Product2.create({
+                    'Name': product_name,
+                    'IsActive': True,
+                    'SCLPCE__ManualCostForCommunity__c': True,
+                    'Description': 'This is a test description for Product {i}',
+                    'ProductCode': f'TP-{i:03d}'
+                })
+            except IndexError:
+                print("No SCLP__.")
+                product = sf.Product2.create({
+                    'Name': product_name,
+                    'IsActive': True,
+                    'ManualCostForCommunity__c': True,
+                    'Description': 'This is a test description for Product {i}',
+                    'ProductCode': f'TP-{i:03d}'
+                    })
         # Get standard PB id
         pricebook_id = None
         pricebook_entries = sf.query("SELECT Id, Name FROM Pricebook2 WHERE IsStandard = TRUE")
@@ -283,7 +301,7 @@ def delete_all_quotes(sf):
         
 def create_bundle(sf):
     print('Start Bundle creation')
-    bundle_query_result = sf.query("select name, id from product2 where name like 'Test Bundle created%'")
+    bundle_query_result = sf.query(f"select name, id from product2 where name like 'Test Bundle Created%'")
     if len(bundle_query_result.get('records')) >= 1:
         print('Bundle already created')
     else:
@@ -296,7 +314,7 @@ def create_bundle(sf):
             'RecordTypeId': rt_id,
             'IsActive': 'true'
         })
-        created_bundle_id = sf.query("select name, id from product2 where name like 'Test Bundle created%'")['records'][0]['Id']
+        created_bundle_id = sf.query(f"select name, id from product2 where name = 'Test Bundle Created {timestamp}'")['records'][0]['Id']
         print(f'New ID of bundle is {created_bundle_id}\n Now lets create Features')
         try:
             sf.SCLP__ProductFeature__c.create({
@@ -343,7 +361,7 @@ def create_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 1',
                 'SCLP__HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -397,7 +415,7 @@ def create_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -477,7 +495,7 @@ def create_bundle(sf):
                 'Tip__c': 'Tip test 1',
                 'HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 1'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 1' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -531,7 +549,7 @@ def create_bundle(sf):
                 'Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 6'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 6' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -569,7 +587,7 @@ def delete_bundle(sf):
     print('Start Bundle deletion')
 
     try:
-        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE 'Test Bundle created%' ORDER BY SCLP__Product__r.name DESC")
+        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE 'Test Bundle Created%' ORDER BY SCLP__Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -580,7 +598,7 @@ def delete_bundle(sf):
                 product_name = o['SCLP__Product__r']['Name']
                 print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
-        bundles = sf.query("SELECT Name, Id FROM Product2 WHERE Name LIKE 'Test Bundle created%'")
+        bundles = sf.query(f"select name, id from product2 where name = 'Test Bundle Created {timestamp}'")
         if bundles['records']:
             for b in bundles['records']:
                 try:
@@ -593,7 +611,7 @@ def delete_bundle(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c WHERE Bundle__r.name LIKE 'Test Bundle created%' ORDER BY Product__r.name DESC")
+        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c WHERE Bundle__r.name LIKE 'Test Bundle Created%' ORDER BY Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -604,7 +622,7 @@ def delete_bundle(sf):
                 product_name = o['Product__r']['Name']
                 print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
-        bundles = sf.query("SELECT Name, Id FROM Product2 WHERE Name LIKE 'Test Bundle created%'")
+        bundles = sf.query(f"select name, id from product2 where name = 'Test Bundle Created {timestamp}'")
         if bundles['records']:
             for b in bundles['records']:
                 try:
@@ -618,36 +636,53 @@ def delete_bundle(sf):
 def Community_Cost_Price_enabling(sf):
     print('Now its about Cost Price')
     try:
-        record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
-        print(record)
-        sf.SCLP__ProductCostPrice__c.update(record['Id'], {
-            'SCLPCE__CommunityCostPriceEnabled__c': True
-        })
-        print("Updated successfully!")
+        try:
+            record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
+        
+            print(record)
+            sf.SCLP__ProductCostPrice__c.update(record['Id'], {
+                'SCLPCE__CommunityCostPriceEnabled__c': True
+            })
+            print("Updated successfully!")
+        except IndexError:
+            print("No SCLP__ProductCostPrice__c records found.")
+            sf.SCLP__ProductCostPrice__c.create({
+                'SCLPCE__CommunityCostPriceEnabled__c': True
+            })
+            print("Updated successfully!")
     except SalesforceError as e:
-        "INVALID_TYPE" in str(e)
-        print("no SCLP__")
-        record = sf.query("SELECT Id FROM ProductCostPrice__c LIMIT 1")['records'][0]
-        print(record)
-        sf.ProductCostPrice__c.update(record['Id'], {
-            'CommunityCostPriceEnabled__c': True
-        })
-        print("Updated successfully!")
+        try:
+            record = sf.query("SELECT Id FROM ProductCostPrice__c LIMIT 1")['records'][0]
+        
+            print(record)
+            sf.ProductCostPrice__c.update(record['Id'], {
+                'CommunityCostPriceEnabled__c': True
+            })
+            print("Updated successfully!")
+        except IndexError:
+            print("No ProductCostPrice__c records found.")
+            sf.ProductCostPrice__c.create({
+                'CommunityCostPriceEnabled__c': True
+            })
+            print("Updated successfully!")
 def create_multiple_quotes(sf):
     print('Start creating Multiple Quotes')
     Standard_Price_book_query = sf.query("select name, id from pricebook2 where name = 'Standard Price Book'")['records'][0]
     print(f"pricebook {Standard_Price_book_query['Name']} with id {Standard_Price_book_query['Id']} is found")
     account_query = sf.query("select name, id from account where name like 'test account created %'")['records'][0]
-    # opp = sf.query("select name, id from opportunity where name like 'test opportunity created %'")['records'][0]
+    print(f"account {account_query['Name']} with id {account_query['Id']} is found")
+    opp = sf.query("select name, id from opportunity where name like 'test opportunity created %'")['records'][0]
+    print(f"opportunity {opp['Name']} with id {opp['Id']} is found")    
     print('queries ended')
     try:
+        new_timestamp = timestamp
         for i in range(1, product_qty):
             sf.sclp__quote__c.create({
-                'Name': f'Test Quote Created Number {i} {timestamp}',
-                # 'SCLP__Opportunity__c': opp['Id'],
+                'Name': f'{i} Test Quote Created Number {timestamp}',
+                'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                'OwnerId': '005RR00000FyXgxYAF'
+                'OwnerId': '005QI00000GeYzRYAV'
 
 
                 })
@@ -655,18 +690,17 @@ def create_multiple_quotes(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
+        new_timestamp = timestamp
         for i in range(1, product_qty):
             sf.quote__c.create({
-                'Name': f'Test Quote Created Number {i} {timestamp}',
-                # 'Opportunity__c': opp['Id'],
+                'Name': f'{i} Test Quote Created Number{new_timestamp}',
+                'Opportunity__c': opp['Id'],
                 'Pricebook__c': Standard_Price_book_query['Id'],
                 'Account__c': account_query['Id'],
 
 
                 })
             print(f'Quote number {i} is created')
-
-
 
 def create_test_acc_field(sf):
     field_metadata = {
@@ -688,9 +722,10 @@ def create_blocks(sf):
     try:
         for i in range(1, 6):
             sf.SCLP__SculptorPDFTemplateBlock__c.create({
-            'Name': f'another Test Block {i} {timestamp}',
+            'Name': f'{i} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
-            'OwnerId': '005RR00000FyXgxYAF'
+            'SCLP__Content__c': f'<p>Test Contect for Block {i}</p>',
+            'OwnerId': '005QI00000GeYzRYAV'
             })
             print(f'Block number {i} is created')
 
@@ -699,8 +734,9 @@ def create_blocks(sf):
         print("no SCLP__")
         for i in range(1, 6):
             sf.SculptorPDFTemplateBlock__c.create({
-            'Name': f'Test Block {i} {timestamp}',
+            'Name': f'{i} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
+            'Content__c': f'<p>Test Contect for the Block {i}</p>'
             })
             print(f'Block number {i} is created')
             
@@ -800,33 +836,52 @@ def delete_all_records(sf, x):
                 print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
                 records_query = sf.query(f"select id from {x} where isDeleted = false")
 
+def test(sf):
+    try:
+        record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
+    
+        print(record)
+        sf.SCLP__ProductCostPrice__c.update(record['Id'], {
+            'SCLPCE__CommunityCostPriceEnabled__c': True
+        })
+        print("Updated successfully!")
+    except IndexError:
+        print("No SCLP__ProductCostPrice__c records found.")
+        sf.SCLP__ProductCostPrice__c.create({
+            'SCLPCE__CommunityCostPriceEnabled__c': True
+        })
+        print("Updated successfully!")
+
+
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# # # # delete_test_product_salesforce(sf)
-# # # # print("products deleted")
+# # # # # delete_test_product_salesforce(sf)
+# # # # # print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
 # print('account ended')
 # create_opportunity(sf)
 # print('Opportunity ended')
-# create_Quote(sf)
-# print('Quote ended')
+# # create_Quote(sf)
+# # print('Quote ended')
 # delete_all_quotes(sf)
 # print('all quotes deleted')
 # delete_bundle(sf)
 # print('Bundle deleted')
-# create_bundle(sf)
-# print("bundle ended")
-Community_Cost_Price_enabling(sf)
-print('Cost Price enabled')
+create_bundle(sf)
+print("bundle ended")
+# Community_Cost_Price_enabling(sf)
+# print('Cost Price enabled')
 # create_multiple_quotes(sf)
 # print('Multiple Quotes created')
-# create_test_acc_field(sf)
-# print('field ended')
+# # create_test_acc_field(sf)
+# # print('field ended')
 # create_blocks(sf)
 # print('create_blocks ended')
 # create_Pricing_Rule(sf)
 # print('create_Pricing_Rule ended')
-# delete_all_records(sf, 'SCLP__Rule__c')
-# print('all rules deleted')
+# delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
+# print('all records deleted')
+# test(sf)
+# print('test ended')
