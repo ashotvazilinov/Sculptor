@@ -1,5 +1,6 @@
 from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError
 from datetime import datetime
+import random
 
 session_id, instance = SalesforceLogin(
 
@@ -21,9 +22,1549 @@ print("Connected!")
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 print(timestamp)
 
-product_qty = 10
+RECORDS_QTY = 10
+def permission_set_creation(sf):
+    # 1. Create Permission Set
+    perm_set_data = {
+        "Name": "test_permission_set",
+        "Label": "Test Permission Set",
+        "Description": "Test Permission set created by Python because I can",
+        "LicenseId": None  # if you want to assign a licence, you can fill it
+    }
+
+    result = sf.PermissionSet.create(perm_set_data) #creating perm set
+    permission_set_id = result.get('id') #get Permission Set ID
+    print(f"✅ Permission Set 'test1' is created (Id: {permission_set_id})")
+
+    # 2. Taking active Users
+    users = sf.query("SELECT Id, Name FROM User WHERE IsActive = true and (Email like '%twistellar%' or LastName like '%site%')")['records']
+    print(f"👥 Active Users QTY is: {len(users)}")
+
+    # 3. Assigning permission sets to all users
+    assigned_users = 0
+    not_assigned_users = 0
+    for u in users:
+        try:
+            sf.PermissionSetAssignment.create({
+                "AssigneeId": u["Id"],            # to whom
+                "PermissionSetId": permission_set_id  # what is assigned
+            })
+            print(f"✅ Assigned to User {u['Name']} ({u['Id']})")
+            assigned_users += 1
+        except Exception as e:
+            print(f"⚠️ Error assigning {u['Name']}: {e}")
+            not_assigned_users += 1
+
+    if not_assigned_users == 0:
+        print(f"🎉 {assigned_users} users are assigned Permission Set 'Test Permission Set'")
+    else:
+        print(f"🤢 {not_assigned_users} users are NOT assigned Permission Set 'Test Permission Set'")
+
+def create_fields(sf):
+    try: 
+        object_name = ['Product2', 'SCLP__Quote__c', 'SCLP__QuoteLineItem__c']
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'"
+        ps_result = sf.query(ps_query)
+        permission_set_id = ps_result['records'][0]['Id']
+        print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+        for x in object_name:
+            print(f'Start creating {x} fields')
+
+            
+        #'''autonumber'''
+            try:
+                autonumber_field_metadata = {
+                'FullName': f'{x}.test_auto_number__c',
+                'Metadata': {
+                    'label': 'Test Auto Number',
+                    'type': 'AutoNumber',
+                    'displayFormat': 'Python-{0000}',
+                    'startingNumber': 1,
+                    'description': 'Field created with Python',
+                    # 'updateExistingRecords': True
+                }
+            }
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=autonumber_field_metadata)
+                print(f"✅ AutoNumber field created for {x}!")
+                print(f"Result is: {result}")
+
+                Autonumber_field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_auto_number__c',
+                    'PermissionsRead': True,
+                }
+
+                result = sf.FieldPermissions.create(Autonumber_field_perm_data)
+                print("✅ Auto Number is added for read Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+                #except ind
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Auto Number field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Formula'''
+            try:
+                if x == 'Product2':
+                    formula_field_metadata = {
+                        "FullName": f"{x}.test_formula__c",
+                        "Metadata": {
+                            "label": "Test Formula",
+                            "type": "Number",
+                            "precision": 18,
+                            "scale": 0,
+                            "formula": 'VALUE(RIGHT(Name, LEN(Name) - FIND("Test Product ", Name) - 12))',         
+                            "description": "Number field that shows Test Product's number"
+                        }
+                    }
+                else:
+                    formula_field_metadata = {
+                        "FullName": f"{x}.test_formula__c",
+                        "Metadata": {
+                            "label": "Test Formula",
+                            "type": "Number",
+                            "precision": 18,
+                            "scale": 0,
+                            "formula": '1',        
+                            "description": "just one"
+                            }}
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=formula_field_metadata)
+                print("✅ Formula field created")
+                print(result)
+                formula_field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_formula__c',
+                    'PermissionsRead': True,
+                }
+
+                result = sf.FieldPermissions.create(formula_field_perm_data)
+                print("✅ Formula is added for read Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Formula field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''checkbox'''
+            try:
+                checkbox_field_metadata = {
+                    'FullName': f'{x}.test_checkbox__c',
+                    'Metadata': {
+                        'label': 'Test Checkbox',
+                        'type': 'Checkbox',
+                        'defaultValue': False,
+                        'description': 'Field created with Python'
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=checkbox_field_metadata)
+                print(f"✅ Field checkbox is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_checkbox__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Checkbox is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Checkbox field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Currency'''
+            try:
+                currency_field_metadata = {
+                    'FullName': f'{x}.test_currency__c',
+                    'Metadata': {
+                        "label": "Test Currency",
+                        "type": "Currency",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test currency"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=currency_field_metadata)
+                print(f"✅ Field currency is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_currency__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Currency is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Currency field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Date'''
+            try:
+                Date_field_metadata = {
+                    'FullName': f'{x}.test_Date__c',
+                    'Metadata': {
+                        "label": "Test Date",
+                        "type": "Date",
+                        "description": "Description Test Date"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Date_field_metadata)
+                print(f"✅ Field Date is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Date__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Date is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Date field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise  
+        #'''DateTime'''
+            try:
+                DateTime_field_metadata = {
+                    'FullName': f'{x}.test_DateTime__c',
+                    'Metadata': {
+                        "label": "Test DateTime",
+                        "type": "DateTime",
+                        "description": "Description Test DateTime"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=DateTime_field_metadata)
+                print(f"✅ Field DateTime is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_DateTime__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ DateTime is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Date Time field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Email'''
+            try:
+                Email_field_metadata = {
+                    'FullName': f'{x}.test_Email__c',
+                    'Metadata': {
+                        "label": "Test Email",
+                        "type": "Email",
+                        "description": "Description Test Email",
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Email_field_metadata)
+                print(f"✅ Field Email is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Email__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Email is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Email field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+            
+        #'''Number'''
+            try:
+                Number_field_metadata = {
+                    'FullName': f'{x}.test_Number__c',
+                    'Metadata': {
+                        "label": "Test Number",
+                        "type": "Number",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test Number"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Number_field_metadata)
+                print(f"✅ Field Number is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Number__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Number is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Number field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Percent'''
+            try:
+                Percent_field_metadata = {
+                    'FullName': f'{x}.test_Percent__c',
+                    'Metadata': {
+                        "label": "Test Percent",
+                        "type": "Percent",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test Percent"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Percent_field_metadata)
+                print(f"✅ Field Percent is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Percent__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Percent is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Percent field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Phone'''
+            try:
+                Phone_field_metadata = {
+                    'FullName': f'{x}.test_Phone__c',
+                    'Metadata': {
+                        "label": "Test Phone",
+                        "type": "Phone",
+                        "description": "Description Test Phone"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Phone_field_metadata)
+                print(f"✅ Field Phone is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Phone__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Phone is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Phone field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Picklist'''
+            try:
+                Picklist_field_metadata = {
+                    'FullName': f'{x}.test_Picklist__c',
+                    'Metadata': {
+                        "label": "Test Picklist",
+                        "type": "Picklist",
+                        "description": "Description Test Picklist",
+                        'valueSet': {
+                            'valueSetDefinition': {
+                                'sorted': False,
+                                'value': [
+                                    {'fullName': '1', 'default': False, 'label': '1'},
+                                    {'fullName': '2', 'default': False, 'label': '2'},
+                                    {'fullName': '3', 'default': False, 'label': '3'}
+                                ]
+                            },
+                            'restricted': True
+                        
+                    }
+                }}
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Picklist_field_metadata)
+                print(f"✅ Field Picklist is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Picklist__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Picklist field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Multi Picklist'''
+            try:
+                Multi_Picklist_field_metadata = {
+                    'FullName': f'{x}.test_Multi_Picklist__c',
+                    'Metadata': {
+                        "label": "Test Multi Picklist",
+                        "type": "MultiselectPicklist",
+                        'required': False,
+                        'visibleLines': 5,
+                        "description": "Description Test Multi Picklist",
+                        'valueSet': {
+                            'valueSetDefinition': {
+                                'sorted': False,
+                                'value': [
+                                    {'fullName': 'one', 'default': False, 'label': 'one'},
+                                    {'fullName': 'two', 'default': False, 'label': 'two'},
+                                    {'fullName': 'three', 'default': False, 'label': 'three'}
+                                ]
+                            },
+                            'restricted': True
+                        
+                    }
+                }}
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Multi_Picklist_field_metadata)
+                print(f"✅ Field Multi Picklist is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Multi_Picklist__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Multi Picklist field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text'''
+            try:
+                Text_field_metadata = {
+                    'FullName': f'{x}.test_Text__c',
+                    'Metadata': {
+                        'label': 'Test Text',
+                        'length': 255,
+                        'type': 'Text',
+                        "description": "Description Test Text"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_field_metadata)
+                print(f"✅ Field Text is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area'''
+            try:
+                Text_Area_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area__c',
+                    'Metadata': {
+                        'label': 'Test Text Area',
+                        'type': 'TextArea',
+                        "description": "Description Test Text Area"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_field_metadata)
+                print(f"✅ Field Text Area is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area_Long'''
+            try:
+                Text_Area_Long_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area_Long__c',
+                    'Metadata': {
+                        'label': 'Test Text Area Long',
+                        'type': 'LongTextArea',
+                        'length': 32768,
+                        'visibleLines': 25,
+                        "description": "Description Test Text Area_Long"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_Long_field_metadata)
+                print(f"✅ Field Text Area_Long is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area_Long__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area_Long field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area_Rich'''
+            try:
+                Text_Area_Rich_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area_Rich__c',
+                    'Metadata': {
+                        'label': 'Test Text Area Rich',
+                        'type': 'Html',
+                        'length': 32768,
+                        'visibleLines': 10,
+                        "description": "Description Test Text Area_Rich"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_Rich_field_metadata)
+                print(f"✅ Field Text Area_Rich is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area_Rich__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area_Rich field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Time'''
+            try:
+                Time_field_metadata = {
+                    'FullName': f'{x}.test_Time__c',
+                    'Metadata': {
+                        'label': 'Test Time',
+                        'type': 'Time',
+                        "description": "Description Test Time"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Time_field_metadata)
+                print(f"✅ Field Time is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Time__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Time is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Time field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''URL'''
+            try:
+                URL_field_metadata = {
+                    'FullName': f'{x}.test_URL__c',
+                    'Metadata': {
+                        'label': 'Test URL',
+                        'type': 'Url',
+                        "description": "Description Test URL"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=URL_field_metadata)
+                print(f"✅ Field URL is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_URL__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text URL is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text URL field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+    except SalesforceError as e:
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'"
+        ps_result = sf.query(ps_query)
+        permission_set_id = ps_result['records'][0]['Id']
+        print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+        object_name = ['Product2', 'Quote__c', 'QuoteLineItem__c']
+        for x in object_name:
+            print(f'Start creating {x} fields')
+
+            
+        #'''autonumber'''
+            try:
+                autonumber_field_metadata = {
+                'FullName': f'{x}.test_auto_number__c',
+                'Metadata': {
+                    'label': 'Test Auto Number',
+                    'type': 'AutoNumber',
+                    'displayFormat': 'Python-{0000}',
+                    'startingNumber': 1,
+                    'description': 'Field created with Python',
+                    # 'updateExistingRecords': True
+                }
+            }
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=autonumber_field_metadata)
+                print(f"✅ AutoNumber field created for {x}!")
+                print(f"Result is: {result}")
+
+                Autonumber_field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_auto_number__c',
+                    'PermissionsRead': True,
+                }
+
+                result = sf.FieldPermissions.create(Autonumber_field_perm_data)
+                print("✅ Auto Number is added for read Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+                #except ind
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Auto Number field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Formula'''
+            try:
+                if x == 'Product2':
+                    formula_field_metadata = {
+                        "FullName": f"{x}.test_formula__c",
+                        "Metadata": {
+                            "label": "Test Formula",
+                            "type": "Number",
+                            "precision": 18,
+                            "scale": 0,
+                            "formula": 'VALUE(RIGHT(Name, LEN(Name) - FIND("Test Product ", Name) - 12))',         
+                            "description": "Number field that shows Test Product's number"
+                        }
+                    }
+                else:
+                    formula_field_metadata = {
+                        "FullName": f"{x}.test_formula__c",
+                        "Metadata": {
+                            "label": "Test Formula",
+                            "type": "Number",
+                            "precision": 18,
+                            "scale": 0,
+                            "formula": '1',        
+                            "description": "just one"
+                            }}
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=formula_field_metadata)
+                print("✅ Formula field created")
+                print(result)
+                formula_field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_formula__c',
+                    'PermissionsRead': True,
+                }
+
+                result = sf.FieldPermissions.create(formula_field_perm_data)
+                print("✅ Formula is added for read Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Formula field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''checkbox'''
+            try:
+                checkbox_field_metadata = {
+                    'FullName': f'{x}.test_checkbox__c',
+                    'Metadata': {
+                        'label': 'Test Checkbox',
+                        'type': 'Checkbox',
+                        'defaultValue': False,
+                        'description': 'Field created with Python'
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=checkbox_field_metadata)
+                print(f"✅ Field checkbox is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_checkbox__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Checkbox is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Checkbox field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Currency'''
+            try:
+                currency_field_metadata = {
+                    'FullName': f'{x}.test_currency__c',
+                    'Metadata': {
+                        "label": "Test Currency",
+                        "type": "Currency",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test currency"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=currency_field_metadata)
+                print(f"✅ Field currency is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_currency__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Currency is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Currency field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Date'''
+            try:
+                Date_field_metadata = {
+                    'FullName': f'{x}.test_Date__c',
+                    'Metadata': {
+                        "label": "Test Date",
+                        "type": "Date",
+                        "description": "Description Test Date"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Date_field_metadata)
+                print(f"✅ Field Date is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Date__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Date is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Date field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise  
+        #'''DateTime'''
+            try:
+                DateTime_field_metadata = {
+                    'FullName': f'{x}.test_DateTime__c',
+                    'Metadata': {
+                        "label": "Test DateTime",
+                        "type": "DateTime",
+                        "description": "Description Test DateTime"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=DateTime_field_metadata)
+                print(f"✅ Field DateTime is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_DateTime__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ DateTime is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Date Time field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Email'''
+            try:
+                Email_field_metadata = {
+                    'FullName': f'{x}.test_Email__c',
+                    'Metadata': {
+                        "label": "Test Email",
+                        "type": "Email",
+                        "description": "Description Test Email",
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Email_field_metadata)
+                print(f"✅ Field Email is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Email__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Email is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Email field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+            
+        #'''Number'''
+            try:
+                Number_field_metadata = {
+                    'FullName': f'{x}.test_Number__c',
+                    'Metadata': {
+                        "label": "Test Number",
+                        "type": "Number",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test Number"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Number_field_metadata)
+                print(f"✅ Field Number is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Number__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Number is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Number field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Percent'''
+            try:
+                Percent_field_metadata = {
+                    'FullName': f'{x}.test_Percent__c',
+                    'Metadata': {
+                        "label": "Test Percent",
+                        "type": "Percent",
+                        "precision": 18,
+                        "scale": 2,
+                        "description": "Description Test Percent"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Percent_field_metadata)
+                print(f"✅ Field Percent is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Percent__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Percent is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Percent field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Phone'''
+            try:
+                Phone_field_metadata = {
+                    'FullName': f'{x}.test_Phone__c',
+                    'Metadata': {
+                        "label": "Test Phone",
+                        "type": "Phone",
+                        "description": "Description Test Phone"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Phone_field_metadata)
+                print(f"✅ Field Phone is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Phone__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Phone is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Phone field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Picklist'''
+            try:
+                Picklist_field_metadata = {
+                    'FullName': f'{x}.test_Picklist__c',
+                    'Metadata': {
+                        "label": "Test Picklist",
+                        "type": "Picklist",
+                        "description": "Description Test Picklist",
+                        'valueSet': {
+                            'valueSetDefinition': {
+                                'sorted': False,
+                                'value': [
+                                    {'fullName': '1', 'default': False, 'label': '1'},
+                                    {'fullName': '2', 'default': False, 'label': '2'},
+                                    {'fullName': '3', 'default': False, 'label': '3'}
+                                ]
+                            },
+                            'restricted': True
+                        
+                    }
+                }}
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Picklist_field_metadata)
+                print(f"✅ Field Picklist is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Picklist__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Picklist field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        #'''Multi Picklist'''
+            try:
+                Multi_Picklist_field_metadata = {
+                    'FullName': f'{x}.test_Multi_Picklist__c',
+                    'Metadata': {
+                        "label": "Test Multi Picklist",
+                        "type": "MultiselectPicklist",
+                        'required': False,
+                        'visibleLines': 5,
+                        "description": "Description Test Multi Picklist",
+                        'valueSet': {
+                            'valueSetDefinition': {
+                                'sorted': False,
+                                'value': [
+                                    {'fullName': 'one', 'default': False, 'label': 'one'},
+                                    {'fullName': 'two', 'default': False, 'label': 'two'},
+                                    {'fullName': 'three', 'default': False, 'label': 'three'}
+                                ]
+                            },
+                            'restricted': True
+                        
+                    }
+                }}
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Multi_Picklist_field_metadata)
+                print(f"✅ Field Multi Picklist is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Multi_Picklist__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Multi Picklist field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text'''
+            try:
+                Text_field_metadata = {
+                    'FullName': f'{x}.test_Text__c',
+                    'Metadata': {
+                        'label': 'Test Text',
+                        'length': 255,
+                        'type': 'Text',
+                        "description": "Description Test Text"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_field_metadata)
+                print(f"✅ Field Text is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area'''
+            try:
+                Text_Area_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area__c',
+                    'Metadata': {
+                        'label': 'Test Text Area',
+                        'type': 'TextArea',
+                        "description": "Description Test Text Area"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_field_metadata)
+                print(f"✅ Field Text Area is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area_Long'''
+            try:
+                Text_Area_Long_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area_Long__c',
+                    'Metadata': {
+                        'label': 'Test Text Area Long',
+                        'type': 'LongTextArea',
+                        'length': 32768,
+                        'visibleLines': 25,
+                        "description": "Description Test Text Area_Long"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_Long_field_metadata)
+                print(f"✅ Field Text Area_Long is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area_Long__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area_Long field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Text_Area_Rich'''
+            try:
+                Text_Area_Rich_field_metadata = {
+                    'FullName': f'{x}.test_Text_Area_Rich__c',
+                    'Metadata': {
+                        'label': 'Test Text Area Rich',
+                        'type': 'Html',
+                        'length': 32768,
+                        'visibleLines': 10,
+                        "description": "Description Test Text Area_Rich"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Text_Area_Rich_field_metadata)
+                print(f"✅ Field Text Area_Rich is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Text_Area_Rich__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Area_Rich field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''Time'''
+            try:
+                Time_field_metadata = {
+                    'FullName': f'{x}.test_Time__c',
+                    'Metadata': {
+                        'label': 'Test Time',
+                        'type': 'Time',
+                        "description": "Description Test Time"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Time_field_metadata)
+                print(f"✅ Field Time is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_Time__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text Time is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text Time field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+        #'''URL'''
+            try:
+                URL_field_metadata = {
+                    'FullName': f'{x}.test_URL__c',
+                    'Metadata': {
+                        'label': 'Test URL',
+                        'type': 'Url',
+                        "description": "Description Test URL"
+                    }
+                }
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=URL_field_metadata)
+                print(f"✅ Field URL is created for {x}!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'{x}',
+                    'Field': f'{x}.test_URL__c',
+                    'PermissionsRead': True,
+                    'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Text URL is added for read/edit Permission Set 'Test Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Text URL field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+        
 def create_products_and_pricebook_entries(sf):
-    for i in range(1, product_qty): 
+    for i in range(1, RECORDS_QTY): 
         product_name = f"Test Product {i}"
         existing_product  = sf.query(f"SELECT Id FROM Product2 WHERE Name = '{product_name}'")
         
@@ -37,7 +1578,25 @@ def create_products_and_pricebook_entries(sf):
                 'Name': product_name,
                 'IsActive': True,
                 'Description': 'This is a test description for Product {i}',
-                'ProductCode': f'TP-{i:03d}'
+                'ProductCode': f'TP-{i:03d}',
+                'test_checkbox__c': True,
+                'test_currency__c': i*0.3,
+                'test_Date__c': '1997-10-06',
+                'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
+                'test_Email__c': f'test{i}@test.test',
+                'test_Number__c': i*0.4,
+                'test_Percent__c': i*0.2,
+                'test_Phone__c': 12345678, 
+                'test_Picklist__c': random.randrange(1, 4),
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                'test_Text__c': f'Test Text {i}',
+                'test_Text_Area__c': f'Test Text area {i}',
+                'test_Text_Area_Long__c': f'Test Text Area Long {i}',
+                'test_Text_Area_Rich__c': f'<p>Test text rich {i}</p>',
+                'test_Time__c': '15:16:08.000Z',
+                'test_URL__c': 'youtube.com'
+
+
             })
         else:
             try:
@@ -46,7 +1605,7 @@ def create_products_and_pricebook_entries(sf):
                     'IsActive': True,
                     'SCLPCE__ManualCostForCommunity__c': True,
                     'Description': 'This is a test description for Product {i}',
-                    'ProductCode': f'TP-{i:03d}'
+                    'ProductCode': f'TP-{i:03d}',
                 })
             except IndexError:
                 print("No SCLP__.")
@@ -90,7 +1649,7 @@ def create_products_and_pricebook_entries(sf):
 
 def delete_test_product_salesforce(sf):
     print("Start Product Deleting...")
-    for i in range(1, product_qty):
+    for i in range(1, RECORDS_QTY):
         query = f"SELECT Name, Id FROM Product2 WHERE Name = 'Test Product {i}'"
         results = sf.query(query) 
         while results.get('records'):
@@ -141,13 +1700,16 @@ def create_account(sf):
     if results.get('records') and len(results['records']) > 0:
         print ('test account already exists')
     else:
-        sf.account.create({'Name': f'Test Account created {timestamp}'})
+        sf.account.create({
+            'Name': f'Test Account created {timestamp}',
+            'OwnerId': '005QI00000GeYzRYAV'
+            })
         print('test account is created') 
     sf.contact.create({
         'FirstName': 'Test First Name',
         'LastName': f'Test Last Name Created {timestamp}',
-        'AccountId': sf.query(f"select id from account where name = 'Test Account created {timestamp}'")['records'][0]['Id']    
-        #'Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
+        'AccountId': sf.query(f"select id from account where name = 'Test Account created {timestamp}'")['records'][0]['Id'],
+        'OwnerId': '005QI00000GeYzRYAV'
     })
     print('test contact is created')
     contact_query = f"SELECT Id, FirstName, LastName from Contact where LastName like 'Test Last Name Created {timestamp}'"
@@ -186,7 +1748,8 @@ def create_opportunity(sf):
             'CloseDate': '2025-09-04',
             'StageName': 'Qualification',
             'Pricebook2Id': SPB_id,
-            'AccountId': Acc_id
+            'AccountId': Acc_id,
+            # 'OwnerId': '005QI00000GeYzRYAV'
             })
         print('test opportunity is created')          
 
@@ -299,7 +1862,291 @@ def delete_all_quotes(sf):
                 print(f"Deleted quote with ID: {record['Id']} with name {record['Name']}")
                 quotes_query = sf.query("select id from quote__c where isDeleted = false")
         
-def create_bundle(sf):
+def create_big_bundle(sf):
+    print('Start Bundle creation')
+    bundle_query_result = sf.query(f"select name, id from product2 where name like 'Big Test Bundle Created%'")
+    if len(bundle_query_result.get('records')) >= 1:
+        print('Bundle already created')
+    else:
+        print('bundle to be created')
+        Rt_bundle_in_qurey = sf.query("SELECT Id, Name, SObjectType FROM RecordType WHERE SObjectType = 'Product2' AND Name = 'Product Bundle'")
+        rt_id = Rt_bundle_in_qurey['records'][0]['Id']
+        print(f"Bundle Record Type id is {rt_id}")
+        sf.product2.create({
+            'Name': f'Big Test Bundle Created {timestamp}',
+            'RecordTypeId': rt_id,
+            'IsActive': 'true'
+        })
+        created_bundle_id = sf.query(f"select name, id from product2 where name = 'Big Test Bundle Created {timestamp}'")['records'][0]['Id']
+        print(f'New ID of bundle is {created_bundle_id}\n Now lets create Features')
+        try:
+            sf.SCLP__ProductFeature__c.create({
+                'Name': 'We are number one',
+                'SCLP__HasGroup__c': 'false',
+                'SCLP__Multiple__c': 'true',
+                'SCLP__Order__c': '1',
+                'SCLP__Product__c': created_bundle_id,
+                'SCLP__Required__c': 'false',
+                'SCLP__Tip__c': 'https://www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+            })
+            first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
+            print(f'first feature id is {first_feature_id}')
+            sf.SCLP__ProductFeature__c.create({
+                'Name': 'Number two',
+                'SCLP__HasGroup__c': 'false',
+                'SCLP__Multiple__c': 'false',
+                'SCLP__Order__c': '2',
+                'SCLP__Product__c': created_bundle_id,
+                'SCLP__Required__c': 'true',
+                'SCLP__Tip__c': 'Feature Number two tip'
+            })
+
+            second_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 2 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
+            print(f'second feature id is {second_feature_id}\n Now lets create options')
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+
+
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__DefaultOption__c': 'false',
+                'SCLP__Feature__c': first_feature_id,
+                'SCLP__Order__c': '1',
+                'SCLP__Product__c': product1_id,
+                'SCLP__ChildRequired__c': 'true',
+                'SCLP__Tip__c': 'Tip test 1',
+                'SCLP__HideInQuote__c': True
+            })
+            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            print('Options 1 is created')
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__ChildRequired__c': 'false',
+                'SCLP__DefaultOption__c': 'false',
+                'SCLP__Order__c': '2',
+                'SCLP__Product__c': product2_id,
+                'SCLP__MasterOption__c': option1_id,
+                'SCLP__Tip__c': 'Tip test 2',
+                'SCLP__HideInQuote__c': True
+            })
+            print('Options 2 is created')
+
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Feature__c': first_feature_id,
+                'SCLP__Order__c': '2',
+                'SCLP__Product__c': product3_id,
+                'SCLP__Tip__c': 'Tip test 3'
+            })
+            print('Options 3 is created')
+
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Feature__c': second_feature_id,
+                'SCLP__Order__c': '1',
+                'SCLP__Product__c': product4_id,
+                'SCLP__Tip__c': 'Tip test 4'
+            })
+            print('Options 4 is created')
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Feature__c': second_feature_id,
+                'SCLP__Order__c': '2',
+                'SCLP__Product__c': product5_id,
+                'SCLP__DefaultOption__c': 'true',
+                'SCLP__Tip__c': 'Tip test 5'
+            })
+            print('Options 5 is created')
+
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Order__c': '1',
+                'SCLP__Product__c': product6_id,
+                'SCLP__DefaultOption__c': 'true',
+                'SCLP__Tip__c': 'Tip test 6'
+            })
+            print('option 6 created')
+            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            print('query for 6 worked out')
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Order__c': '1',
+                'SCLP__Product__c': product7_id,
+                'SCLP__DefaultOption__c': 'true',
+                'SCLP__MasterOption__c': option6_id,
+                'SCLP__Tip__c': 'Tip test 7',
+                'SCLP__BundleQuantity__c': ''
+            })
+            print('option 7 created')
+            print('query for 7 worked out')
+            sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Order__c': '2',
+                'SCLP__Product__c': product8_id,
+                'SCLP__DefaultOption__c': 'false',
+                'SCLP__Tip__c': 'Tip test 8'
+            })
+            print('option 8 created')
+            for i in range(9, RECORDS_QTY):
+                sf.SCLP__ProductOption__c.create({
+                'SCLP__BundleQuantity__c': '1',
+                'SCLP__Bundle__c': created_bundle_id,
+                'SCLP__Order__c': i,
+                'SCLP__Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
+                'SCLP__DefaultOption__c': 'false',
+                'SCLP__Tip__c': f'Tip test {i}'
+                })
+                print(f'option {i} created')
+
+        except SalesforceError as e:
+            "INVALID_TYPE" in str(e)
+            print("no SCLP__")
+            sf.ProductFeature__c.create({
+                'Name': 'We are number one',
+                'HasGroup__c': 'false',
+                'Multiple__c': 'true',
+                'Order__c': '1',
+                'Product__c': created_bundle_id,
+                'Required__c': 'false',
+                'Tip__c': 'https://www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+            })
+            first_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 1 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
+            print(f'first feature id is {first_feature_id}')
+            sf.ProductFeature__c.create({
+                'Name': 'Number two',
+                'HasGroup__c': 'false',
+                'Multiple__c': 'false',
+                'Order__c': '2',
+                'Product__c': created_bundle_id,
+                'Required__c': 'true',
+                'Tip__c': 'Feature Number two tip'
+            })
+
+            second_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 2 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
+            print(f'second feature id is {second_feature_id}\n Now lets create options')
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'DefaultOption__c': 'false',
+                'Feature__c': first_feature_id,
+                'Order__c': '1',
+                'Product__c': product1_id,
+                'ChildRequired__c': 'true',
+                'Tip__c': 'Tip test 1',
+                'HideInQuote__c': True
+            })
+            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 1' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            print('Options 1 is created')
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'ChildRequired__c': 'false',
+                'DefaultOption__c': 'false',
+                'Order__c': '2',
+                'Product__c': product2_id,
+                'MasterOption__c': option1_id,
+                'Tip__c': 'Tip test 2',
+                'HideInQuote__c': True
+            })
+            print('Options 2 is created')
+
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Feature__c': first_feature_id,
+                'Order__c': '2',
+                'Product__c': product3_id,
+                'Tip__c': 'Tip test 3'
+            })
+            print('Options 3 is created')
+
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Feature__c': second_feature_id,
+                'Order__c': '1',
+                'Product__c': product4_id,
+                'Tip__c': 'Tip test 4'
+            })
+            print('Options 4 is created')
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Feature__c': second_feature_id,
+                'Order__c': '2',
+                'Product__c': product5_id,
+                'DefaultOption__c': 'true',
+                'Tip__c': 'Tip test 5'
+            })
+            print('Options 5 is created')
+
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Order__c': '1',
+                'Product__c': product6_id,
+                'DefaultOption__c': 'true',
+                'Tip__c': 'Tip test 6'
+            })
+            print('option 6 created')
+            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 6' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            print('query for 6 worked out')
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Order__c': '1',
+                'Product__c': product7_id,
+                'DefaultOption__c': 'true',
+                'MasterOption__c': option6_id,
+                'Tip__c': 'Tip test 7',
+                'BundleQuantity__c': ''
+            })
+            print('option 7 created')
+            print('query for 7 worked out')
+            sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Order__c': '2',
+                'Product__c': product8_id,
+                'DefaultOption__c': 'false',
+                'Tip__c': 'Tip test 8'
+            })
+            print('option 8 created')
+            for i in range(9, RECORDS_QTY):
+                sf.ProductOption__c.create({
+                'BundleQuantity__c': '1',
+                'Bundle__c': created_bundle_id,
+                'Order__c': i,
+                'Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
+                'DefaultOption__c': 'false',
+                'Tip__c': f'Tip test {i}'
+                  })
+                print(f'option {i} created')
+
+def create_normal_bundle(sf):
     print('Start Bundle creation')
     bundle_query_result = sf.query(f"select name, id from product2 where name like 'Test Bundle Created%'")
     if len(bundle_query_result.get('records')) >= 1:
@@ -438,16 +2285,6 @@ def create_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 8'
             })
             print('option 8 created')
-            for i in range(9, product_qty):
-                sf.SCLP__ProductOption__c.create({
-                'SCLP__BundleQuantity__c': '1',
-                'SCLP__Bundle__c': created_bundle_id,
-                'SCLP__Order__c': i,
-                'SCLP__Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
-                'SCLP__DefaultOption__c': 'false',
-                'SCLP__Tip__c': f'Tip test {i}'
-                })
-                print(f'option {i} created')
 
         except SalesforceError as e:
             "INVALID_TYPE" in str(e)
@@ -572,22 +2409,13 @@ def create_bundle(sf):
                 'Tip__c': 'Tip test 8'
             })
             print('option 8 created')
-            for i in range(9, product_qty):
-                sf.ProductOption__c.create({
-                'BundleQuantity__c': '1',
-                'Bundle__c': created_bundle_id,
-                'Order__c': i,
-                'Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
-                'DefaultOption__c': 'false',
-                'Tip__c': f'Tip test {i}'
-                  })
-                print(f'option {i} created')
+
 
 def delete_bundle(sf):
     print('Start Bundle deletion')
 
     try:
-        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE 'Test Bundle Created%' ORDER BY SCLP__Product__r.name DESC")
+        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE '%Test Bundle Created%' ORDER BY SCLP__Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -598,7 +2426,7 @@ def delete_bundle(sf):
                 product_name = o['SCLP__Product__r']['Name']
                 print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
-        bundles = sf.query(f"select name, id from product2 where name = 'Test Bundle Created {timestamp}'")
+        bundles = sf.query(f"select name, id from product2 where name LIKE '%Test Bundle Created%'")
         if bundles['records']:
             for b in bundles['records']:
                 try:
@@ -611,7 +2439,7 @@ def delete_bundle(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c WHERE Bundle__r.name LIKE 'Test Bundle Created%' ORDER BY Product__r.name DESC")
+        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c WHERE Bundle__r.name LIKE '%Test Bundle Created%' ORDER BY Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -622,7 +2450,7 @@ def delete_bundle(sf):
                 product_name = o['Product__r']['Name']
                 print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
-        bundles = sf.query(f"select name, id from product2 where name = 'Test Bundle Created {timestamp}'")
+        bundles = sf.query(f"select name, id from product2 where name LIKE '%Test Bundle Created%'")
         if bundles['records']:
             for b in bundles['records']:
                 try:
@@ -676,13 +2504,30 @@ def create_multiple_quotes(sf):
     print('queries ended')
     try:
         new_timestamp = timestamp
-        for i in range(1, product_qty):
+        for i in range(1, RECORDS_QTY):
             sf.sclp__quote__c.create({
                 'Name': f'{i} Test Quote Created Number {timestamp}',
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                'OwnerId': '005QI00000GeYzRYAV'
+                'OwnerId': '005QI00000GeYzRYAV',
+                'test_checkbox__c': True,
+                'test_currency__c': i*0.3,
+                'test_Date__c': '1997-10-06',
+                'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
+                'test_Email__c': f'test{i}@test.test',
+                'test_Number__c': i*0.4,
+                'test_Percent__c': i*0.2,
+                'test_Phone__c': 12345678, 
+                'test_Picklist__c': random.randrange(1, 4),
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                'test_Text__c': f'Test Text {i}',
+                'test_Text_Area__c': f'Test Text area {i}',
+                'test_Text_Area_Long__c': f'Test Text Area Long {i}',
+                'test_Text_Area_Rich__c': f'<p>Test text rich {i}</p>',
+                'test_Time__c': '15:16:08.000Z',
+                'test_URL__c': 'youtube.com'
+
 
 
                 })
@@ -691,7 +2536,7 @@ def create_multiple_quotes(sf):
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
         new_timestamp = timestamp
-        for i in range(1, product_qty):
+        for i in range(1, RECORDS_QTY):
             sf.quote__c.create({
                 'Name': f'{i} Test Quote Created Number{new_timestamp}',
                 'Opportunity__c': opp['Id'],
@@ -709,14 +2554,29 @@ def create_test_acc_field(sf):
             'label': 'Test acc 3',
             'length': 255,
             'type': 'Text',
-            'description': 'Тестовое поле созданное через Tooling API'
+            'description': 'Test field Tooling API'
         }
     }
     
 
     result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=field_metadata)
-    print("✅ Поле Test_acc успешно создано на объекте Account!")
-    print(f"Результат: {result}")
+    print("✅ Поле Test_acc created on Product!")
+    print(f"Result: {result}")
+    ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test'"
+    ps_result = sf.query(ps_query)
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+    field_perm_data = {
+        'ParentId': permission_set_id,
+        'SobjectType': 'Account',
+        'Field': 'Account.Test_acc__c',
+        'PermissionsRead': True,
+        'PermissionsEdit': True
+    }
+
+    result = sf.FieldPermissions.create(field_perm_data)
+    print("✅ Права на чтение и редактирование добавлены в Permission Set 'test'")
+    print(f"Result: {result}")
 
 def create_blocks(sf):
     try:
@@ -836,23 +2696,16 @@ def delete_all_records(sf, x):
                 print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
                 records_query = sf.query(f"select id from {x} where isDeleted = false")
 
+
 def test(sf):
-    try:
-        record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
-    
-        print(record)
-        sf.SCLP__ProductCostPrice__c.update(record['Id'], {
-            'SCLPCE__CommunityCostPriceEnabled__c': True
-        })
-        print("Updated successfully!")
-    except IndexError:
-        print("No SCLP__ProductCostPrice__c records found.")
-        sf.SCLP__ProductCostPrice__c.create({
-            'SCLPCE__CommunityCostPriceEnabled__c': True
-        })
-        print("Updated successfully!")
+    print('1')
 
 
+
+# permission_set_creation(sf)
+# print('Permission set ended')
+create_fields(sf)
+print('Product fields ended')
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
 # # # # # delete_test_product_salesforce(sf)
@@ -869,14 +2722,16 @@ def test(sf):
 # print('all quotes deleted')
 # delete_bundle(sf)
 # print('Bundle deleted')
-create_bundle(sf)
-print("bundle ended")
+# create_big_bundle(sf)
+# print("big bundle ended")
+# create_normal_bundle(sf)
+# print("normal bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
 # create_multiple_quotes(sf)
 # print('Multiple Quotes created')
-# # create_test_acc_field(sf)
-# # print('field ended')
+# create_test_acc_field(sf)
+# print('field ended')
 # create_blocks(sf)
 # print('create_blocks ended')
 # create_Pricing_Rule(sf)
@@ -884,4 +2739,4 @@ print("bundle ended")
 # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
 # print('all records deleted')
 # test(sf)
-# print('test ended')
+# print('test')
