@@ -4,9 +4,9 @@ import random
 
 session_id, instance = SalesforceLogin(
 
-    username='test-pfdfy1mxejqp@example.com', 
-    password='dzofYnczo2x!r',
-    security_token='irWXWyzqIL0JKvZRZMvn7M1Bn',
+    username='test-267oeptul3ah@example.com', 
+    password='dytminejHo7k!',
+    security_token='PDe3joNiM2Hpj4z06QnOvAnI',
     domain='test' 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
@@ -22,7 +22,7 @@ print("Connected!")
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 print(timestamp)
 
-RECORDS_QTY = 10
+RECORDS_QTY = 200
 def permission_set_creation(sf):
     # 1. Create Permission Set
     perm_set_data = {
@@ -32,8 +32,13 @@ def permission_set_creation(sf):
         "LicenseId": None  # if you want to assign a licence, you can fill it
     }
 
-    result = sf.PermissionSet.create(perm_set_data) #creating perm set
-    permission_set_id = result.get('id') #get Permission Set ID
+    try:
+        result = sf.PermissionSet.create(perm_set_data) #creating perm set
+    except SalesforceError as e:
+        "DUPLICATE_DEVELOPER_NAME" in str(e)
+        print('There is already the Test Permission Set')
+        
+    permission_set_id = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'").get('id') #get Permission Set ID
     print(f"✅ Permission Set 'test1' is created (Id: {permission_set_id})")
 
     # 2. Taking active Users
@@ -1577,9 +1582,9 @@ def create_products_and_pricebook_entries(sf):
             product = sf.Product2.create({
                 'Name': product_name,
                 'IsActive': True,
-                'Description': 'This is a test description for Product {i}',
-                'ProductCode': f'TP-{i:03d}',
-                'test_checkbox__c': True,
+                'Description': f'This is a test description for Product {i}',
+                'ProductCode': f'PythonProduct-{i:03d}',
+                'test_checkbox__c':  random.choice([True, False]),
                 'test_currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
                 'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
@@ -1604,8 +1609,8 @@ def create_products_and_pricebook_entries(sf):
                     'Name': product_name,
                     'IsActive': True,
                     'SCLPCE__ManualCostForCommunity__c': True,
-                    'Description': 'This is a test description for Product {i}',
-                    'ProductCode': f'TP-{i:03d}',
+                    'Description': f'This is a test description for Product {i}',
+                    'ProductCode': f'PythonProduct-{i:03d}',
                 })
             except IndexError:
                 print("No SCLP__.")
@@ -1613,9 +1618,19 @@ def create_products_and_pricebook_entries(sf):
                     'Name': product_name,
                     'IsActive': True,
                     'ManualCostForCommunity__c': True,
-                    'Description': 'This is a test description for Product {i}',
-                    'ProductCode': f'TP-{i:03d}'
+                    'Description': f'This is a test description for Product {i}',
+                    'ProductCode': f'PythonProduct-{i:03d}'
                     })
+            except SalesforceError as e:
+                "INVALID_TYPE" in str(e)
+                print('No such field')
+                product = sf.Product2.create({
+                    'Name': product_name,
+                    'IsActive': True,
+                    'Description': f'This is a test description for Product {i}',
+                    'ProductCode': f'PythonProduct-{i:03d}',
+                })
+
         # Get standard PB id
         pricebook_id = None
         pricebook_entries = sf.query("SELECT Id, Name FROM Pricebook2 WHERE IsStandard = TRUE")
@@ -1702,14 +1717,14 @@ def create_account(sf):
     else:
         sf.account.create({
             'Name': f'Test Account created {timestamp}',
-            'OwnerId': '005QI00000GeYzRYAV'
+            # 'OwnerId': '005QI00000GeYzRYAV'
             })
         print('test account is created') 
     sf.contact.create({
         'FirstName': 'Test First Name',
         'LastName': f'Test Last Name Created {timestamp}',
         'AccountId': sf.query(f"select id from account where name = 'Test Account created {timestamp}'")['records'][0]['Id'],
-        'OwnerId': '005QI00000GeYzRYAV'
+        # 'OwnerId': '005QI00000GeYzRYAV'
     })
     print('test contact is created')
     contact_query = f"SELECT Id, FirstName, LastName from Contact where LastName like 'Test Last Name Created {timestamp}'"
@@ -2510,8 +2525,8 @@ def create_multiple_quotes(sf):
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                'OwnerId': '005QI00000GeYzRYAV',
-                'test_checkbox__c': True,
+                # 'OwnerId': '005QI00000GeYzRYAV',
+                'test_checkbox__c': random.choice([True, False]),
                 'test_currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
                 'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
@@ -2547,36 +2562,6 @@ def create_multiple_quotes(sf):
                 })
             print(f'Quote number {i} is created')
 
-def create_test_acc_field(sf):
-    field_metadata = {
-        'FullName': 'Account.Test_acc__c',
-        'Metadata': {
-            'label': 'Test acc 3',
-            'length': 255,
-            'type': 'Text',
-            'description': 'Test field Tooling API'
-        }
-    }
-    
-
-    result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=field_metadata)
-    print("✅ Поле Test_acc created on Product!")
-    print(f"Result: {result}")
-    ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test'"
-    ps_result = sf.query(ps_query)
-    permission_set_id = ps_result['records'][0]['Id']
-    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
-    field_perm_data = {
-        'ParentId': permission_set_id,
-        'SobjectType': 'Account',
-        'Field': 'Account.Test_acc__c',
-        'PermissionsRead': True,
-        'PermissionsEdit': True
-    }
-
-    result = sf.FieldPermissions.create(field_perm_data)
-    print("✅ Права на чтение и редактирование добавлены в Permission Set 'test'")
-    print(f"Result: {result}")
 
 def create_blocks(sf):
     try:
@@ -2585,7 +2570,7 @@ def create_blocks(sf):
             'Name': f'{i} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
             'SCLP__Content__c': f'<p>Test Contect for Block {i}</p>',
-            'OwnerId': '005QI00000GeYzRYAV'
+            # 'OwnerId': '005QI00000GeYzRYAV'
             })
             print(f'Block number {i} is created')
 
@@ -2605,7 +2590,7 @@ def create_Pricing_Rule(sf):
         for z in range(1, 102):
             sf.SCLP__Rule__c.create({
             'Name': f'{z} Test Rule Number {timestamp}',
-            'SCLP__Active__c': True,
+            'SCLP__Active__c': False,
             'SCLP__ExecutionOrder__c': z
             })
             print(f'Rule number {z} is created')
@@ -2702,40 +2687,38 @@ def test(sf):
 
 
 
-# permission_set_creation(sf)
-# print('Permission set ended')
+permission_set_creation(sf)
+print('Permission set ended')
 create_fields(sf)
 print('Product fields ended')
-# create_products_and_pricebook_entries(sf)
-# print("Product added ended")
+create_products_and_pricebook_entries(sf)
+print("Product added ended")
 # # # # # delete_test_product_salesforce(sf)
 # # # # # print("products deleted")
-# Standard_PriceBook_activation(sf)
-# print('PB ended')
-# create_account(sf)
-# print('account ended')
-# create_opportunity(sf)
-# print('Opportunity ended')
+Standard_PriceBook_activation(sf)
+print('PB ended')
+create_account(sf)
+print('account ended')
+create_opportunity(sf)
+print('Opportunity ended')
 # # create_Quote(sf)
 # # print('Quote ended')
 # delete_all_quotes(sf)
 # print('all quotes deleted')
 # delete_bundle(sf)
 # print('Bundle deleted')
-# create_big_bundle(sf)
-# print("big bundle ended")
-# create_normal_bundle(sf)
-# print("normal bundle ended")
+create_big_bundle(sf)
+print("big bundle ended")
+create_normal_bundle(sf)
+print("normal bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
-# create_multiple_quotes(sf)
-# print('Multiple Quotes created')
-# create_test_acc_field(sf)
-# print('field ended')
-# create_blocks(sf)
-# print('create_blocks ended')
-# create_Pricing_Rule(sf)
-# print('create_Pricing_Rule ended')
+create_multiple_quotes(sf)
+print('Multiple Quotes created')
+create_blocks(sf)
+print('create_blocks ended')
+create_Pricing_Rule(sf)
+print('create_Pricing_Rule ended')
 # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
 # print('all records deleted')
 # test(sf)
