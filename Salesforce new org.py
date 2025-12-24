@@ -5,9 +5,9 @@ import time
 
 session_id, instance = SalesforceLogin(
 
-    username='test-oao9rjwwndxa@example.com', 
-    password='*yji1yciZathj',
-    security_token='6cBIEw1PIqZSjkHQY7gp4Cun',
+    username='test-hes5dcrdriwo@example.com', 
+    password='&oo6Acjtlwrsj',
+    security_token='QEKPsQTmTVBg8lGPsIcSPTg6',
     domain='test' 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
@@ -20,16 +20,20 @@ print("Connected!")
 
 # _ui/system/security/ResetApiTokenEdit
 
+#setup - user interface - Enable SOAP API login()
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+timestamp_for_SF_date = datetime.now().strftime("%Y-%m-%d")
+timestamp_for_SF_date_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000+0000")
+timestamp_for_SF_time = datetime.now().strftime("%H:%M:%S.000Z")
 print(timestamp)
 
 RECORDS_QTY = 200
 def permission_set_creation(sf):
     # 1. Create Permission Set
     perm_set_data = {
-        "Name": "test_permission_set",
-        "Label": "Test Permission Set",
-        "Description": "Test Permission set created by Python because I can",
+        "Name": "test_sculptor_permission_set",
+        "Label": "Test Sculptor Permission Set",
+        "Description": "Test Sculptor Permission Set created by Python because I can",
         "LicenseId": None  # if you want to assign a licence, you can fill it
     }
 
@@ -38,15 +42,15 @@ def permission_set_creation(sf):
         print('Permission Set is created')
     except SalesforceError as e:
         "DUPLICATE_DEVELOPER_NAME" in str(e)
-        print('There is already the Test Permission Set')
+        print('There is already the Test Sculptor Permission Set')
         
-    permission_set_id = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'")["records"][0]["Id"] #get Permission Set ID
-    # print(sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'"))
+    permission_set_id = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")["records"][0]["Id"] #get Permission Set ID
+    # print(sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"))
     if permission_set_id == None:
         print('No Permission Set Id is taken')
         raise
     else:
-        print(f"✅ Permission Set 'Test Permission Set' is created (Id: {permission_set_id})")
+        print(f"✅ Permission Set 'Test Sculptor Permission Set' is created (Id: {permission_set_id})")
 
     # 2. Taking active Users
     users = sf.query("SELECT Id, Name FROM User WHERE IsActive = true and (Email like '%twistellar%' or LastName like '%site%')")['records']
@@ -68,14 +72,14 @@ def permission_set_creation(sf):
             not_assigned_users += 1
 
     if not_assigned_users == 0:
-        print(f"🎉 {assigned_users} users are assigned Permission Set 'Test Permission Set'")
+        print(f"🎉 {assigned_users} users are assigned Permission Set 'Test Sculptor Permission Set'")
     else:
-        print(f"🤢 {not_assigned_users} users are NOT assigned Permission Set 'Test Permission Set'")
+        print(f"🤢 {not_assigned_users} users are NOT assigned Permission Set 'Test Sculptor Permission Set'")
 
 def create_fields(sf):
     try: 
         object_name = ['Product2', 'SCLP__Quote__c', 'SCLP__QuoteLineItem__c']
-        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'"
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"
         ps_result = sf.query(ps_query)
         permission_set_id = ps_result['records'][0]['Id']
         print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
@@ -109,7 +113,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(Autonumber_field_perm_data)
-                print("✅ Auto Number is added for read Permission Set 'Test Permission Set'")
+                print("✅ Auto Number is added for read Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
                 #except ind
             except SalesforceError as e:
@@ -160,7 +164,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(formula_field_perm_data)
-                print("✅ Formula is added for read Permission Set 'Test Permission Set'")
+                print("✅ Formula is added for read Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -199,7 +203,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Checkbox is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Checkbox is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -239,7 +243,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Currency is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Currency is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -278,7 +282,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Date is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Date is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -316,7 +320,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ DateTime is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ DateTime is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -355,7 +359,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Email is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Email is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -396,7 +400,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Number is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Number is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -436,7 +440,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Percent is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -475,7 +479,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Phone is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Phone is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -524,7 +528,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -576,7 +580,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -615,7 +619,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -653,7 +657,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -693,7 +697,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -733,7 +737,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -771,7 +775,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Time is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Time is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -809,7 +813,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text URL is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text URL is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -825,7 +829,7 @@ def create_fields(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_permission_set'"
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"
         ps_result = sf.query(ps_query)
         permission_set_id = ps_result['records'][0]['Id']
         print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
@@ -860,7 +864,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(Autonumber_field_perm_data)
-                print("✅ Auto Number is added for read Permission Set 'Test Permission Set'")
+                print("✅ Auto Number is added for read Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
                 #except ind
             except SalesforceError as e:
@@ -911,7 +915,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(formula_field_perm_data)
-                print("✅ Formula is added for read Permission Set 'Test Permission Set'")
+                print("✅ Formula is added for read Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -950,7 +954,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Checkbox is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Checkbox is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -990,7 +994,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Currency is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Currency is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1029,7 +1033,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Date is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Date is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1067,7 +1071,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ DateTime is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ DateTime is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1106,7 +1110,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Email is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Email is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1147,7 +1151,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Number is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Number is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1187,7 +1191,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Percent is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1226,7 +1230,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Phone is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Phone is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1275,7 +1279,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1327,7 +1331,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1366,7 +1370,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1404,7 +1408,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1444,7 +1448,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1484,7 +1488,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1522,7 +1526,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Time is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text Time is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1560,7 +1564,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text URL is added for read/edit Permission Set 'Test Permission Set'")
+                print("✅ Text URL is added for read/edit Permission Set 'Test Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1577,7 +1581,7 @@ def create_fields(sf):
         
 def create_products_and_pricebook_entries(sf):
     for i in range(1, RECORDS_QTY): 
-        product_name = f"Test Product {i}"
+        product_name = f"Test Product {i:03d}"
         existing_product  = sf.query(f"SELECT Id FROM Product2 WHERE Name = '{product_name}'")
         
 
@@ -1587,24 +1591,24 @@ def create_products_and_pricebook_entries(sf):
         
         if i != 4:
             product = sf.Product2.create({
-                'Name': product_name,
+                'Name': f'{product_name} test test test test test test test test test test test test test',
                 'IsActive': True,
-                'Description': f'This is a test description for Product {i}',
+                'Description': f'This is a test description for Product {i:03d}',
                 'ProductCode': f'SO-{i:03d}',
                 'test_checkbox__c':  random.choice([True, False]),
                 'test_currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
                 'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
-                'test_Email__c': f'test{i}@test.test',
+                'test_Email__c': f'test{i:03d}@test.test',
                 'test_Number__c': i*0.4,
                 'test_Percent__c': i*0.2,
                 'test_Phone__c': 12345678, 
                 'test_Picklist__c': random.randrange(1, 4),
                 'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
-                'test_Text__c': f'Test Text {i}', 
-                'test_Text_Area__c': f'Test Text Area {i}',
-                'test_Text_Area_Long__c': f'Test Text Area Long {i}',
-                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i}</p>',
+                'test_Text__c': f'Test Text {i:03d}', 
+                'test_Text_Area__c': f'Test Text Area {i:03d}',
+                'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}',
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>',
                 'test_Time__c': '15:16:08.000Z',
                 'test_URL__c': 'www.youtube.com'
 
@@ -1613,10 +1617,10 @@ def create_products_and_pricebook_entries(sf):
         else:
             try:
                 product = sf.Product2.create({
-                    'Name': product_name,
+                    'Name': f'{product_name} test test test test test test test test test test test test test',
                     'IsActive': True,
                     'SCLPCE__ManualCostForCommunity__c': True,
-                    # 'Description': f'This is a test description for Product {i}',
+                    # 'Description': f'This is a test description for Product {i:03d}',
                     # 'ProductCode': f'SO-{i:03d}',
                 })
             except IndexError:
@@ -1625,16 +1629,16 @@ def create_products_and_pricebook_entries(sf):
                     'Name': product_name,
                     'IsActive': True,
                     'ManualCostForCommunity__c': True,
-                    # 'Description': f'This is a test description for Product {i}',
+                    # 'Description': f'This is a test description for Product {i:03d}',
                     # 'ProductCode': f'SO-{i:03d}'
                     })
             except SalesforceError as e:
                 "INVALID_TYPE" in str(e)
                 print('No such field as ManualCostForCommunity__c')
                 product = sf.Product2.create({
-                    'Name': product_name,
+                    'Name': f'{product_name} test test test test test test test test test test test test test',
                     'IsActive': True,
-                    # 'Description': f'This is a test description for Product {i}',
+                    # 'Description': f'This is a test description for Product {i:03d}',
                     # 'ProductCode': f'SO-{i:03d}',
                 })
 
@@ -1672,7 +1676,7 @@ def create_products_and_pricebook_entries(sf):
 def delete_test_product_salesforce(sf):
     print("Start Product Deleting...")
     for i in range(1, RECORDS_QTY):
-        query = f"SELECT Name, Id FROM Product2 WHERE Name = 'Test Product {i}'"
+        query = f"SELECT Name, Id FROM Product2 WHERE Name = 'Test Product {i:03d}'"
         results = sf.query(query) 
         while results.get('records'):
             for record in results['records']:
@@ -1899,17 +1903,18 @@ def create_big_bundle(sf):
             'RecordTypeId': rt_id,
             'IsActive': 'true'
         })
+        print('Bundle is created')
         created_bundle_id = sf.query(f"select name, id from product2 where name = 'Big Test Bundle Created {timestamp}'")['records'][0]['Id']
         print(f'New ID of bundle is {created_bundle_id}\n Now lets create Features')
         try:
             sf.SCLP__ProductFeature__c.create({
-                'Name': 'We are number one',
+                'Name': 'Feature Number One',
                 'SCLP__HasGroup__c': 'false',
                 'SCLP__Multiple__c': 'true',
                 'SCLP__Order__c': '1',
                 'SCLP__Product__c': created_bundle_id,
                 'SCLP__Required__c': 'false',
-                'SCLP__Tip__c': 'https://www.www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+                'SCLP__Tip__c': 'Feature Number One tip'
             })
             first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'first feature id is {first_feature_id}')
@@ -1925,14 +1930,14 @@ def create_big_bundle(sf):
 
             second_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 2 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'second feature id is {second_feature_id}\n Now lets create options')
-            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
-            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
-            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
-            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
-            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
-            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
-            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 008'")['records'][0]['Id']
 
 
             sf.SCLP__ProductOption__c.create({
@@ -1946,7 +1951,7 @@ def create_big_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 1',
                 'SCLP__HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 001' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -2000,7 +2005,7 @@ def create_big_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 006' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -2028,23 +2033,23 @@ def create_big_bundle(sf):
                 'SCLP__BundleQuantity__c': '1',
                 'SCLP__Bundle__c': created_bundle_id,
                 'SCLP__Order__c': i,
-                'SCLP__Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
+                'SCLP__Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i:03d}'")['records'][0]['Id'],
                 'SCLP__DefaultOption__c': 'false',
-                'SCLP__Tip__c': f'Tip test {i}'
+                'SCLP__Tip__c': f'Tip test {i:03d}'
                 })
-                print(f'option {i} created')
+                print(f'option {i:03d} created')
 
         except SalesforceError as e:
             "INVALID_TYPE" in str(e)
             print("no SCLP__")
             sf.ProductFeature__c.create({
-                'Name': 'We are number one',
+                'Name': 'Feature Number One',
                 'HasGroup__c': 'false',
                 'Multiple__c': 'true',
                 'Order__c': '1',
                 'Product__c': created_bundle_id,
                 'Required__c': 'false',
-                'Tip__c': 'https://www.www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+                'Tip__c': 'Feature Number One tip'
             })
             first_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 1 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'first feature id is {first_feature_id}')
@@ -2060,14 +2065,14 @@ def create_big_bundle(sf):
 
             second_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 2 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'second feature id is {second_feature_id}\n Now lets create options')
-            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
-            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
-            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
-            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
-            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
-            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
-            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 008'")['records'][0]['Id']
 
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2080,7 +2085,7 @@ def create_big_bundle(sf):
                 'Tip__c': 'Tip test 1',
                 'HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 1' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 001' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2134,7 +2139,7 @@ def create_big_bundle(sf):
                 'Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 6' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 006' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2162,11 +2167,11 @@ def create_big_bundle(sf):
                 'BundleQuantity__c': '1',
                 'Bundle__c': created_bundle_id,
                 'Order__c': i,
-                'Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i}'")['records'][0]['Id'],
+                'Product__c':  sf.query(f"select id from product2 where name = 'Test Product {i:03d}'")['records'][0]['Id'],
                 'DefaultOption__c': 'false',
-                'Tip__c': f'Tip test {i}'
+                'Tip__c': f'Tip test {i:03d}'
                   })
-                print(f'option {i} created')
+                print(f'option {i:03d} created')
 
 def create_normal_bundle(sf):
     print('Start Bundle creation')
@@ -2187,13 +2192,13 @@ def create_normal_bundle(sf):
         print(f'New ID of bundle is {created_bundle_id}\n Now lets create Features')
         try:
             sf.SCLP__ProductFeature__c.create({
-                'Name': 'We are number one',
+                'Name': 'Feature Number One',
                 'SCLP__HasGroup__c': 'false',
                 'SCLP__Multiple__c': 'true',
                 'SCLP__Order__c': '1',
                 'SCLP__Product__c': created_bundle_id,
                 'SCLP__Required__c': 'false',
-                'SCLP__Tip__c': 'https://www.www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+                'SCLP__Tip__c': 'Feature Number One tip'
             })
             first_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 1 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'first feature id is {first_feature_id}')
@@ -2209,14 +2214,14 @@ def create_normal_bundle(sf):
 
             second_feature_id = sf.query(f"select id from SCLP__ProductFeature__c where SCLP__Order__c = 2 and SCLP__Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'second feature id is {second_feature_id}\n Now lets create options')
-            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
-            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
-            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
-            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
-            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
-            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
-            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 008'")['records'][0]['Id']
 
 
             sf.SCLP__ProductOption__c.create({
@@ -2230,7 +2235,7 @@ def create_normal_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 1',
                 'SCLP__HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 1' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 001' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -2284,7 +2289,7 @@ def create_normal_bundle(sf):
                 'SCLP__Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 6' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from SCLP__ProductOption__c where SCLP__Product__r.name = 'Test Product 006' and SCLP__Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.SCLP__ProductOption__c.create({
                 'SCLP__BundleQuantity__c': '1',
@@ -2312,13 +2317,13 @@ def create_normal_bundle(sf):
             "INVALID_TYPE" in str(e)
             print("no SCLP__")
             sf.ProductFeature__c.create({
-                'Name': 'We are number one',
+                'Name': 'Feature Number One',
                 'HasGroup__c': 'false',
                 'Multiple__c': 'true',
                 'Order__c': '1',
                 'Product__c': created_bundle_id,
                 'Required__c': 'false',
-                'Tip__c': 'https://www.www.youtube.com/watch?v=PfYnvDL0Qcw&list=RDPfYnvDL0Qcw'
+                'Tip__c': 'Feature Number One tip'
             })
             first_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 1 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'first feature id is {first_feature_id}')
@@ -2334,14 +2339,14 @@ def create_normal_bundle(sf):
 
             second_feature_id = sf.query(f"select id from ProductFeature__c where Order__c = 2 and Product__c = '{created_bundle_id}'")['records'][0]['Id']
             print(f'second feature id is {second_feature_id}\n Now lets create options')
-            product1_id = sf.query(f"select id from product2 where name = 'Test Product 1'")['records'][0]['Id']
-            product2_id = sf.query(f"select id from product2 where name = 'Test Product 2'")['records'][0]['Id']
-            product3_id = sf.query(f"select id from product2 where name = 'Test Product 3'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 4'")['records'][0]['Id']
-            product5_id = sf.query(f"select id from product2 where name = 'Test Product 5'")['records'][0]['Id']
-            product6_id = sf.query(f"select id from product2 where name = 'Test Product 6'")['records'][0]['Id']
-            product7_id = sf.query(f"select id from product2 where name = 'Test Product 7'")['records'][0]['Id']
-            product8_id = sf.query(f"select id from product2 where name = 'Test Product 8'")['records'][0]['Id']
+            product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
+            product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
+            product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
+            product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
+            product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
+            product8_id = sf.query(f"select id from product2 where name = 'Test Product 008'")['records'][0]['Id']
 
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2354,7 +2359,7 @@ def create_normal_bundle(sf):
                 'Tip__c': 'Tip test 1',
                 'HideInQuote__c': True
             })
-            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 1' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option1_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 001' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('Options 1 is created')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2408,7 +2413,7 @@ def create_normal_bundle(sf):
                 'Tip__c': 'Tip test 6'
             })
             print('option 6 created')
-            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 6' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
+            option6_id = sf.query(f"select id from ProductOption__c where Product__r.name = 'Test Product 006' and Bundle__c = '{created_bundle_id}'")['records'][0]['Id']
             print('query for 6 worked out')
             sf.ProductOption__c.create({
                 'BundleQuantity__c': '1',
@@ -2528,92 +2533,92 @@ def create_multiple_quotes(sf):
         new_timestamp = timestamp
         for i in range(1, RECORDS_QTY):
             sf.sclp__quote__c.create({
-                'Name': f'{i} Test Quote Created Number {timestamp}',
+                'Name': f'{i:03d} Test Quote Created Number {timestamp}',
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                # 'OwnerId': '005QI00000GeYzRYAV',
+                # 'OwnerId': '005S800000O5HbwIAF',
                 'test_checkbox__c': random.choice([True, False]),
                 'test_currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
                 'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
-                'test_Email__c': f'test{i}@test.test',
+                'test_Email__c': f'test{i:03d}@test.test',
                 'test_Number__c': i*0.4,
                 'test_Percent__c': i*0.2,
                 'test_Phone__c': 12345678, 
                 'test_Picklist__c': random.randrange(1, 4),
                 'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
-                'test_Text__c': f'Test Text {i}',
-                'test_Text_Area__c': f'Test Text Area {i}',
-                'test_Text_Area_Long__c': f'Test Text Area Long {i}',
-                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i}</p>',
+                'test_Text__c': f'Test Text {i:03d}',
+                'test_Text_Area__c': f'Test Text Area {i:03d}',
+                'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}',
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>',
                 'test_Time__c': '15:16:08.000Z',
                 'test_URL__c': 'www.youtube.com'
 
 
 
                 })
-            print(f'Quote number {i} is created')
+            print(f'Quote number {i:03d} is created')
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
         new_timestamp = timestamp
         for i in range(1, RECORDS_QTY):
             sf.quote__c.create({
-                'Name': f'{i} Test Quote Created Number{new_timestamp}',
+                'Name': f'{i:03d} Test Quote Created Number{new_timestamp}',
                 'Opportunity__c': opp['Id'],
                 'Pricebook__c': Standard_Price_book_query['Id'],
                 'Account__c': account_query['Id'],
 
 
                 })
-            print(f'Quote number {i} is created')
+            print(f'Quote number {i:03d} is created')
 
 
 def create_blocks(sf):
     try:
         for i in range(1, 6):
             sf.SCLP__SculptorPDFTemplateBlock__c.create({
-            'Name': f'{i} Test Block {timestamp}',
+            'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
-            'SCLP__Content__c': f'<p>Test Contect for Block {i}</p>',
+            'SCLP__Content__c': f'<p>Test Contect for Block {i:03d}</p>',
             # 'OwnerId': '005QI00000GeYzRYAV'
             })
-            print(f'Block number {i} is created')
+            print(f'Block number {i:03d} is created')
 
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
         for i in range(1, 6):
             sf.SculptorPDFTemplateBlock__c.create({
-            'Name': f'{i} Test Block {timestamp}',
+            'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
-            'Content__c': f'<p>Test Contect for the Block {i}</p>'
+            'Content__c': f'<p>Test Contect for the Block {i:03d}</p>'
             })
-            print(f'Block number {i} is created')
+            print(f'Block number {i:03d} is created')
             
 def create_Pricing_Rule(sf):
     try:
         for z in range(1, RECORDS_QTY):
             try:
-                sf.query(f"select id from SCLP__Rule__c where name like '{z} Test Rule Number%'")['records'][0]['Id']
-                print(f'Pricing Rule Number {z} already exists')
+                sf.query(f"select id from SCLP__Rule__c where name like '{z:03d} Test Rule Number%'")['records'][0]['Id']
+                print(f'Pricing Rule Number {z:03d} already exists')
 
             except IndexError:
-                print(f'Creating Pricing Rule Number {z}')
+                print(f'Creating Pricing Rule Number {z:03d}')
                 sf.SCLP__Rule__c.create({
-                'Name': f'{z} Test Rule Number {timestamp}',
+                'Name': f'{z:03d} Test Rule Number {timestamp}',
                 'SCLP__Active__c': False,
                 'SCLP__ExecutionOrder__c': z
                 })
-                print(f'Rule number {z} is created')
-                name = f'{z} Test Rule Number {timestamp}'
+                print(f'Rule number {z:03d} is created')
+                name = f'{z:03d} Test Rule Number {timestamp}'
                 rule = sf.query(f"select name, id from SCLP__Rule__c where Name  = '{name}'")['records'][0]
                 ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
                 sf.SCLP__RuleAction__c.create({
                 'Name': 'Make a line absolute discount',
                 'SCLP__Action__c': '=',
-                'SCLP__Calc__c': f"- {z}",
+                'SCLP__Calc__c': f"- {z:03d}",
                 'SCLP__Order__c': 1,
                 'SCLP__SourceField__c': 'SCLP__OriginalPrice__c',
                 'SCLP__SourceObject__c': 'QuoteLineItem__c',
@@ -2625,7 +2630,7 @@ def create_Pricing_Rule(sf):
                 'SCLP__Type__c': 'EDITING',
 
                 }) 
-                print(f'Action for Rule number {z} is created')
+                print(f'Action for Rule number {z:03d} is created')
                 sf.SCLP__RuleCondition__c.create({
                     'SCLP__Rule__c': rule['Id'],
                     'SCLP__Operator__c': 'CONTAINS',
@@ -2636,30 +2641,30 @@ def create_Pricing_Rule(sf):
                     'SCLP__Not__c': False
 
                 }) 
-                print(f'Condition for Rule number {z} is created')
+                print(f'Condition for Rule number {z:03d} is created')
 
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
         try:
-            sf.query(f"select id from Rule__c where name like '{z} Test Rule Number%'")['records'][0]['Id']
-            print(f'Pricing Rule Number {z} already exists')
+            sf.query(f"select id from Rule__c where name like '{z:03d} Test Rule Number%'")['records'][0]['Id']
+            print(f'Pricing Rule Number {z:03d} already exists')
 
         except IndexError:
-            print(f'Creating Pricing Rule Number {z}')
+            print(f'Creating Pricing Rule Number {z:03d}')
             sf.Rule__c.create({
-            'Name': f'{z} Test Rule Number {timestamp}',
+            'Name': f'{z:03d} Test Rule Number {timestamp}',
             'Active__c': False,
             'ExecutionOrder__c': z
             })
-            print(f'Rule number {z} is created')
-            name = f'{z} Test Rule Number {timestamp}'
+            print(f'Rule number {z:03d} is created')
+            name = f'{z:03d} Test Rule Number {timestamp}'
             rule = sf.query(f"select name, id from Rule__c where Name  = '{name}'")['records'][0]
             ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
             sf.RuleAction__c.create({
             'Name': 'Make a line absolute discount',
             'Action__c': '=',
-            'Calc__c': f"- {z}",
+            'Calc__c': f"- {z:03d}",
             'Order__c': 1,
             'SourceField__c': 'OriginalPrice__c',
             'SourceObject__c': 'QuoteLineItem__c',
@@ -2671,7 +2676,7 @@ def create_Pricing_Rule(sf):
             'Type__c': 'EDITING',
 
             }) 
-            print(f'Action for Rule number {z} is created')
+            print(f'Action for Rule number {z:03d} is created')
             sf.RuleCondition__c.create({
                 'Rule__c': rule['Id'],
                 'Operator__c': 'CONTAINS',
@@ -2682,7 +2687,7 @@ def create_Pricing_Rule(sf):
                 'Not__c': False
 
             }) 
-            print(f'Condition for Rule number {z} is created')
+            print(f'Condition for Rule number {z:03d} is created')
 def delete_all_records(sf, x):
     try:
         records_query = sf.query(f"select id, name from {x}")
@@ -2715,8 +2720,8 @@ def test(sf):
 # print('Product fields ended')
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# # # # # # delete_test_product_salesforce(sf)
-# # # # # # print("products deleted")
+# # # # # # # # delete_test_product_salesforce(sf)
+# # # # # # # # print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
@@ -2725,23 +2730,23 @@ def test(sf):
 # print('Opportunity ended')
 # # # create_Quote(sf)
 # # # print('Quote ended')
-# # delete_all_quotes(sf)
-# # print('all quotes deleted')
+# delete_all_quotes(sf)
+# print('all quotes deleted')
 # # delete_bundle(sf)
 # # print('Bundle deleted')
 # create_big_bundle(sf)
 # print("big bundle ended")
 # create_normal_bundle(sf)
 # print("normal bundle ended")
-# # Community_Cost_Price_enabling(sf)
-# # print('Cost Price enabled')
-# create_multiple_quotes(sf)
-# print('Multiple Quotes created')
-# create_blocks(sf)
-# print('create_blocks ended')
-# create_Pricing_Rule(sf)
-# print('create_Pricing_Rule ended')
+# Community_Cost_Price_enabling(sf)
+# print('Cost Price enabled')
+create_multiple_quotes(sf)
+print('Multiple Quotes created')
+create_blocks(sf)
+print('create_blocks ended')
+create_Pricing_Rule(sf)
+print('create_Pricing_Rule ended')
 # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
 # print('all records deleted')
-test(sf)
-print('test')
+# test(sf)
+# print('test')

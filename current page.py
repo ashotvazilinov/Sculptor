@@ -27,49 +27,7 @@ def run_current_tasks(unique_number: int = 33):
         page = context.pages[0]  # Taking the first tab
         '''write here'''
 
-        old_count = len(page.query_selector_all("//*[contains(text(), 'Пост удалён')]"))
-        print(f"Начальное количество: {old_count}")
-        page.wait_for_selector(f"(//button[contains(@class, 'vkuiIconButton__host')])[{4}]", timeout=5000).hover()
-        page.wait_for_selector("//span[contains(text(), 'Удалить')]", timeout=5000).click()
-        print("Удаление выполнено")
 
-        x = 0
-        y = 0
-        while True:  # Бесконечный цикл
-            print(f"=== Постов удалено {y} ===")
-            y = y + 1
-            if x == 7:
-                print("Обновление страницы...")
-                page.reload()
-                time.sleep(2)
-                page.wait_for_selector(f"(//button[contains(@class, 'vkuiIconButton__host')])[{4}]", timeout=5000).hover()
-
-                print("Страница обновлена, продолжаем...")
-                x = 0
-                page.evaluate("window.scrollBy(0, 3)") 
-                print(f'теперь x = {x}')
-                old_count = len(page.query_selector_all("//*[contains(text(), 'Пост удалён')]"))
-
-                continue
-            
-            while x > 0:
-                new_count = len(page.query_selector_all("//*[contains(text(), 'Пост удалён')]"))
-                
-                if new_count == old_count + 1:
-                    print(f"Новый пост обнаружен! {old_count} > {new_count}")
-                    old_count = new_count
-                    break
-                else:
-                    print(f"Ожидание... текущее: {new_count}, ожидаем: {old_count + 1}")
-                    page.evaluate("window.scrollBy(0, 3)")                 
-
-            # Выполняем удаление
-
-            page.wait_for_selector(f"(//button[contains(@class, 'vkuiIconButton__host')])[4]", timeout=5000).hover()
-            page.wait_for_selector("//span[contains(text(), 'Удалить')]", timeout=5000).click()
-            print("Удаление выполнено")
-            
-            x += 1
 
 # Start
 if __name__ == "__main__":
