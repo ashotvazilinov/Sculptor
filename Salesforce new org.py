@@ -2,13 +2,20 @@ from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError
 from datetime import datetime
 import random
 import time
+from playwright.sync_api import sync_playwright, expect, Page
+from playwright_utils import *
+
+USERNAME='test-zhzt3gvtkej1@example.com'
+PASSWORD='7)xvxtNbvahls'
+SECURITE_TOKEN='TuSCWUx5kaZthCiN0fjT7z7Ny'
+DOMAIN='test' 
 
 session_id, instance = SalesforceLogin(
 
-    username='test-hes5dcrdriwo@example.com', 
-    password='&oo6Acjtlwrsj',
-    security_token='QEKPsQTmTVBg8lGPsIcSPTg6',
-    domain='test' 
+    username=USERNAME, 
+    password=PASSWORD,
+    security_token=SECURITE_TOKEN,
+    domain=DOMAIN 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
 print("Connected!")
@@ -90,7 +97,7 @@ def create_fields(sf):
         #'''autonumber'''
             try:
                 autonumber_field_metadata = {
-                'FullName': f'{x}.test_auto_number__c',
+                'FullName': f'{x}.test_Auto_Number__c',
                 'Metadata': {
                     'label': 'Test Auto Number',
                     'type': 'AutoNumber',
@@ -108,7 +115,7 @@ def create_fields(sf):
                 Autonumber_field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_auto_number__c',
+                    'Field': f'{x}.test_Auto_Number__c',
                     'PermissionsRead': True,
                 }
 
@@ -131,7 +138,7 @@ def create_fields(sf):
             try:
                 if x == 'Product2':
                     formula_field_metadata = {
-                        "FullName": f"{x}.test_formula__c",
+                        "FullName": f"{x}.test_Formula__c",
                         "Metadata": {
                             "label": "Test Formula",
                             "type": "Number",
@@ -143,7 +150,7 @@ def create_fields(sf):
                     }
                 else:
                     formula_field_metadata = {
-                        "FullName": f"{x}.test_formula__c",
+                        "FullName": f"{x}.test_Formula__c",
                         "Metadata": {
                             "label": "Test Formula",
                             "type": "Number",
@@ -159,7 +166,7 @@ def create_fields(sf):
                 formula_field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_formula__c',
+                    'Field': f'{x}.test_Formula__c',
                     'PermissionsRead': True,
                 }
 
@@ -180,7 +187,7 @@ def create_fields(sf):
         #'''checkbox'''
             try:
                 checkbox_field_metadata = {
-                    'FullName': f'{x}.test_checkbox__c',
+                    'FullName': f'{x}.test_Checkbox__c',
                     'Metadata': {
                         'label': 'Test Checkbox',
                         'type': 'Checkbox',
@@ -197,7 +204,7 @@ def create_fields(sf):
                 field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_checkbox__c',
+                    'Field': f'{x}.test_Checkbox__c',
                     'PermissionsRead': True,
                     'PermissionsEdit': True
                 }
@@ -219,7 +226,7 @@ def create_fields(sf):
         #'''Currency'''
             try:
                 currency_field_metadata = {
-                    'FullName': f'{x}.test_currency__c',
+                    'FullName': f'{x}.test_Currency__c',
                     'Metadata': {
                         "label": "Test Currency",
                         "type": "Currency",
@@ -237,7 +244,7 @@ def create_fields(sf):
                 field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_currency__c',
+                    'Field': f'{x}.test_Currency__c',
                     'PermissionsRead': True,
                     'PermissionsEdit': True
                 }
@@ -841,7 +848,7 @@ def create_fields(sf):
         #'''autonumber'''
             try:
                 autonumber_field_metadata = {
-                'FullName': f'{x}.test_auto_number__c',
+                'FullName': f'{x}.test_Auto_Number__c',
                 'Metadata': {
                     'label': 'Test Auto Number',
                     'type': 'AutoNumber',
@@ -859,7 +866,7 @@ def create_fields(sf):
                 Autonumber_field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_auto_number__c',
+                    'Field': f'{x}.test_Auto_Number__c',
                     'PermissionsRead': True,
                 }
 
@@ -882,7 +889,7 @@ def create_fields(sf):
             try:
                 if x == 'Product2':
                     formula_field_metadata = {
-                        "FullName": f"{x}.test_formula__c",
+                        "FullName": f"{x}.test_Formula__c",
                         "Metadata": {
                             "label": "Test Formula",
                             "type": "Number",
@@ -894,7 +901,7 @@ def create_fields(sf):
                     }
                 else:
                     formula_field_metadata = {
-                        "FullName": f"{x}.test_formula__c",
+                        "FullName": f"{x}.test_Formula__c",
                         "Metadata": {
                             "label": "Test Formula",
                             "type": "Number",
@@ -910,7 +917,7 @@ def create_fields(sf):
                 formula_field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_formula__c',
+                    'Field': f'{x}.test_Formula__c',
                     'PermissionsRead': True,
                 }
 
@@ -931,7 +938,7 @@ def create_fields(sf):
         #'''checkbox'''
             try:
                 checkbox_field_metadata = {
-                    'FullName': f'{x}.test_checkbox__c',
+                    'FullName': f'{x}.test_Checkbox__c',
                     'Metadata': {
                         'label': 'Test Checkbox',
                         'type': 'Checkbox',
@@ -948,7 +955,7 @@ def create_fields(sf):
                 field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_checkbox__c',
+                    'Field': f'{x}.test_Checkbox__c',
                     'PermissionsRead': True,
                     'PermissionsEdit': True
                 }
@@ -970,7 +977,7 @@ def create_fields(sf):
         #'''Currency'''
             try:
                 currency_field_metadata = {
-                    'FullName': f'{x}.test_currency__c',
+                    'FullName': f'{x}.test_Currency__c',
                     'Metadata': {
                         "label": "Test Currency",
                         "type": "Currency",
@@ -988,7 +995,7 @@ def create_fields(sf):
                 field_perm_data = {
                     'ParentId': permission_set_id,
                     'SobjectType': f'{x}',
-                    'Field': f'{x}.test_currency__c',
+                    'Field': f'{x}.test_Currency__c',
                     'PermissionsRead': True,
                     'PermissionsEdit': True
                 }
@@ -1591,18 +1598,18 @@ def create_products_and_pricebook_entries(sf):
         
         if i != 4:
             product = sf.Product2.create({
-                'Name': f'{product_name} test test test test test test test test test test test test test',
+                'Name': f'{product_name}',
                 'IsActive': True,
                 'Description': f'This is a test description for Product {i:03d}',
                 'ProductCode': f'SO-{i:03d}',
-                'test_checkbox__c':  random.choice([True, False]),
-                'test_currency__c': i*0.3,
+                'test_Checkbox__c':  random.choice([True, False]),
+                'test_Currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
-                'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
+                'test_DateTime__c': '1997-10-06T18:05:43.000+0000',
                 'test_Email__c': f'test{i:03d}@test.test',
                 'test_Number__c': i*0.4,
                 'test_Percent__c': i*0.2,
-                'test_Phone__c': 12345678, 
+                'test_Phone__c': random.randint(10000000, 99999999), 
                 'test_Picklist__c': random.randrange(1, 4),
                 'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
                 'test_Text__c': f'Test Text {i:03d}', 
@@ -1676,7 +1683,7 @@ def create_products_and_pricebook_entries(sf):
 def delete_test_product_salesforce(sf):
     print("Start Product Deleting...")
     for i in range(1, RECORDS_QTY):
-        query = f"SELECT Name, Id FROM Product2 WHERE Name = 'Test Product {i:03d}'"
+        query = f"SELECT Name, Id FROM Product2 WHERE Name like 'Test Product {i:03d}%'"
         results = sf.query(query) 
         while results.get('records'):
             for record in results['records']:
@@ -1737,9 +1744,9 @@ def create_account(sf):
         'AccountId': sf.query(f"select id from account where name = 'Test Account created {timestamp}'")['records'][0]['Id'],
         # 'OwnerId': '005QI00000GeYzRYAV'
     })
-    print('test contact is created')
+    print('test contant is created')
     contact_query = f"SELECT Id, FirstName, LastName from Contact where LastName like 'Test Last Name Created {timestamp}'"
-    print(f"test contact {sf.query(contact_query)['records'][0]['LastName']} is created")
+    print(f"test contant {sf.query(contact_query)['records'][0]['LastName']} is created")
 def create_opportunity(sf):
     print('Start creating Opportunity')
     Standard_Price_book_query = "select name, id from pricebook2 where name = 'Standard Price Book'"
@@ -1933,7 +1940,7 @@ def create_big_bundle(sf):
             product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
             product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
             product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name like 'Test Product 004%'")['records'][0]['Id']
             product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
             product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
             product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
@@ -2068,7 +2075,7 @@ def create_big_bundle(sf):
             product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
             product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
             product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name like 'Test Product 004%'")['records'][0]['Id']
             product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
             product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
             product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
@@ -2217,7 +2224,7 @@ def create_normal_bundle(sf):
             product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
             product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
             product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name like 'Test Product 004%'")['records'][0]['Id']
             product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
             product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
             product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
@@ -2342,7 +2349,7 @@ def create_normal_bundle(sf):
             product1_id = sf.query(f"select id from product2 where name = 'Test Product 001'")['records'][0]['Id']
             product2_id = sf.query(f"select id from product2 where name = 'Test Product 002'")['records'][0]['Id']
             product3_id = sf.query(f"select id from product2 where name = 'Test Product 003'")['records'][0]['Id']
-            product4_id = sf.query(f"select id from product2 where name = 'Test Product 004'")['records'][0]['Id']
+            product4_id = sf.query(f"select id from product2 where name like 'Test Product 004%'")['records'][0]['Id']
             product5_id = sf.query(f"select id from product2 where name = 'Test Product 005'")['records'][0]['Id']
             product6_id = sf.query(f"select id from product2 where name = 'Test Product 006'")['records'][0]['Id']
             product7_id = sf.query(f"select id from product2 where name = 'Test Product 007'")['records'][0]['Id']
@@ -2533,19 +2540,19 @@ def create_multiple_quotes(sf):
         new_timestamp = timestamp
         for i in range(1, RECORDS_QTY):
             sf.sclp__quote__c.create({
-                'Name': f'{i:03d} Test Quote Created Number {timestamp}',
+                'Name': f'{i:03d} Community Test Quote Created Number {timestamp}',
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                # 'OwnerId': '005S800000O5HbwIAF',
-                'test_checkbox__c': random.choice([True, False]),
-                'test_currency__c': i*0.3,
+                'OwnerId': '005JX00000RPDU3YAP',
+                'test_Checkbox__c': random.choice([True, False]),
+                'test_Currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
-                'test_DateTime__c': '1997-10-06T15:05:43.000+0000',
+                'test_DateTime__c': '1997-10-06T18:18:43.000+0000',
                 'test_Email__c': f'test{i:03d}@test.test',
                 'test_Number__c': i*0.4,
                 'test_Percent__c': i*0.2,
-                'test_Phone__c': 12345678, 
+                'test_Phone__c': random.randint(10000000, 99999999), 
                 'test_Picklist__c': random.randrange(1, 4),
                 'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
                 'test_Text__c': f'Test Text {i:03d}',
@@ -2553,8 +2560,9 @@ def create_multiple_quotes(sf):
                 'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}',
                 'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>',
                 'test_Time__c': '15:16:08.000Z',
-                'test_URL__c': 'www.youtube.com'
-
+                'test_URL__c': 'www.youtube.com',
+                'SCLP__DescriptionHeader__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>",
+                'SCLP__DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
 
 
                 })
@@ -2569,6 +2577,24 @@ def create_multiple_quotes(sf):
                 'Opportunity__c': opp['Id'],
                 'Pricebook__c': Standard_Price_book_query['Id'],
                 'Account__c': account_query['Id'],
+                'test_Checkbox__c': random.choice([True, False]),
+                'test_Currency__c': i*0.3,
+                'test_Date__c': '1997-10-06',
+                'test_DateTime__c': '1997-10-06T18:18:43.000+0000',
+                'test_Email__c': f'test{i:03d}@test.test',
+                'test_Number__c': i*0.4,
+                'test_Percent__c': i*0.2,
+                'test_Phone__c': random.randint(10000000, 99999999), 
+                'test_Picklist__c': random.randrange(1, 4),
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                'test_Text__c': f'Test Text {i:03d}',
+                'test_Text_Area__c': f'Test Text Area {i:03d}',
+                'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}',
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>',
+                'test_Time__c': '15:16:08.000Z',
+                'test_URL__c': 'www.youtube.com',
+                'DescriptionHeader__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>",
+                'DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
 
 
                 })
@@ -2581,8 +2607,29 @@ def create_blocks(sf):
             sf.SCLP__SculptorPDFTemplateBlock__c.create({
             'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
-            'SCLP__Content__c': f'<p>Test Contect for Block {i:03d}</p>',
+            'SCLP__Content__c': (
+                f'<p>Test Contect for Block {i:03d}</p>'
+                '<p>{!test_Auto_Number__c}</p>'
+                '<p>{!test_Checkbox__c}</p>'
+                '<p>{!test_Currency__c}</p>'
+                '<p>{!test_Date__c}</p>'
+                '<p>{!test_DateTime__c}</p>'
+                '<p>{!test_Email__c}</p>'
+                '<p>{!test_formula__c}</p>'
+                '<p>{!test_Multi_Picklist__c}</p>'
+                '<p>{!test_Number__c}</p>'
+                '<p>{!test_Percent__c}</p>'
+                '<p>{!test_Phone__c}</p>'
+                '<p>{!test_Picklist__c}</p>'
+                '<p>{!test_Text__c}</p>'
+                '<p>{!test_Text_Area__c}</p>'
+                '<p>{!test_Text_Area_Long__c}</p>'
+                '<p>{!test_Text_Area_Rich__c}</p>'
+                '<p>{!test_Time__c}</p>'
+                '<p>{!test_URL__c}</p>'
+            )
             # 'OwnerId': '005QI00000GeYzRYAV'
+
             })
             print(f'Block number {i:03d} is created')
 
@@ -2593,7 +2640,27 @@ def create_blocks(sf):
             sf.SculptorPDFTemplateBlock__c.create({
             'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
-            'Content__c': f'<p>Test Contect for the Block {i:03d}</p>'
+            'SCLP__Content__c': (
+                f'<p>Test Contect for Block {i:03d}</p>'
+                '<p>{!test_Auto_Number__c}</p>'
+                '<p>{!test_Checkbox__c}</p>'
+                '<p>{!test_Currency__c}</p>'
+                '<p>{!test_Date__c}</p>'
+                '<p>{!test_DateTime__c}</p>'
+                '<p>{!test_Email__c}</p>'
+                '<p>{!test_formula__c}</p>'
+                '<p>{!test_Multi_Picklist__c}</p>'
+                '<p>{!test_Number__c}</p>'
+                '<p>{!test_Percent__c}</p>'
+                '<p>{!test_Phone__c}</p>'
+                '<p>{!test_Picklist__c}</p>'
+                '<p>{!test_Text__c}</p>'
+                '<p>{!test_Text_Area__c}</p>'
+                '<p>{!test_Text_Area_Long__c}</p>'
+                '<p>{!test_Text_Area_Rich__c}</p>'
+                '<p>{!test_Time__c}</p>'
+                '<p>{!test_URL__c}</p>'
+            )
             })
             print(f'Block number {i:03d} is created')
             
@@ -2712,6 +2779,484 @@ def delete_all_records(sf, x):
 def test(sf):
     print('1')
 
+def Quote_Vat(sf):
+        ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+        permission_set_id = ps_result['records'][0]['Id']
+        print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+
+        print(f'Start creating Vat field for SCLP__Quote__c object')
+        try:
+            Vat_Percent_field_metadata = {
+                'FullName': 'SCLP__Quote__c.VAT_Percent__c',
+                'Metadata': {
+                    "label": "VAT Percent",
+                    "type": "Percent",
+                    "precision": 18,
+                    "scale": 2,
+                    "description": "VAT for taxes"
+                }
+            }
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
+            print(f"✅ Field Percent is created for SCLP__Quote__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.VAT_Percent__c',
+                'PermissionsRead': True,
+                'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Vat is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Vat Percent field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        #Tax amount
+        try:
+            Tax_Amount_field_metadata = {
+            "FullName": "SCLP__Quote__c.Tax_Amount__c",
+            "Metadata": {
+                "label": "Tax Amount",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__TotalAmount__c * VAT_Percent__c',         
+                "description": "Tax Amount for taxes"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_field_metadata)
+            print(f"✅ Tax Amount is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.Tax_Amount__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Tax Amount is added for read Permission Set 'Test Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Tax Amount field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        #Total With Tax
+        try:
+            Total_With_tax_field_metadata = {
+            "FullName": "SCLP__Quote__c.Total_With_Tax__c",
+            "Metadata": {
+                "label": "Total With Tax",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c)',         
+                "description": "Total With Tax for taxes"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.Total_With_Tax__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        print("➡ Creating record inside Custom Settings...")
+#custom settings
+        try:
+            setting_record = {
+                'Name': 'Default',
+                'SCLP__QuoteTaxFieldLabel__c': 'VAT %',
+                'SCLP__QuoteTaxPercentField__c': 'VAT_Percent__c ',
+                'SCLP__QuoteTotalWithTax__c': 'Total_With_Tax__c '
+
+
+            }
+
+            result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
+
+            print("✅ Quote VAT is set")
+            print(result)
+
+        except SalesforceError as e:
+            print(f"❌ Error while creating setting record: {e}")
+            raise
+def QLI_Vat(sf):
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+
+    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
+    #vat percent
+    try:
+        Vat_Percent_field_metadata = {
+            'FullName': 'SCLP__QuoteLineItem__c.VAT_Percent__c',
+            'Metadata': {
+                "label": "VAT Percent",
+                "type": "Percent",
+                "precision": 18,
+                "scale": 2,
+                "description": "VAT for taxes for QLI"
+            }
+        }
+        
+
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
+        print(f"✅ Field Percent is created for SCLP__QuoteLineItem__c!")
+        print(f"Result: {result}")
+
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__QuoteLineItem__c',
+            'Field': f'SCLP__QuoteLineItem__c.VAT_Percent__c',
+            'PermissionsRead': True,
+            'PermissionsEdit': True
+        }
+
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print(f"Result: {result}")
+    except SalesforceError as e:
+        error_text = str(e)
+
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Vat Percent field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
+ #QLI Label
+    try:
+        QLI_Label_field_metadata = {
+            'FullName': 'SCLP__QuoteLineItem__c.QLI_Label__c',
+            'Metadata': {
+                'label': 'QLI Label',
+                'length': 255,
+                'type': 'Text',
+                "description": "Quote Line Item Label for taxes"
+            }
+        }
+        
+
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=QLI_Label_field_metadata)
+        print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
+        print(f"Result: {result}")
+
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__QuoteLineItem__c',
+            'Field': f'SCLP__QuoteLineItem__c.QLI_Label__c',
+            'PermissionsRead': True,
+            'PermissionsEdit': True
+        }
+
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Label is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print(f"Result: {result}")
+    except SalesforceError as e:
+        error_text = str(e)
+
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Label field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
+ #Tax Amount Formula
+    try:
+        Tax_Amount_Formula_field_metadata = {
+        "FullName": "SCLP__QuoteLineItem__c.Tax_Amount_Formula__c",
+        "Metadata": {
+            "label": "Tax Amount Formula",
+            "type": "Currency",
+            "precision": 18,
+            "scale": 2,
+            "formula": 'SCLP__CustomerPrice__c * Vat_Percent__c',         
+            "description": "Tax Amount formula for QLI",
+            "formulaTreatBlanksAs": "BlankAsZero"
+        }}
+        
+        
+
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
+        print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
+        print(f"Result: {result}")
+
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__QuoteLineItem__c',
+            'Field': f'SCLP__QuoteLineItem__c.Tax_Amount_Formula__c',
+            'PermissionsRead': True,
+            # 'PermissionsEdit': True
+        }
+
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Tax Amount formula is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print(f"Result: {result}")
+    except SalesforceError as e:
+        error_text = str(e)
+
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Tax Amount formula field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
+#Total With Tax
+        try:
+            Total_With_tax_field_metadata = {
+            "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
+            "Metadata": {
+                "label": "Total With Tax",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
+                "description": "Total With Tax for taxes"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__QuoteLineItem__c',
+                'Field': f'SCLP__QuoteLineItem__c.Total_With_Tax__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax is added for read Permission Set 'Test Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        print("➡ Creating record inside Custom Settings...")
+#custom settings
+    print("➡ Creating Custom Setting record...")
+
+    setting_record = {
+        'Name': 'Default',
+        'SCLP__LineItemTaxFieldLabel__c': 'QLI VAT',
+        'SCLP__LineItemTaxAmountField__c': 'Tax_Amount__c',
+        'SCLP__LineItemTaxPercentField__c': 'VAT_Percent__c',
+        'SCLP__LineItemTotalWithTax__c': 'Total_With_Tax__c'
+    }
+
+    try:
+        result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
+        print("🆕 Custom Setting created")
+        print(result)
+
+    except SalesforceError as e:
+        err = str(e)
+        print(f"⚠️ Create failed: {err}")
+        print(" 🤔Trying to update...")
+
+        existing = sf.query("SELECT Id FROM SCLP__SculptorTaxSettings__c WHERE Name = 'Default' LIMIT 1")
+
+        if existing['totalSize'] == 0:
+            raise Exception("❌ Record not found to update")
+
+        rec_id = existing['records'][0]['Id']
+
+        sf.SCLP__SculptorTaxSettings__c.update(rec_id, setting_record)
+
+        print("✅ Custom Setting updated")
+#adding to the field set is not possible. We create Rollup summary next step
+
+def test(sf):
+    with sync_playwright() as p:
+    # Connect to the existing browser instance
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context()  # Using the first context
+        page = context.new_page()  # Taking the first tab
+
+        page.goto(config.SITE_URL)
+        username_input = page.locator('input[id="username"]')
+        password_input = page.locator('input[id="password"]')
+        username_input.fill(USERNAME)
+        password_input.fill(PASSWORD)
+        page.press('input[id="password"]', 'Enter')
+
+
+        page.wait_for_selector('button[title="App Launcher"]', state='visible')
+        time.sleep(1)
+        page.click('button[title="App Launcher"]')
+
+        page.fill('input.slds-input[placeholder="Search apps and items..."]', 'Sculptor CPQ')
+        page.wait_for_selector('text="Sculptor CPQ"', state='visible')
+        time.sleep(1)
+        page.click('text="Sculptor CPQ"')
+
+        Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
+        Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
+        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+        Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
+        Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
+        page.wait_for_selector(Sculptor_settings_tab, state='visible')
+        page.click(Sculptor_settings_tab)
+
+        page.wait_for_selector(Fields_and_layouts, state='visible')
+        page.click(Fields_and_layouts)
+        
+        page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
+        page.click(Sculptor_settings_Quote_VAT)
+
+        page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
+        page.click(Sculptor_settings_Quote_VAT_move_right)
+
+        page.wait_for_selector(Save_Button, state='visible')
+        page.click(Save_Button)
+
+        page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+
+        # gear_icon = ("//a[contains(@class,'slds-global-actions__setup')]")
+        # gear_setup = ()
+   
+test(sf)
+
+def testing(sf):
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+
+    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
+
+    try:
+        Tax_Amount_Formula_field_metadata = {
+        "FullName": "SCLP__Quote__c.summary__c",
+        "Metadata": {
+            "label": "Summary",
+            "type": "Summary",
+            "summaryForeignKey": "SCLP__QuoteLineItem__c.SCLP__Quote__c",
+            "description": "123",
+            "summarizedField" : "SCLP__QuoteLineItem__c.SCLP__CustomerPrice__c",
+            "summaryOperation": "SUM"
+        }}
+        
+        
+
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
+        print(f"✅ Rollup is created for SCLP__QuoteLineItem__c!")
+        print(f"Result: {result}")
+
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__QuoteLineItem__c',
+            'Field': f'SCLP__QuoteLineItem__c.summary__c',
+            'PermissionsRead': True,
+            # 'PermissionsEdit': True
+        }
+
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Rollup is added for read Permission Set 'Test Sculptor Permission Set'")
+        print(f"Result: {result}")
+    except SalesforceError as e:
+        error_text = str(e)
+
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Rollup field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
+       
+
+# testing(sf)
+
+def test2(sf):
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f" Found Permission Set 'test' (Id: {permission_set_id})")
+
+    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
+
+    Tax_Amount_Formula_field_metadata = {
+        'FullName': 'SCLP__QuoteLineItem__c.SCLP__QuoteBuilderLineItemFields',
+        'Metadata': {
+            'displayedFields': [{
+                'field': 'VAT_Percent__c',
+                'isFieldManaged': False,
+                'isRequired': False
+                }]}}
+
+    result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
+    print(f"✅ Rollup is created for SCLP__QuoteLineItem__c!")
+    print(f"Result: {result}")
+
+# test2(sf)
+
+
+
+
+
 
 
 # permission_set_creation(sf)
@@ -2720,8 +3265,8 @@ def test(sf):
 # print('Product fields ended')
 # create_products_and_pricebook_entries(sf)
 # print("Product added ended")
-# # # # # # # # delete_test_product_salesforce(sf)
-# # # # # # # # print("products deleted")
+# # delete_test_product_salesforce(sf)
+# # print("products deleted")
 # Standard_PriceBook_activation(sf)
 # print('PB ended')
 # create_account(sf)
@@ -2730,8 +3275,8 @@ def test(sf):
 # print('Opportunity ended')
 # # # create_Quote(sf)
 # # # print('Quote ended')
-# delete_all_quotes(sf)
-# print('all quotes deleted')
+# # # delete_all_quotes(sf)
+# # # print('all quotes deleted')
 # # delete_bundle(sf)
 # # print('Bundle deleted')
 # create_big_bundle(sf)
@@ -2740,13 +3285,17 @@ def test(sf):
 # print("normal bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
-create_multiple_quotes(sf)
-print('Multiple Quotes created')
-create_blocks(sf)
-print('create_blocks ended')
-create_Pricing_Rule(sf)
-print('create_Pricing_Rule ended')
-# delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
-# print('all records deleted')
+# create_multiple_quotes(sf)  
+# print('Multiple Quotes created')
+# create_blocks(sf)
+# print('create_blocks ended')
+# create_Pricing_Rule(sf)
+# print('create_Pricing_Rule ended')
+# # # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
+# # # print('all records deleted')
+# Quote_Vat(sf)
+# print('Quote VAT is set')
+# QLI_Vat(sf)
+# print('QLI vat ended')
 # test(sf)
 # print('test')

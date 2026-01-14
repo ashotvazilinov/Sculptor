@@ -16,7 +16,7 @@ from salesforce_utils import *
 # set PWDEBUG=1 && python "D:\vs code\Sculptor\current page.py"
 
 # Automation in Salesforce API
-sf = Salesforce(username=config.LOGIN, password=config.PASSWORD, security_token=config.SECURITY_TOKEN, domain=config.DOMAIN)
+# sf = Salesforce(username=config.LOGIN, password=config.PASSWORD, security_token=config.SECURITY_TOKEN, domain=config.DOMAIN)
 
 # Main function
 def run_current_tasks(unique_number: int = 33):
@@ -26,6 +26,20 @@ def run_current_tasks(unique_number: int = 33):
         context = browser.contexts[0]  # Using the first context
         page = context.pages[0]  # Taking the first tab
         '''write here'''
+
+        gear_icon = ("//a[contains(@class,'slds-global-actions__setup')]")
+        gear_setup = ("//div[contains(@class,'uiMenuList')]//ul//li//a[.//span[text()='Setup']]")
+        object_manager = ("//*[text()='Object Manager']")
+        page.wait_for_selector(gear_icon, state='visible')
+        page.click(gear_icon)
+
+        page.wait_for_selector(gear_setup, state='visible')
+        page.click(gear_setup)
+
+        page.wait_for_selector(object_manager, state='visible')
+        page.click(object_manager)
+
+
 
 
 
