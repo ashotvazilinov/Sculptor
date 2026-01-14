@@ -2,6 +2,6 @@ import random
 
 result = random.choice([True, False])
 if result == False:
-    print("Она никогда не вернется")
+    print("Yes")
 else:
-    print("Она выбирет тебя и вернется")
+    print("No")
