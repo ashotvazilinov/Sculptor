@@ -3105,7 +3105,7 @@ def QLI_Vat(sf):
             else:
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
-        print("➡ Creating record inside Custom Settings...")
+
 #Rollup summary next step
     try:
         Taxes_rollup_field_metadata = {
@@ -3147,6 +3147,89 @@ def QLI_Vat(sf):
         else:
             print(f"⚠️ Unhandled Salesforce error: {error_text}")
             raise
+        #Total With Tax
+        try:
+            Total_With_tax_field_with_rollup_metadata = {
+            "FullName": "SCLP__Quote__c.Total_With_Tax_with_rollup__c",
+            "Metadata": {
+                "label": "Total With Tax with rollup",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
+                "description": "Total With Tax with rollup for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.Total_With_Tax_with_rollup__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax with rollup field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+
+#custom setting update
+    print("➡ Creating Custom Setting record...")
+
+    setting_record = {
+        'Name': 'Default',
+        'SCLP__QuoteTotalWithTax__c': 'Total_With_Tax_with_rollup__c',
+        'SCLP__LineItemTaxFieldLabel__c': 'QLI VAT',
+        'SCLP__LineItemTaxAmountField__c': 'Tax_Amount__c',
+        'SCLP__LineItemTaxPercentField__c': 'VAT_Percent__c',
+        'SCLP__LineItemTotalWithTax__c': 'Total_With_Tax__c'
+    }
+
+    try:
+        result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
+        print("🆕 Custom Setting created")
+        print(result)
+
+    except SalesforceError as e:
+        err = str(e)
+        print(f"⚠ Create failed: {err}")
+        print("➡ Trying to update...")
+
+
+        existing = sf.query("""
+            SELECT Id 
+            FROM SCLP__SculptorTaxSettings__c 
+            WHERE Name = 'Default'
+            LIMIT 1
+        """)
+
+        if existing['totalSize'] == 0:
+            raise Exception("❌ Record not found to update")
+
+        rec_id = existing['records'][0]['Id']
+
+        sf.SCLP__SculptorTaxSettings__c.update(rec_id, setting_record)
+
+        print("♻ Custom Setting updated")
+
+
 #adding VAT to Quote Builder
     with sync_playwright() as p:
     # Connect to the existing browser instance
@@ -3206,13 +3289,6 @@ def QLI_Vat(sf):
    
 
 
-
-
-
-
-
-
-
 # permission_set_creation(sf)
 # print('Permission set ended')
 # create_fields(sf)
@@ -3251,5 +3327,4 @@ Quote_Vat(sf)
 print('Quote VAT is set')
 QLI_Vat(sf)
 print('QLI vat ended')
-# test(sf)
-# print('test')
+
