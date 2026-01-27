@@ -5,9 +5,9 @@ import time
 from playwright.sync_api import sync_playwright, expect, Page
 from playwright_utils import *
 
-USERNAME='test-zhzt3gvtkej1@example.com'
-PASSWORD='7)xvxtNbvahls'
-SECURITE_TOKEN='TuSCWUx5kaZthCiN0fjT7z7Ny'
+USERNAME='test-lt7uiczajpif@example.com'
+PASSWORD='vweLjkrfvb1*r'
+SECURITE_TOKEN='MsLaeKqMmnCXxleSI6pJ2W0GP'
 DOMAIN='test' 
 
 session_id, instance = SalesforceLogin(
@@ -38,9 +38,9 @@ RECORDS_QTY = 200
 def permission_set_creation(sf):
     # 1. Create Permission Set
     perm_set_data = {
-        "Name": "test_sculptor_permission_set",
-        "Label": "Test Sculptor Permission Set",
-        "Description": "Test Sculptor Permission Set created by Python because I can",
+        "Name": "SO_Sculptor_permission_set",
+        "Label": "SO Sculptor Permission Set",
+        "Description": "SO Sculptor Permission Set created with Python because I can",
         "LicenseId": None  # if you want to assign a licence, you can fill it
     }
 
@@ -49,15 +49,15 @@ def permission_set_creation(sf):
         print('Permission Set is created')
     except SalesforceError as e:
         "DUPLICATE_DEVELOPER_NAME" in str(e)
-        print('There is already the Test Sculptor Permission Set')
+        print('There is already the SO Sculptor Permission Set')
         
-    permission_set_id = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")["records"][0]["Id"] #get Permission Set ID
-    # print(sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"))
+    permission_set_id = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")["records"][0]["Id"] #get Permission Set ID
+    # print(sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'"))
     if permission_set_id == None:
         print('No Permission Set Id is taken')
         raise
     else:
-        print(f"✅ Permission Set 'Test Sculptor Permission Set' is created (Id: {permission_set_id})")
+        print(f"✅ Permission Set 'SO Sculptor Permission Set' is created (Id: {permission_set_id})")
 
     # 2. Taking active Users
     users = sf.query("SELECT Id, Name FROM User WHERE IsActive = true and (Email like '%twistellar%' or LastName like '%site%')")['records']
@@ -79,14 +79,14 @@ def permission_set_creation(sf):
             not_assigned_users += 1
 
     if not_assigned_users == 0:
-        print(f"🎉 {assigned_users} users are assigned Permission Set 'Test Sculptor Permission Set'")
+        print(f"🎉 {assigned_users} users are assigned Permission Set 'SO Sculptor Permission Set'")
     else:
-        print(f"🤢 {not_assigned_users} users are NOT assigned Permission Set 'Test Sculptor Permission Set'")
+        print(f"🤢 {not_assigned_users} users are NOT assigned Permission Set 'SO Sculptor Permission Set'")
 
 def create_fields(sf):
     try: 
         object_name = ['Product2', 'SCLP__Quote__c', 'SCLP__QuoteLineItem__c']
-        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'"
         ps_result = sf.query(ps_query)
         permission_set_id = ps_result['records'][0]['Id']
         print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
@@ -120,7 +120,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(Autonumber_field_perm_data)
-                print("✅ Auto Number is added for read Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Auto Number is added for read Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
                 #except ind
             except SalesforceError as e:
@@ -171,7 +171,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(formula_field_perm_data)
-                print("✅ Formula is added for read Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Formula is added for read Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -210,7 +210,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Checkbox is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Checkbox is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -250,7 +250,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Currency is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Currency is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -289,7 +289,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Date is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Date is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -327,7 +327,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ DateTime is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ DateTime is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -366,7 +366,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Email is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Email is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -407,7 +407,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Number is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Number is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -447,7 +447,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -486,7 +486,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Phone is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Phone is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -535,7 +535,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Picklist is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -587,7 +587,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Multi Picklist is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -626,7 +626,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -664,7 +664,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -704,7 +704,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area_Long is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -744,7 +744,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -782,7 +782,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Time is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Time is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -820,7 +820,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text URL is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text URL is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -836,7 +836,7 @@ def create_fields(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'"
+        ps_query = "SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'"
         ps_result = sf.query(ps_query)
         permission_set_id = ps_result['records'][0]['Id']
         print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
@@ -871,7 +871,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(Autonumber_field_perm_data)
-                print("✅ Auto Number is added for read Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Auto Number is added for read Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
                 #except ind
             except SalesforceError as e:
@@ -922,7 +922,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(formula_field_perm_data)
-                print("✅ Formula is added for read Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Formula is added for read Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -961,7 +961,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Checkbox is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Checkbox is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1001,7 +1001,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Currency is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Currency is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1040,7 +1040,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Date is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Date is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1078,7 +1078,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ DateTime is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ DateTime is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1117,7 +1117,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Email is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Email is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1158,7 +1158,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Number is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Number is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1198,7 +1198,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1237,7 +1237,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Phone is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Phone is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1286,7 +1286,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Picklist is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1338,7 +1338,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Multi Picklist is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Multi Picklist is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1377,7 +1377,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1415,7 +1415,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1455,7 +1455,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Long is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area_Long is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1495,7 +1495,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Area_Rich is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Area_Rich is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1533,7 +1533,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text Time is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text Time is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -1571,7 +1571,7 @@ def create_fields(sf):
                 }
 
                 result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Text URL is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+                print("✅ Text URL is added for read/edit Permission Set 'SO Sculptor Permission Set'")
                 print(f"Result: {result}")
             except SalesforceError as e:
                 error_text = str(e)
@@ -2540,11 +2540,11 @@ def create_multiple_quotes(sf):
         new_timestamp = timestamp
         for i in range(1, RECORDS_QTY):
             sf.sclp__quote__c.create({
-                'Name': f'{i:03d} Community Test Quote Created Number {timestamp}',
+                'Name': f'{i:03d} Test Quote Created {timestamp}',
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                'OwnerId': '005JX00000RPDU3YAP',
+                # 'OwnerId': '005QI00000I1svFYAR',
                 'test_Checkbox__c': random.choice([True, False]),
                 'test_Currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
@@ -2573,7 +2573,7 @@ def create_multiple_quotes(sf):
         new_timestamp = timestamp
         for i in range(1, RECORDS_QTY):
             sf.quote__c.create({
-                'Name': f'{i:03d} Test Quote Created Number{new_timestamp}',
+                'Name': f'{i:03d} Test Quote Created {new_timestamp}',
                 'Opportunity__c': opp['Id'],
                 'Pricebook__c': Standard_Price_book_query['Id'],
                 'Account__c': account_query['Id'],
@@ -2780,7 +2780,7 @@ def test(sf):
     print('1')
 
 def Quote_Vat(sf):
-        ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+        ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
         permission_set_id = ps_result['records'][0]['Id']
         print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
 
@@ -2811,7 +2811,7 @@ def Quote_Vat(sf):
             }
 
             result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Vat is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+            print("✅ Vat is added for read/edit Permission Set 'SO Sculptor Permission Set'")
             print(f"Result: {result}")
         except SalesforceError as e:
             error_text = str(e)
@@ -2834,7 +2834,8 @@ def Quote_Vat(sf):
                 "precision": 18,
                 "scale": 2,
                 "formula": 'SCLP__TotalAmount__c * VAT_Percent__c',         
-                "description": "Tax Amount for taxes"
+                "description": "Tax Amount for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
             }}
                     
             
@@ -2852,7 +2853,7 @@ def Quote_Vat(sf):
             }
 
             result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Tax Amount is added for read Permission Set 'Test Sculptor Permission Set'")
+            print("✅ Tax Amount is added for read Permission Set 'SO Sculptor Permission Set'")
             print(f"Result: {result}")
         except SalesforceError as e:
             error_text = str(e)
@@ -2875,7 +2876,8 @@ def Quote_Vat(sf):
                 "precision": 18,
                 "scale": 2,
                 "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c)',         
-                "description": "Total With Tax for taxes"
+                "description": "Total With Tax for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
             }}
                     
             
@@ -2893,7 +2895,7 @@ def Quote_Vat(sf):
             }
 
             result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Total With Tax is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+            print("✅ Total With Tax is added for read/edit Permission Set 'SO Sculptor Permission Set'")
             print(f"Result: {result}")
         except SalesforceError as e:
             error_text = str(e)
@@ -2924,12 +2926,20 @@ def Quote_Vat(sf):
             print(result)
 
         except SalesforceError as e:
-            print(f"❌ Error while creating setting record: {e}")
-            raise
+            error_text = str(e)
+
+            if "DUPLICATE_VALUE" in error_text:
+                print("👌 Custom Setting already exist field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
 def QLI_Vat(sf):
-    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
     permission_set_id = ps_result['records'][0]['Id']
-    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+    print(f"✅ Found Permission Set 'SO_Sculptor_permission_set' (Id: {permission_set_id})")
 
     print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
     #vat percent
@@ -2959,7 +2969,7 @@ def QLI_Vat(sf):
         }
 
         result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Percent is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
         print(f"Result: {result}")
     except SalesforceError as e:
         error_text = str(e)
@@ -2998,7 +3008,7 @@ def QLI_Vat(sf):
         }
 
         result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Label is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print("✅ Label is added for read/edit Permission Set 'SO Sculptor Permission Set'")
         print(f"Result: {result}")
     except SalesforceError as e:
         error_text = str(e)
@@ -3040,7 +3050,7 @@ def QLI_Vat(sf):
         }
 
         result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Tax Amount formula is added for read/edit Permission Set 'Test Sculptor Permission Set'")
+        print("✅ Tax Amount formula is added for read/edit Permission Set 'SO Sculptor Permission Set'")
         print(f"Result: {result}")
     except SalesforceError as e:
         error_text = str(e)
@@ -3063,7 +3073,8 @@ def QLI_Vat(sf):
                 "precision": 18,
                 "scale": 2,
                 "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
-                "description": "Total With Tax for taxes"
+                "description": "Total With Tax for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
             }}
                     
             
@@ -3081,7 +3092,7 @@ def QLI_Vat(sf):
             }
 
             result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Total With Tax is added for read Permission Set 'Test Sculptor Permission Set'")
+            print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
             print(f"Result: {result}")
         except SalesforceError as e:
             error_text = str(e)
@@ -3095,40 +3106,48 @@ def QLI_Vat(sf):
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
         print("➡ Creating record inside Custom Settings...")
-#custom settings
-    print("➡ Creating Custom Setting record...")
-
-    setting_record = {
-        'Name': 'Default',
-        'SCLP__LineItemTaxFieldLabel__c': 'QLI VAT',
-        'SCLP__LineItemTaxAmountField__c': 'Tax_Amount__c',
-        'SCLP__LineItemTaxPercentField__c': 'VAT_Percent__c',
-        'SCLP__LineItemTotalWithTax__c': 'Total_With_Tax__c'
-    }
-
+#Rollup summary next step
     try:
-        result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
-        print("🆕 Custom Setting created")
-        print(result)
+        Taxes_rollup_field_metadata = {
+        "FullName": "SCLP__Quote__c.Total_of_VATs__c",
+        "Metadata": {
+            "label": "Total of VATs",
+            "type": "Summary",
+            "summaryForeignKey": "SCLP__QuoteLineItem__c.SCLP__Quote__c",
+            "description": "Total of vats for taxes",
+            "summarizedField" : "SCLP__QuoteLineItem__c.Total_With_Tax__c",
+            "summaryOperation": "SUM"
+        }}
+        
+        
 
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Taxes_rollup_field_metadata)
+        print(f"✅ Rollup is created for SCLP__Quote__c!")
+        print(f"Result: {result}")
+
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__Quote__c',
+            'Field': f'SCLP__Quote__c.Total_of_VATs__c',
+            'PermissionsRead': True,
+            # 'PermissionsEdit': True
+        }
+
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Rollup is added for read Permission Set 'SO Sculptor Permission Set'")
+        print(f"Result: {result}")
     except SalesforceError as e:
-        err = str(e)
-        print(f"⚠️ Create failed: {err}")
-        print(" 🤔Trying to update...")
+        error_text = str(e)
 
-        existing = sf.query("SELECT Id FROM SCLP__SculptorTaxSettings__c WHERE Name = 'Default' LIMIT 1")
-
-        if existing['totalSize'] == 0:
-            raise Exception("❌ Record not found to update")
-
-        rec_id = existing['records'][0]['Id']
-
-        sf.SCLP__SculptorTaxSettings__c.update(rec_id, setting_record)
-
-        print("✅ Custom Setting updated")
-#adding to the field set is not possible. We create Rollup summary next step
-
-def test(sf):
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Rollup field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
+#adding VAT to Quote Builder
     with sync_playwright() as p:
     # Connect to the existing browser instance
         browser = p.chromium.launch(headless=False)
@@ -3154,8 +3173,12 @@ def test(sf):
 
         Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
         Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
-        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
-        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+        Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+        Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+        
+        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
+        
         Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
         Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
         page.wait_for_selector(Sculptor_settings_tab, state='visible')
@@ -3164,9 +3187,14 @@ def test(sf):
         page.wait_for_selector(Fields_and_layouts, state='visible')
         page.click(Fields_and_layouts)
         
+        page.wait_for_selector(Sculptor_settings_QLI_VAT, state='visible')
+        page.click(Sculptor_settings_QLI_VAT)
+
+        page.wait_for_selector(Sculptor_settings_QLI_VAT_move_right, state='visible')
+        page.click(Sculptor_settings_QLI_VAT_move_right)
+
         page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
         page.click(Sculptor_settings_Quote_VAT)
-
         page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
         page.click(Sculptor_settings_Quote_VAT_move_right)
 
@@ -3175,83 +3203,9 @@ def test(sf):
 
         page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
 
-        # gear_icon = ("//a[contains(@class,'slds-global-actions__setup')]")
-        # gear_setup = ()
    
-test(sf)
 
-def testing(sf):
-    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
-    permission_set_id = ps_result['records'][0]['Id']
-    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
 
-    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
-
-    try:
-        Tax_Amount_Formula_field_metadata = {
-        "FullName": "SCLP__Quote__c.summary__c",
-        "Metadata": {
-            "label": "Summary",
-            "type": "Summary",
-            "summaryForeignKey": "SCLP__QuoteLineItem__c.SCLP__Quote__c",
-            "description": "123",
-            "summarizedField" : "SCLP__QuoteLineItem__c.SCLP__CustomerPrice__c",
-            "summaryOperation": "SUM"
-        }}
-        
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
-        print(f"✅ Rollup is created for SCLP__QuoteLineItem__c!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__QuoteLineItem__c',
-            'Field': f'SCLP__QuoteLineItem__c.summary__c',
-            'PermissionsRead': True,
-            # 'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Rollup is added for read Permission Set 'Test Sculptor Permission Set'")
-        print(f"Result: {result}")
-    except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Rollup field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
-       
-
-# testing(sf)
-
-def test2(sf):
-    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'test_sculptor_permission_set'")
-    permission_set_id = ps_result['records'][0]['Id']
-    print(f" Found Permission Set 'test' (Id: {permission_set_id})")
-
-    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
-
-    Tax_Amount_Formula_field_metadata = {
-        'FullName': 'SCLP__QuoteLineItem__c.SCLP__QuoteBuilderLineItemFields',
-        'Metadata': {
-            'displayedFields': [{
-                'field': 'VAT_Percent__c',
-                'isFieldManaged': False,
-                'isRequired': False
-                }]}}
-
-    result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
-    print(f"✅ Rollup is created for SCLP__QuoteLineItem__c!")
-    print(f"Result: {result}")
-
-# test2(sf)
 
 
 
@@ -3273,12 +3227,12 @@ def test2(sf):
 # print('account ended')
 # create_opportunity(sf)
 # print('Opportunity ended')
-# # # create_Quote(sf)
-# # # print('Quote ended')
-# # # delete_all_quotes(sf)
-# # # print('all quotes deleted')
-# # delete_bundle(sf)
-# # print('Bundle deleted')
+# # create_Quote(sf)
+# # print('Quote ended')
+# # delete_all_quotes(sf)
+# # print('all quotes deleted')
+# delete_bundle(sf)
+# print('Bundle deleted')
 # create_big_bundle(sf)
 # print("big bundle ended")
 # create_normal_bundle(sf)
@@ -3291,11 +3245,11 @@ def test2(sf):
 # print('create_blocks ended')
 # create_Pricing_Rule(sf)
 # print('create_Pricing_Rule ended')
-# # # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
-# # # print('all records deleted')
-# Quote_Vat(sf)
-# print('Quote VAT is set')
-# QLI_Vat(sf)
-# print('QLI vat ended')
+# # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
+# # print('all records deleted')
+Quote_Vat(sf)
+print('Quote VAT is set')
+QLI_Vat(sf)
+print('QLI vat ended')
 # test(sf)
 # print('test')

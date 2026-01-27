@@ -27,17 +27,28 @@ def run_current_tasks(unique_number: int = 33):
         page = context.pages[0]  # Taking the first tab
         '''write here'''
 
-        gear_icon = ("//a[contains(@class,'slds-global-actions__setup')]")
-        gear_setup = ("//div[contains(@class,'uiMenuList')]//ul//li//a[.//span[text()='Setup']]")
-        object_manager = ("//*[text()='Object Manager']")
-        page.wait_for_selector(gear_icon, state='visible')
-        page.click(gear_icon)
 
-        page.wait_for_selector(gear_setup, state='visible')
-        page.click(gear_setup)
+        Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
+        Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
+        Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+        Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+        
+        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
+        
+        Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
+        Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
+        page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
+        page.click(Sculptor_settings_Quote_VAT)
+        page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
+        page.click(Sculptor_settings_Quote_VAT_move_right)
+        
 
-        page.wait_for_selector(object_manager, state='visible')
-        page.click(object_manager)
+        page.wait_for_selector(Save_Button, state='visible')
+        page.click(Save_Button)
+
+        page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+
 
 
 

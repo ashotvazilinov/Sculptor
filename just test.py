@@ -1,7 +1,5 @@
-import random
-
-result = random.choice([True, False])
-if result == False:
-    print("Yes")
+x = 1
+if x:
+    print('Yes')
 else:
-    print("No")
+    print('No')
