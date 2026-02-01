@@ -30,246 +30,290 @@ def Factory_Options_renaming(sf):
 
     Bundle_first_name = ["WWW", "YYY"]
     Bundle_second_name = ["001", "003"]
+    Full_name = ["WWW - 001", "WWW - 002"]
     Old_Feature_Name = "Number two"
-    New_Feature_Name = "New Testing Name"
-    for i in Bundle_first_name:
+    New_Feature_Name = "Testing number two"
+    # for i in Bundle_first_name:
 
-        for x in Bundle_second_name:
+    for x in Full_name:
+        print(f"\n=== Processing bundle mask: {x} ===")
+        bundles = sf.query(
+            f"SELECT Id, Name FROM Product2 WHERE Name like '{x}%' and RecordType.name = 'Product Bundle'"
+        )
 
-            bundles = sf.query(
-                f"SELECT Id, Name FROM Product2 WHERE Name like '{i} - {x}%' and RecordType.name = 'Product Bundle'"
+        for bundle in bundles["records"]:
+
+            bundle_id = bundle["Id"]
+
+            feature_result = sf.query(
+                f"""
+                SELECT Id, Name
+                FROM SCLP__ProductFeature__c
+                WHERE Name LIKE '%{Old_Feature_Name}%'
+                AND SCLP__Product__c = '{bundle_id}'
+                """
             )
 
-            for bundle in bundles["records"]:
+            for feature in feature_result["records"]:
+                sf.SCLP__ProductFeature__c.update(feature["Id"], {'Name': New_Feature_Name})
+            #     new_feature_result = sf.query(
+            #     f"""
+            #     SELECT Id, Name
+            #     FROM SCLP__ProductFeature__c
+            #     WHERE Name LIKE '%Number two%'
+            #     AND SCLP__Product__c = '{bundle_id}'
+            #     """
+            # )
+                # Name_of_new_feature = new_feature_result["records"][0]["Name"]
 
-                bundle_id = bundle["Id"]
-
-                feature_result = sf.query(
-                    f"""
-                    SELECT Id, Name
-                    FROM SCLP__ProductFeature__c
-                    WHERE Name LIKE '%{Old_Feature_Name}%'
-                    AND SCLP__Product__c = '{bundle_id}'
-                    """
-                )
-
-                for feature in feature_result["records"]:
-                    sf.SCLP__ProductFeature__c.update(feature["Id"], {'Name': New_Feature_Name})
-                #     new_feature_result = sf.query(
-                #     f"""
-                #     SELECT Id, Name
-                #     FROM SCLP__ProductFeature__c
-                #     WHERE Name LIKE '%Number two%'
-                #     AND SCLP__Product__c = '{bundle_id}'
-                #     """
-                # )
-                    # Name_of_new_feature = new_feature_result["records"][0]["Name"]
-
-                    # Iteration_order += 1
-                    # print(feature["Id"], feature["Name"], "was and became", Name_of_new_feature,  Iteration_order)
+                # Iteration_order += 1
+                # print(feature["Id"], feature["Name"], "was and became", Name_of_new_feature,  Iteration_order)
 # Factory_Options_renaming(sf)
 def Move_iCommand (sf):
     Bundle_first_name = ["ZZZ", "YYY"]
     Bundle_second_name = ["002", "003"]
+    Full_name = ["WWW - 001", "WWW - 002"]
     Feature_Name_moved_to = "Feature Number One"
     Product_name = "Test Product 004 test test test test test test test test test test test test test"
 
-    for i in Bundle_first_name:
 
-        for x in Bundle_second_name:
-            print(f"\n=== Processing bundle mask: {i} - {x} ===")
+    for x in Full_name:
+        print(f"\n=== Processing bundle mask: {x} ===")
 
-            bundles = sf.query(
-                f"SELECT Id, Name FROM Product2 WHERE Name like '{i} - {x}%' and RecordType.name = 'Product Bundle'"
+        bundles = sf.query(
+            f"SELECT Id, Name FROM Product2 WHERE Name like '{x}%' and RecordType.name = 'Product Bundle'"
+        )
+
+        for bundle in bundles["records"]:
+
+            bundle_id = bundle["Id"] #take bundle id
+            bundle_name = bundle["Name"]
+            print(f"▶ Bundle found: {bundle['Name']} ({bundle_id})")
+            option_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.Name
+                FROM SCLP__ProductOption__c
+                WHERE SCLP__Product__r.name = '{Product_name}'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """
+            ) #take option that needs to be moved
+            if not option_result["records"]:
+                print("❌ Option not found")
+                continue
+            else:
+                option_id = option_result["records"][0]["Id"] #take option's id
+                print(f"✔ Option found: {option_result['records'][0]["SCLP__Product__r"]["Name"]} ({option_id})")
+
+
+            factory_option_feature = sf.query(
+                f"""
+                SELECT Id, SCLP__Feature__c, SCLP__Order__c
+                FROM SCLP__ProductOption__c
+                WHERE SCLP__Feature__r.Name LIKE '%{Feature_Name_moved_to}%'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """
+            ) #take feature's options order and feature id
+            
+            if not factory_option_feature["records"]:
+                continue
+            # max_order_integer = factory_option_feature["records"][0]["SCLP__Order__c"]
+            # print(f'order is {max_order_integer}')
+            feature_id = factory_option_feature["records"][0]["SCLP__Feature__c"]
+            orders = [
+                rec["SCLP__Order__c"]
+                for rec in factory_option_feature["records"]
+                if rec.get("SCLP__Order__c") is not None
+            ] #take max order of options from the feature to move to
+
+            max_order = max(orders) if orders else 0
+            next_order = max_order + 1
+            old_feature_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.Name, SCLP__Feature__c, SCLP__Feature__r.Name
+                FROM SCLP__ProductOption__c
+                WHERE SCLP__Product__r.name = '{Product_name}'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """
             )
-
-            for bundle in bundles["records"]:
-
-                bundle_id = bundle["Id"] #take bundle id
-                bundle_name = bundle["Name"]
-                print(f"▶ Bundle found: {bundle['Name']} ({bundle_id})")
-                option_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.Name
-                    FROM SCLP__ProductOption__c
-                    WHERE SCLP__Product__r.name = '{Product_name}'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """
-                ) #take option that needs to be moved
-                if not option_result["records"]:
-                    print("❌ Option not found")
-                    continue
-                else:
-                    option_id = option_result["records"][0]["Id"] #take option's id
-                    print(f"✔ Option found: {option_result['records'][0]["SCLP__Product__r"]["Name"]} ({option_id})")
-
-
-                factory_option_feature = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Feature__c, SCLP__Order__c
-                    FROM SCLP__ProductOption__c
-                    WHERE SCLP__Feature__r.Name LIKE '%{Feature_Name_moved_to}%'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """
-                ) #take feature's options order and feature id
-                
-                if not factory_option_feature["records"]:
-                    continue
-                # max_order_integer = factory_option_feature["records"][0]["SCLP__Order__c"]
-                # print(f'order is {max_order_integer}')
-                feature_id = factory_option_feature["records"][0]["SCLP__Feature__c"]
-                orders = [
-                    rec["SCLP__Order__c"]
-                    for rec in factory_option_feature["records"]
-                    if rec.get("SCLP__Order__c") is not None
-                ] #take max order of options from the feature to move to
-
-                max_order = max(orders) if orders else 0
-                next_order = max_order + 1
-                old_feature_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.Name, SCLP__Feature__c, SCLP__Feature__r.Name
-                    FROM SCLP__ProductOption__c
-                    WHERE SCLP__Product__r.name = '{Product_name}'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """
-                )
-                old_feature_id = old_feature_result['records'][0]['SCLP__Feature__c']
-                old_feature_name = old_feature_result['records'][0]['SCLP__Feature__r']['Name']
-                # print(old_feature_result['records'][0]['SCLP__Feature__c'])
-                # print(old_feature_result['records'][0]['SCLP__Feature__r']["Name"])
-                sf.SCLP__ProductOption__c.update(
-                    option_id,
-                    {
-                        # "SCLP__Feature__c": feature_id,
-                        "SCLP__Order__c": next_order
-                    }
-                )
-                sf.SCLP__ProductOption__c.update(
-                    option_id,
-                    {
-                        "SCLP__Feature__c": feature_id,
-                        # "SCLP__Order__c": next_order
-                    }
-                )
-                Qty_of_options_in_old_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.name 
-                    from SCLP__ProductOption__c 
-                    where SCLP__Feature__c = '{old_feature_id}'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """)
-                print(len(Qty_of_options_in_old_result['records']))
-                print(f'This is an old Feature ID: {old_feature_id}')
-                if len(Qty_of_options_in_old_result['records']) == 0:
-                    sf.SCLP__ProductFeature__c.delete(old_feature_id)
-                    print(f'Feature {old_feature_name} is deleted from bundle {bundle_name}')
+            old_feature_id = old_feature_result['records'][0]['SCLP__Feature__c']
+            old_feature_name = old_feature_result['records'][0]['SCLP__Feature__r']['Name']
+            # print(old_feature_result['records'][0]['SCLP__Feature__c'])
+            # print(old_feature_result['records'][0]['SCLP__Feature__r']["Name"])
+            sf.SCLP__ProductOption__c.update(
+                option_id,
+                {
+                    # "SCLP__Feature__c": feature_id,
+                    "SCLP__Order__c": next_order
+                }
+            )
+            sf.SCLP__ProductOption__c.update(
+                option_id,
+                {
+                    "SCLP__Feature__c": feature_id,
+                    # "SCLP__Order__c": next_order
+                }
+            )
+            Qty_of_options_in_old_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.name 
+                from SCLP__ProductOption__c 
+                where SCLP__Feature__c = '{old_feature_id}'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """)
+            print(len(Qty_of_options_in_old_result['records']))
+            print(f'This is an old Feature ID: {old_feature_id}')
+            if len(Qty_of_options_in_old_result['records']) == 0:
+                sf.SCLP__ProductFeature__c.delete(old_feature_id)
+                print(f'Feature {old_feature_name} is deleted from bundle {bundle_name}')
 # Move_iCommand(sf)    
 def delete_product_from_bundle(sf):
     Bundle_first_name = ["YYY"]
     Bundle_second_name = ["002"]
+    Full_name = ["WWW - 001", "WWW - 002"]
+
     # Feature_Name_moved_to = "Feature Number One"
     Product_name = "Test Product 004 test test test test test test test test test test test test test"
 
-    for i in Bundle_first_name:
 
-        for x in Bundle_second_name:
-            print(f"\n=== Processing bundle mask: {i} - {x} ===")
+    for x in Full_name:
+        print(f"\n=== Processing bundle mask: {x} ===")
 
-            bundles = sf.query(
-                f"SELECT Id, Name FROM Product2 WHERE Name like '{i} - {x}%' and RecordType.name = 'Product Bundle'"
+        bundles = sf.query(
+            f"SELECT Id, Name FROM Product2 WHERE Name like '{x}%' and RecordType.name = 'Product Bundle'"
+        )
+
+        for bundle in bundles["records"]:
+
+            bundle_id = bundle["Id"] #take bundle id
+            bundle_name = bundle["Name"]
+            print(f"▶ Bundle found: {bundle['Name']} ({bundle_id})")
+            option_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.Name
+                FROM SCLP__ProductOption__c
+                WHERE SCLP__Product__r.name = '{Product_name}'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """
+            ) #take option that needs to be removed
+            option_id = option_result["records"][0]["Id"] #take option's id
+            if not option_result["records"]:
+                print("❌ Option not found")
+                continue
+            else:
+                print(f"✔ Option found: {option_result['records'][0]["SCLP__Product__r"]["Name"]} ({option_id})")
+
+            # factory_option_feature = sf.query(
+            #     f"""
+            #     SELECT Id, SCLP__Feature__c, SCLP__Order__c
+            #     FROM SCLP__ProductOption__c
+            #     WHERE SCLP__Feature__r.Name LIKE '%{Feature_Name_moved_to}%'
+            #     AND SCLP__Bundle__c = '{bundle_id}'
+            #     """
+            # ) #take feature's options order and feature id
+            
+            # if not factory_option_feature["records"]:
+            #     continue
+            # max_order_integer = factory_option_feature["records"][0]["SCLP__Order__c"]
+            # print(f'order is {max_order_integer}')
+            # feature_id = factory_option_feature["records"][0]["SCLP__Feature__c"]
+            # orders = [
+            #     rec["SCLP__Order__c"]
+            #     for rec in factory_option_feature["records"]
+            #     if rec.get("SCLP__Order__c") is not None
+            # ] #take max order of options from the feature to move to
+
+            # max_order = max(orders) if orders else 0
+            # next_order = max_order + 1
+            old_feature_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.Name, SCLP__Feature__c, SCLP__Feature__r.Name
+                FROM SCLP__ProductOption__c
+                WHERE Id = '{option_id}'
+                """
             )
+            old_feature_id = old_feature_result['records'][0]['SCLP__Feature__c']
+            old_feature_name = old_feature_result['records'][0]['SCLP__Feature__r']['Name']
+            # print(old_feature_result['records'][0]['SCLP__Feature__c'])
+            # print(old_feature_result['records'][0]['SCLP__Feature__r']["Name"])
+            sf.SCLP__ProductOption__c.delete(
+                option_id                )
+            Qty_of_options_in_old_result = sf.query(
+                f"""
+                SELECT Id, SCLP__Product__r.name 
+                from SCLP__ProductOption__c 
+                where SCLP__Feature__c = '{old_feature_id}'
+                AND SCLP__Bundle__c = '{bundle_id}'
+                """)
+            print(len(Qty_of_options_in_old_result['records']))
+            print(f'This is an old Feature ID: {old_feature_id}')
+            if len(Qty_of_options_in_old_result['records']) == 0:
+                sf.SCLP__ProductFeature__c.delete(old_feature_id)
+                print(f'Feature {old_feature_name} is deleted from bundle {bundle_name}')
+            # Created_single_QLIs = sf.query(
+            #     f"""
+            #     SELECT
+            #         Id, Name, SCLP__Product__r.name, SCLP__BundleLineItem__c, SCLP__ProductOption__c
+            #     FROM
+            #         SCLP__QuoteLineItem__c
+            #     WHERE
+            #         LastModifiedDate = today
+            #         and LastModifiedBy.name = 'Serge Koczanowski'
+            #         AND SCLP__ProductOption__c = NULL
+            #         and SCLP__Product__r.name = '{Product_name}'
+            #     """)
+            
+            # if not Created_single_QLIs["records"]:
+            #     print("❌ QLI not found")
+            #     continue
+            # else:
+            #     print(f'Newly created QLI is found{Created_single_QLIs['records'][0]['SCLP__Product__r']['Name']}')
 
-            for bundle in bundles["records"]:
-
-                bundle_id = bundle["Id"] #take bundle id
-                bundle_name = bundle["Name"]
-                print(f"▶ Bundle found: {bundle['Name']} ({bundle_id})")
-                option_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.Name
-                    FROM SCLP__ProductOption__c
-                    WHERE SCLP__Product__r.name = '{Product_name}'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """
-                ) #take option that needs to be removed
-                option_id = option_result["records"][0]["Id"] #take option's id
-                if not option_result["records"]:
-                    print("❌ Option not found")
-                    continue
-                else:
-                    print(f"✔ Option found: {option_result['records'][0]["SCLP__Product__r"]["Name"]} ({option_id})")
-
-                # factory_option_feature = sf.query(
-                #     f"""
-                #     SELECT Id, SCLP__Feature__c, SCLP__Order__c
-                #     FROM SCLP__ProductOption__c
-                #     WHERE SCLP__Feature__r.Name LIKE '%{Feature_Name_moved_to}%'
-                #     AND SCLP__Bundle__c = '{bundle_id}'
-                #     """
-                # ) #take feature's options order and feature id
-                
-                # if not factory_option_feature["records"]:
-                #     continue
-                # max_order_integer = factory_option_feature["records"][0]["SCLP__Order__c"]
-                # print(f'order is {max_order_integer}')
-                # feature_id = factory_option_feature["records"][0]["SCLP__Feature__c"]
-                # orders = [
-                #     rec["SCLP__Order__c"]
-                #     for rec in factory_option_feature["records"]
-                #     if rec.get("SCLP__Order__c") is not None
-                # ] #take max order of options from the feature to move to
-
-                # max_order = max(orders) if orders else 0
-                # next_order = max_order + 1
-                old_feature_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.Name, SCLP__Feature__c, SCLP__Feature__r.Name
-                    FROM SCLP__ProductOption__c
-                    WHERE Id = '{option_id}'
-                    """
-                )
-                old_feature_id = old_feature_result['records'][0]['SCLP__Feature__c']
-                old_feature_name = old_feature_result['records'][0]['SCLP__Feature__r']['Name']
-                # print(old_feature_result['records'][0]['SCLP__Feature__c'])
-                # print(old_feature_result['records'][0]['SCLP__Feature__r']["Name"])
-                sf.SCLP__ProductOption__c.delete(
-                    option_id                )
-                Qty_of_options_in_old_result = sf.query(
-                    f"""
-                    SELECT Id, SCLP__Product__r.name 
-                    from SCLP__ProductOption__c 
-                    where SCLP__Feature__c = '{old_feature_id}'
-                    AND SCLP__Bundle__c = '{bundle_id}'
-                    """)
-                print(len(Qty_of_options_in_old_result['records']))
-                print(f'This is an old Feature ID: {old_feature_id}')
-                if len(Qty_of_options_in_old_result['records']) == 0:
-                    sf.SCLP__ProductFeature__c.delete(old_feature_id)
-                    print(f'Feature {old_feature_name} is deleted from bundle {bundle_name}')
-                # Created_single_QLIs = sf.query(
-                #     f"""
-                #     SELECT
-                #         Id, Name, SCLP__Product__r.name, SCLP__BundleLineItem__c, SCLP__ProductOption__c
-                #     FROM
-                #         SCLP__QuoteLineItem__c
-                #     WHERE
-                #         LastModifiedDate = today
-                #         and LastModifiedBy.name = 'Serge Koczanowski'
-                #         AND SCLP__ProductOption__c = NULL
-                #         and SCLP__Product__r.name = '{Product_name}'
-                #     """)
-                
-                # if not Created_single_QLIs["records"]:
-                #     print("❌ QLI not found")
-                #     continue
-                # else:
-                #     print(f'Newly created QLI is found{Created_single_QLIs['records'][0]['SCLP__Product__r']['Name']}')
-
-                # QLIs_Id = Created_single_QLIs['records'][0]['Id']
-                # sf.SCLP__QuoteLineItem__c.delete(QLIs_Id)
-                # print('The QLI is delted')
+            # QLIs_Id = Created_single_QLIs['records'][0]['Id']
+            # sf.SCLP__QuoteLineItem__c.delete(QLIs_Id)
+            # print('The QLI is delted')
 # delete_product_from_bundle(sf)
+
+def delete_feature_from_bundle(sf):
+    Bundle_first_name = ["YYY"]
+    Bundle_second_name = ["002"]
+    Full_name = ["WWW - 003", "WWW - 002"]
+
+    # Feature_Name_moved_to = "Feature Number One"
+    Feature_name = "Number two"
+
+
+    for x in Full_name:
+        print(f"\n=== Processing bundle mask: {x} ===")
+
+        bundles = sf.query(
+            f"SELECT Id, Name FROM Product2 WHERE Name like '{x}%' and RecordType.name = 'Product Bundle'"
+        )
+
+        for bundle in bundles["records"]:
+
+            bundle_id = bundle["Id"] #take bundle id
+            bundle_name = bundle["Name"]
+            print(f"▶ Bundle found: {bundle['Name']} ({bundle_id})")
+            feature_result = sf.query(
+                f"""
+                SELECT Id, Name
+                FROM SCLP__ProductFeature__c
+                WHERE name = '{Feature_name}'
+                AND SCLP__Product__c = '{bundle_id}'
+                """
+            ) #take feature that needs to be removed
+            if not feature_result["records"]:
+                print("❌ feature not found")
+                continue
+
+            feature = feature_result["records"][0]
+            feature_id = feature["Id"]
+
+            print(f"✔ feature found: {feature['Name']} ({feature_id})")
+
+            sf.SCLP__ProductFeature__c.delete(feature_id)
+delete_feature_from_bundle(sf)
+
 
 def create_products_and_pricebook_entries(sf):
     for i in range(1, RECORDS_QTY): 
@@ -3124,7 +3168,7 @@ def delete_bundle(sf):
                     print(f"Error deleting bundle: {e}")
         else:
             print("No bundles to delete")
-delete_bundle(sf)
+# delete_bundle(sf)
 
 # create_bundle_WWW_001_1(sf)
 # create_bundle_WWW_002_1(sf)

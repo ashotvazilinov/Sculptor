@@ -2544,7 +2544,8 @@ def create_multiple_quotes(sf):
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
-                # 'OwnerId': '005QI00000I1svFYAR',
+                # 'SCLP__Account__c': '001JX000010bVFdYAM',
+                # 'OwnerId': '005JX00000RpIPxYAN',
                 'test_Checkbox__c': random.choice([True, False]),
                 'test_Currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
@@ -2608,7 +2609,7 @@ def create_blocks(sf):
             'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
             'SCLP__Content__c': (
-                f'<p>Test Contect for Block {i:03d}</p>'
+                f'<p>Test Content for Block {i:03d}</p>'
                 '<p>{!test_Auto_Number__c}</p>'
                 '<p>{!test_Checkbox__c}</p>'
                 '<p>{!test_Currency__c}</p>'
@@ -2641,7 +2642,7 @@ def create_blocks(sf):
             'Name': f'{i:03d} Test Block {timestamp}',
             'SCLP__IsActive__c': True,
             'SCLP__Content__c': (
-                f'<p>Test Contect for Block {i:03d}</p>'
+                f'<p>Test Content for Block {i:03d}</p>'
                 '<p>{!test_Auto_Number__c}</p>'
                 '<p>{!test_Checkbox__c}</p>'
                 '<p>{!test_Currency__c}</p>'
@@ -3315,16 +3316,16 @@ def QLI_Vat(sf):
 # print("normal bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
-# create_multiple_quotes(sf)  
-# print('Multiple Quotes created')
+create_multiple_quotes(sf)  
+print('Multiple Quotes created')
 # create_blocks(sf)
 # print('create_blocks ended')
 # create_Pricing_Rule(sf)
 # print('create_Pricing_Rule ended')
 # # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
 # # print('all records deleted')
-Quote_Vat(sf)
-print('Quote VAT is set')
-QLI_Vat(sf)
-print('QLI vat ended')
+# Quote_Vat(sf)
+# print('Quote VAT is set')
+# QLI_Vat(sf)
+# print('QLI vat ended')
 
