@@ -4,7 +4,7 @@ import config
 
 
 def open_sculptor_cpq(page):
-    """ Переход в Sculptor CPQ. """
+
     page.wait_for_selector('button[title="App Launcher"]', state='visible')
     time.sleep(1)
     page.click('button[title="App Launcher"]')
@@ -15,7 +15,7 @@ def open_sculptor_cpq(page):
     page.click('text="Sculptor CPQ"')
 
 def create_bundle(page, unique_number: int):
-    """ Создает новый бандл в системе. """
+
     page.wait_for_selector('text="Bundle Builder"', state='visible')
     time.sleep(1)
     page.click('text="Bundle Builder"')
@@ -23,37 +23,35 @@ def create_bundle(page, unique_number: int):
     time.sleep(5)
     page.click("//c-cpq-menu-sub[@class='cpq-search cpq-search-button']")
 
-    # Кликаем по price book gear и выбираем Standard Price Book
     pricebook_locator = page.locator("//span[@title='Pricebook']")
     pricebook_locator.hover()
     page.wait_for_selector("//span[@title='Standard Price Book']", state='visible')
     page.click("//span[@title='Standard Price Book']")
 
-    # Создаем бандл
+
     page.click("//button[@title='Create bundle']")
     page.wait_for_selector("//button[@title='Edit']", state='visible')
     time.sleep(1)
     page.click("//button[@title='Edit']")
 
-    # Вводим название бандла
+
     bundle_input = page.locator("//div[@class='slds-form-element__control slds-grow']//input[@class='slds-input']")
     bundle_input.fill(f"Test Bundle to be deleted {unique_number}")
 
-    # Подтверждаем создание
     page.click("//button[@title='Accept']")
     time.sleep(1)
    
 def drag_and_drop_product1(page, unique_number: int):
-    """ Перетаскивает продукт в бандл. """
+
     # Вводим продукт
-    page.locator('input[placeholder="Products"]').type("test product to be deleted")
-    print("Текст введен в поле 'Products'")
+    page.locator('input[placeholder="Products"]').type("Test Product")
+    print("The text is entered 'Products'")
     time.sleep(2)
 
 
     for i in range(1, 10000):
         left_sidebar_button = page.locator(f'button[aria-expanded="false"][aria-controls="lgt-accordion-section-{i}"]')
-        product_found = page.locator(f"//span[contains(@title, 'Test Product to be deleted')]")
+        product_found = page.locator(f"//span[contains(@title, 'Test Product')]")
         all_products = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]//span[contains(@title, "All products")]')
         if all_products.count() > 0:
             all_products.click()
@@ -63,10 +61,10 @@ def drag_and_drop_product1(page, unique_number: int):
             break
 
 
-    print("закончил открывать аккордеоны")
+    print("accerdeons are opened")
 
     # Перетаскивание продукта
-    Test_product_to_be_deleted_1_box = page.locator('div[data-name="Test Product to be deleted 1"]').bounding_box()
+    Test_product_to_be_deleted_1_box = page.locator('div[data-name="Test Product 001"]').bounding_box()
 
     if Test_product_to_be_deleted_1_box:
         Test_bundle_to_be_deleted_locator = page.locator(f'strong[title="Test Bundle to be deleted {unique_number}"]')
@@ -89,16 +87,15 @@ def drag_and_drop_product1(page, unique_number: int):
                 time.sleep(delay)
 
             page.mouse.up()
-            print("Drag & drop 1 выполнен")
+            print("Drag & drop 1 is completed")
         else:
-            print("Bundle не найден")
+            print("Bundle is not found")
     else:
-        print("Product не найден")
+        print("Product is not found")
     time.sleep(1)
 def drag_and_drop_product2(page, unique_number: int):
 
-    # Перетаскивание продукта
-    Test_product_to_be_deleted_1_box = page.locator('div[data-name="Test Product to be deleted 2"]').bounding_box()
+    Test_product_to_be_deleted_1_box = page.locator('div[data-name="Test Product 002"]').bounding_box()
 
     if Test_product_to_be_deleted_1_box:
         Test_bundle_to_be_deleted_locator = page.locator(f'strong[title="Test Bundle to be deleted {unique_number}"]')
@@ -121,11 +118,11 @@ def drag_and_drop_product2(page, unique_number: int):
                 time.sleep(delay)
 
             page.mouse.up()
-            print("Drag & drop 2 выполнен")
+            print("Drag & drop 2 is completed")
         else:
-            print("Bundle не найден")
+            print("Bundle is not found")
     else:
-        print("Product не найден")
+        print("Product is not found")
     time.sleep(2)
 
 def create_opportunity(page, unique_number: int):
@@ -207,7 +204,7 @@ def Add_Product_to_the_Opportunity(page, unique_number: int):
         menu_sub_locator.wait_for(state='visible', timeout=5000)
         print("нашел первый элемент")
     except:
-        print("первый элемент не найден за 5 секунд, ищем второй")
+        print("первый элемент is not found за 5 секунд, ищем второй")
         menu_sub_locator = page.locator("header.slds-split-view__header.slds-p-around_small.slds-p-vertical_xx-small c-cpq-menu-sub").nth(1)
         menu_sub_locator.wait_for(state='visible')
         print("нашел второй элемент")
@@ -271,19 +268,19 @@ def Add_Product_to_the_Opportunity(page, unique_number: int):
                 time.sleep(delay)
 
             page.mouse.up()
-            print("Drag & drop выполнен")
+            print("Drag & drop is completed")
         else:
-            print("Bundle не найден")
+            print("Bundle is not found")
     else:
-        print("Product не найден")
+        print("Product is not found")
 
 
 
 def click_product_if_condition_met(page):
-    page.wait_for_selector('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product to be deleted 1"]', state='visible')
-    page.click('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product to be deleted 1"]')
-    page.wait_for_selector('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product to be deleted 2"]', state='visible')
-    page.click('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product to be deleted 2"]')
+    page.wait_for_selector('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product 001"]', state='visible')
+    page.click('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product 001"]')
+    page.wait_for_selector('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product 002"]', state='visible')
+    page.click('//div[@class="slds-size_1-of-1 slds-p-around_xx-small slds-text-title_caps slds-border_top"]/following::span[@title="Test Product 002"]')
     time.sleep(1)
     page.wait_for_selector('text="Save"', state='visible')
     page.click('text="Save"')
@@ -327,7 +324,7 @@ def Add_Product_to_the_Quote(page, unique_number: int):
         elif product_found.count() > 0:
             break
 
-    # Перетаскивание продукта
+
     Test_Bundle_to_be_added = page.locator(f'div[data-name="Test Bundle to be deleted {unique_number}"]').bounding_box()
 
     if Test_Bundle_to_be_added:
@@ -351,18 +348,18 @@ def Add_Product_to_the_Quote(page, unique_number: int):
                 time.sleep(delay)
 
             page.mouse.up()
-            print("Drag & drop выполнен")
+            print("Drag & drop is completed")
         else:
-            print("Bundle не найден")
+            print("Bundle is not found")
     else:
-        print("Product не найден")
+        print("Product is not found")
 
 def click_Quote_product_if_condition_met(page):
-    page.wait_for_selector('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product to be deleted 1"]', state='visible')
-    page.click('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product to be deleted 1"]')
+    page.wait_for_selector('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product 001"]', state='visible')
+    page.click('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product 001"]')
     time.sleep(3)
-    page.wait_for_selector('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product to be deleted 2"]', state='visible')
-    page.click('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product to be deleted 2"]')
+    page.wait_for_selector('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product 002"]', state='visible')
+    page.click('//div[@class="cpq-grid slds-size_1-of-1 cpq-option"]//span[@title="Test Product 002"]')
     time.sleep(3)
 
     page.wait_for_selector("//button[@class='slds-button slds-button_brand' and text()='Save']", state='visible')

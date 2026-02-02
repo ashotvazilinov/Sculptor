@@ -276,7 +276,7 @@ def delete_product_from_bundle(sf):
 def delete_feature_from_bundle(sf):
     Bundle_first_name = ["YYY"]
     Bundle_second_name = ["002"]
-    Full_name = ["WWW - 003", "WWW - 002"]
+    Full_name = ["ZZZ - 003", "WWW - 002"]
 
     # Feature_Name_moved_to = "Feature Number One"
     Feature_name = "Number two"
@@ -312,7 +312,7 @@ def delete_feature_from_bundle(sf):
             print(f"✔ feature found: {feature['Name']} ({feature_id})")
 
             sf.SCLP__ProductFeature__c.delete(feature_id)
-delete_feature_from_bundle(sf)
+# delete_feature_from_bundle(sf)
 
 
 def create_products_and_pricebook_entries(sf):

@@ -5,7 +5,7 @@ from html_elements import *
 import config
 
 
-def Bundle_contains_of_three_sections(page, unique_number):
+def Bundle_consists_of_three_sections(page, unique_number):
     page.wait_for_selector('text="Bundle Builder"', state='visible')
     page.click('text="Bundle Builder"')
     right_sidebar = page.locator("//c-cpq-sidebar[@sclp-cpqapp_cpqapp]//div[contains(@class, 'cpq-sidebar cpq-sidebar-right')]")
@@ -98,7 +98,7 @@ def Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page, unique_number)
     expect(filter_Operator_contains).to_be_visible()
     print('Operator is set to Contains by default')
     # test_product = 'Boat regatta'
-    page.fill("//c-cpq-side-panel-filter-item//input", "Test Product to be deleted 3")
+    page.fill("//c-cpq-side-panel-filter-item//input", "Test Product 003")
     page.click("button[title='Accept']")
     # page.type('input[placeholder="Products"]', f"{test_product}")
     All_Closed_Accordions = page.locator('//c-cpq-sidebar-product-list//button[@aria-expanded="false"]')
@@ -109,9 +109,9 @@ def Bundle_Left_Sidebar_can_be_filtered_by_Displayed_fields(page, unique_number)
         print('accordion is expanded')
     else:
         pass
-    page.wait_for_selector('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]', state='visible')
-    expect(page.locator('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product to be deleted 3"]')).to_be_visible()
-    print("the Product Test Product to be deleted 3 is found")
+    page.wait_for_selector('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product 003"]', state='visible')
+    expect(page.locator('//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem and @title="Test Product 003"]')).to_be_visible()
+    print("the Product Test Product 003 is found")
     products = page.locator("//span[@sclp-cpqsidebarproductlistitem_cpqsidebarproductlistitem][@class='slds-truncate cpq-list-item-name cpq-locked slds-col cpq-list-item-name-top']")
     expect(products).to_have_count(1)
     page.click('//c-cpq-sidebar-product-list//button[contains(text(), "Remove All")]')

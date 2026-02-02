@@ -1,13 +1,13 @@
-from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError
+from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError, SalesforceMalformedRequest
 from datetime import datetime
 import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
 from playwright_utils import *
 
-USERNAME='test-lt7uiczajpif@example.com'
-PASSWORD='vweLjkrfvb1*r'
-SECURITE_TOKEN='MsLaeKqMmnCXxleSI6pJ2W0GP'
+USERNAME='test-s3g5e1zsiup8@example.com'
+PASSWORD='zjxeabsGm9a_u'
+SECURITE_TOKEN='gXnmHXsa6QRIymnJT4W6pJ27Z'
 DOMAIN='test' 
 
 session_id, instance = SalesforceLogin(
@@ -34,7 +34,7 @@ timestamp_for_SF_date_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000+0000
 timestamp_for_SF_time = datetime.now().strftime("%H:%M:%S.000Z")
 print(timestamp)
 
-RECORDS_QTY = 200
+RECORDS_QTY = 10
 def permission_set_creation(sf):
     # 1. Create Permission Set
     perm_set_data = {
@@ -2500,22 +2500,43 @@ def Community_Cost_Price_enabling(sf):
     try:
         try:
             record = sf.query("SELECT Id FROM SCLP__ProductCostPrice__c LIMIT 1")['records'][0]
-        
             print(record)
             sf.SCLP__ProductCostPrice__c.update(record['Id'], {
                 'SCLPCE__CommunityCostPriceEnabled__c': True
             })
             print("Updated successfully!")
+
         except IndexError:
-            print("No SCLP__ProductCostPrice__c records found.")
-            sf.SCLP__ProductCostPrice__c.create({
-                'SCLPCE__CommunityCostPriceEnabled__c': True
-            })
-            print("Updated successfully!")
+            print("No SCLP__ProductCostPrice__c records found (empty result set)")
+            # create reateken INVALID_FIELD
+            try:
+                sf.SCLP__ProductCostPrice__c.create({
+                    'SCLPCE__CommunityCostPriceEnabled__c': True
+                })
+                print("Created successfully with namespaced field")
+            except SalesforceMalformedRequest as e:
+                if "INVALID_FIELD" in str(e):
+                    sf.SCLP__ProductCostPrice__c.create({
+                        'CommunityCostPriceEnabled__c': True
+                    })
+                    print("Created successfully with local field")
+                else:
+                    raise
+
+        except SalesforceError as e:
+            msg = str(e)
+            if "INVALID_FIELD" in msg:
+                print("Field mismatch, retrying with local field")
+                sf.SCLP__ProductCostPrice__c.create({
+                    'CommunityCostPriceEnabled__c': True
+                })
+                print("Created successfully!")
+            else:
+                raise
+
     except SalesforceError as e:
         try:
             record = sf.query("SELECT Id FROM ProductCostPrice__c LIMIT 1")['records'][0]
-        
             print(record)
             sf.ProductCostPrice__c.update(record['Id'], {
                 'CommunityCostPriceEnabled__c': True
@@ -2526,7 +2547,8 @@ def Community_Cost_Price_enabling(sf):
             sf.ProductCostPrice__c.create({
                 'CommunityCostPriceEnabled__c': True
             })
-            print("Updated successfully!")
+            print("Created successfully!")
+
 def create_multiple_quotes(sf):
     print('Start creating Multiple Quotes')
     Standard_Price_book_query = sf.query("select name, id from pricebook2 where name = 'Standard Price Book'")['records'][0]
@@ -2541,11 +2563,11 @@ def create_multiple_quotes(sf):
         for i in range(1, RECORDS_QTY):
             sf.sclp__quote__c.create({
                 'Name': f'{i:03d} Test Quote Created {timestamp}',
-                'SCLP__Opportunity__c': opp['Id'],
+                # 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
-                'SCLP__Account__c': account_query['Id'],
-                # 'SCLP__Account__c': '001JX000010bVFdYAM',
-                # 'OwnerId': '005JX00000RpIPxYAN',
+                # 'SCLP__Account__c': account_query['Id'],
+                'SCLP__Account__c': '001In00000BR0MAIA1',
+                'OwnerId': '005In000001jl0ZIAQ',
                 'test_Checkbox__c': random.choice([True, False]),
                 'test_Currency__c': i*0.3,
                 'test_Date__c': '1997-10-06',
@@ -3065,47 +3087,47 @@ def QLI_Vat(sf):
             print(f"⚠️ Unhandled Salesforce error: {error_text}")
             raise
 #Total With Tax
-        try:
-            Total_With_tax_field_metadata = {
-            "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
-            "Metadata": {
-                "label": "Total With Tax",
-                "type": "Currency",
-                "precision": 18,
-                "scale": 2,
-                "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
-                "description": "Total With Tax for taxes",
-                "formulaTreatBlanksAs": "BlankAsZero"
-            }}
-                    
-            
+    try:
+        Total_With_tax_field_metadata = {
+        "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
+        "Metadata": {
+            "label": "Total With Tax",
+            "type": "Currency",
+            "precision": 18,
+            "scale": 2,
+            "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
+            "description": "Total With Tax for taxes",
+            "formulaTreatBlanksAs": "BlankAsZero"
+        }}
+                
+        
 
-            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
-            print(f"✅ Total With Tax is created!")
-            print(f"Result: {result}")
+        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+        print(f"✅ Total With Tax is created!")
+        print(f"Result: {result}")
 
-            field_perm_data = {
-                'ParentId': permission_set_id,
-                'SobjectType': f'SCLP__QuoteLineItem__c',
-                'Field': f'SCLP__QuoteLineItem__c.Total_With_Tax__c',
-                'PermissionsRead': True,
-                # 'PermissionsEdit': True
-            }
+        field_perm_data = {
+            'ParentId': permission_set_id,
+            'SobjectType': f'SCLP__QuoteLineItem__c',
+            'Field': f'SCLP__QuoteLineItem__c.Total_With_Tax__c',
+            'PermissionsRead': True,
+            # 'PermissionsEdit': True
+        }
 
-            result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
-            print(f"Result: {result}")
-        except SalesforceError as e:
-            error_text = str(e)
+        result = sf.FieldPermissions.create(field_perm_data)
+        print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
+        print(f"Result: {result}")
+    except SalesforceError as e:
+        error_text = str(e)
 
-            if "DUPLICATE_DEVELOPER_NAME" in error_text:
-                print("👌 Total With Tax field already exists")
-            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-                print("❌ Missing required parameter")
-                raise  
-            else:
-                print(f"⚠️ Unhandled Salesforce error: {error_text}")
-                raise
+        if "DUPLICATE_DEVELOPER_NAME" in error_text:
+            print("👌 Total With Tax field already exists")
+        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+            print("❌ Missing required parameter")
+            raise  
+        else:
+            print(f"⚠️ Unhandled Salesforce error: {error_text}")
+            raise
 
 #Rollup summary next step
     try:
@@ -3328,4 +3350,3 @@ print('Multiple Quotes created')
 # print('Quote VAT is set')
 # QLI_Vat(sf)
 # print('QLI vat ended')
-
