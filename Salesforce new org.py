@@ -5,9 +5,9 @@ import time
 import config
 from playwright.sync_api import sync_playwright, expect, Page
 
-USERNAME='test-cvuxkuy6hua0@example.com'
-PASSWORD='#lmyu6olLwrth'
-SECURITE_TOKEN='jQtYddA6Lw5txX4oMKTW3eEr'
+USERNAME='test-s3g5e1zsiup8@example.com'
+PASSWORD='zjxeabsGm9a_u'
+SECURITE_TOKEN='gXnmHXsa6QRIymnJT4W6pJ27Z'
 DOMAIN='test' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
@@ -2804,10 +2804,10 @@ def test(sf):
     print('1')
 
 def Quote_Vat(sf):
-        ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
-        permission_set_id = ps_result['records'][0]['Id']
-        print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
-
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f"✅ Found Permission Set 'test' (Id: {permission_set_id})")
+    try:
         print(f'Start creating Vat field for SCLP__Quote__c object')
         try:
             Vat_Percent_field_metadata = {
@@ -2933,7 +2933,7 @@ def Quote_Vat(sf):
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
         print("➡ Creating record inside Custom Settings...")
-#custom settings
+    #custom settings
         try:
             setting_record = {
                 'Name': 'Default',
@@ -2960,253 +2960,324 @@ def Quote_Vat(sf):
             else:
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
-def QLI_Vat(sf):
-    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
-    permission_set_id = ps_result['records'][0]['Id']
-    print(f"✅ Found Permission Set 'SO_Sculptor_permission_set' (Id: {permission_set_id})")
-
-    print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
-    #vat percent
-    try:
-        Vat_Percent_field_metadata = {
-            'FullName': 'SCLP__QuoteLineItem__c.VAT_Percent__c',
-            'Metadata': {
-                "label": "VAT Percent",
-                "type": "Percent",
-                "precision": 18,
-                "scale": 2,
-                "description": "VAT for taxes for QLI"
-            }
-        }
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
-        print(f"✅ Field Percent is created for SCLP__QuoteLineItem__c!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__QuoteLineItem__c',
-            'Field': f'SCLP__QuoteLineItem__c.VAT_Percent__c',
-            'PermissionsRead': True,
-            'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
-        print(f"Result: {result}")
     except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Vat Percent field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
- #QLI Label
-    try:
-        QLI_Label_field_metadata = {
-            'FullName': 'SCLP__QuoteLineItem__c.QLI_Label__c',
-            'Metadata': {
-                'label': 'QLI Label',
-                'length': 255,
-                'type': 'Text',
-                "description": "Quote Line Item Label for taxes"
-            }
-        }
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=QLI_Label_field_metadata)
-        print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__QuoteLineItem__c',
-            'Field': f'SCLP__QuoteLineItem__c.QLI_Label__c',
-            'PermissionsRead': True,
-            'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Label is added for read/edit Permission Set 'SO Sculptor Permission Set'")
-        print(f"Result: {result}")
-    except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Label field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
- #Tax Amount Formula
-    try:
-        Tax_Amount_Formula_field_metadata = {
-        "FullName": "SCLP__QuoteLineItem__c.Tax_Amount_Formula__c",
-        "Metadata": {
-            "label": "Tax Amount Formula",
-            "type": "Currency",
-            "precision": 18,
-            "scale": 2,
-            "formula": 'SCLP__CustomerPrice__c * Vat_Percent__c',         
-            "description": "Tax Amount formula for QLI",
-            "formulaTreatBlanksAs": "BlankAsZero"
-        }}
-        
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
-        print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__QuoteLineItem__c',
-            'Field': f'SCLP__QuoteLineItem__c.Tax_Amount_Formula__c',
-            'PermissionsRead': True,
-            # 'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Tax Amount formula is added for read/edit Permission Set 'SO Sculptor Permission Set'")
-        print(f"Result: {result}")
-    except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Tax Amount formula field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
-#Total With Tax
-    try:
-        Total_With_tax_field_metadata = {
-        "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
-        "Metadata": {
-            "label": "Total With Tax",
-            "type": "Currency",
-            "precision": 18,
-            "scale": 2,
-            "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
-            "description": "Total With Tax for taxes",
-            "formulaTreatBlanksAs": "BlankAsZero"
-        }}
-                
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
-        print(f"✅ Total With Tax is created!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__QuoteLineItem__c',
-            'Field': f'SCLP__QuoteLineItem__c.Total_With_Tax__c',
-            'PermissionsRead': True,
-            # 'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
-        print(f"Result: {result}")
-    except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Total With Tax field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
-
-#Rollup summary next step
-    try:
-        Taxes_rollup_field_metadata = {
-        "FullName": "SCLP__Quote__c.Total_of_VATs__c",
-        "Metadata": {
-            "label": "Total of VATs",
-            "type": "Summary",
-            "summaryForeignKey": "SCLP__QuoteLineItem__c.SCLP__Quote__c",
-            "description": "Total of vats for taxes",
-            "summarizedField" : "SCLP__QuoteLineItem__c.Total_With_Tax__c",
-            "summaryOperation": "SUM"
-        }}
-        
-        
-
-        result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Taxes_rollup_field_metadata)
-        print(f"✅ Rollup is created for SCLP__Quote__c!")
-        print(f"Result: {result}")
-
-        field_perm_data = {
-            'ParentId': permission_set_id,
-            'SobjectType': f'SCLP__Quote__c',
-            'Field': f'SCLP__Quote__c.Total_of_VATs__c',
-            'PermissionsRead': True,
-            # 'PermissionsEdit': True
-        }
-
-        result = sf.FieldPermissions.create(field_perm_data)
-        print("✅ Rollup is added for read Permission Set 'SO Sculptor Permission Set'")
-        print(f"Result: {result}")
-    except SalesforceError as e:
-        error_text = str(e)
-
-        if "DUPLICATE_DEVELOPER_NAME" in error_text:
-            print("👌 Rollup field already exists")
-        elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-            print("❌ Missing required parameter")
-            raise  
-        else:
-            print(f"⚠️ Unhandled Salesforce error: {error_text}")
-            raise
-        #Total With Tax
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        print(f'Start creating Vat field for Quote__c object')
         try:
-            Total_With_tax_field_with_rollup_metadata = {
-            "FullName": "SCLP__Quote__c.Total_With_Tax_with_rollup__c",
-            "Metadata": {
-                "label": "Total With Tax with rollup",
-                "type": "Currency",
-                "precision": 18,
-                "scale": 2,
-                "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
-                "description": "Total With Tax with rollup for taxes",
-                "formulaTreatBlanksAs": "BlankAsZero"
-            }}
-                    
+            Vat_Percent_field_metadata = {
+                'FullName': 'Quote__c.VAT_Percent__c',
+                'Metadata': {
+                    "label": "VAT Percent",
+                    "type": "Percent",
+                    "precision": 18,
+                    "scale": 2,
+                    "description": "VAT for taxes"
+                }
+            }
             
 
-            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
-            print(f"✅ Total With Tax is created!")
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
+            print(f"✅ Field Percent is created for Quote__c!")
             print(f"Result: {result}")
 
             field_perm_data = {
                 'ParentId': permission_set_id,
-                'SobjectType': f'SCLP__Quote__c',
-                'Field': f'SCLP__Quote__c.Total_With_Tax_with_rollup__c',
+                'SobjectType': f'Quote__c',
+                'Field': f'Quote__c.VAT_Percent__c',
                 'PermissionsRead': True,
-                # 'PermissionsEdit': True
+                'PermissionsEdit': True
             }
 
             result = sf.FieldPermissions.create(field_perm_data)
-            print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print("✅ Vat is added for read/edit Permission Set 'SO Sculptor Permission Set'")
             print(f"Result: {result}")
         except SalesforceError as e:
             error_text = str(e)
 
             if "DUPLICATE_DEVELOPER_NAME" in error_text:
-                print("👌 Total With Tax with rollup field already exists")
+                print("👌 Vat Percent field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        #Tax amount
+        try:
+            Tax_Amount_field_metadata = {
+            "FullName": "Quote__c.Tax_Amount__c",
+            "Metadata": {
+                "label": "Tax Amount",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'TotalAmount__c * VAT_Percent__c',         
+                "description": "Tax Amount for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_field_metadata)
+            print(f"✅ Tax Amount is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'Quote__c',
+                'Field': f'Quote__c.Tax_Amount__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Tax Amount is added for read Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Tax Amount field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        #Total With Tax
+        try:
+            Total_With_tax_field_metadata = {
+            "FullName": "Quote__c.Total_With_Tax__c",
+            "Metadata": {
+                "label": "Total With Tax",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'TotalAmount__c + (TotalAmount__c * VAT_Percent__c)',         
+                "description": "Total With Tax for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'Quote__c',
+                'Field': f'Quote__c.Total_With_Tax__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+        print("➡ Creating record inside Custom Settings...")
+    #custom settings
+        try:
+            setting_record = {
+                'Name': 'Default',
+                'QuoteTaxFieldLabel__c': 'VAT %',
+                'QuoteTaxPercentField__c': 'VAT_Percent__c ',
+                'QuoteTotalWithTax__c': 'Total_With_Tax__c '
+
+
+            }
+
+            result = sf.SculptorTaxSettings__c.create(setting_record)
+
+            print("✅ Quote VAT is set")
+            print(result)
+
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_VALUE" in error_text:
+                print("👌 Custom Setting already exist field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+def QLI_Vat(sf):
+    ps_result = sf.query("SELECT Id FROM PermissionSet WHERE Name = 'SO_Sculptor_permission_set'")
+    permission_set_id = ps_result['records'][0]['Id']
+    print(f"✅ Found Permission Set 'SO_Sculptor_permission_set' (Id: {permission_set_id})")
+    try:
+        print(f'Start creating Vat field for SCLP__QuoteLineItem__c object')
+        #vat percent
+        try:
+            Vat_Percent_field_metadata = {
+                'FullName': 'SCLP__QuoteLineItem__c.VAT_Percent__c',
+                'Metadata': {
+                    "label": "VAT Percent",
+                    "type": "Percent",
+                    "precision": 18,
+                    "scale": 2,
+                    "description": "VAT for taxes for QLI"
+                }
+            }
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
+            print(f"✅ Field Percent is created for SCLP__QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__QuoteLineItem__c',
+                'Field': f'SCLP__QuoteLineItem__c.VAT_Percent__c',
+                'PermissionsRead': True,
+                'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Vat Percent field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #QLI Label
+        try:
+            QLI_Label_field_metadata = {
+                'FullName': 'SCLP__QuoteLineItem__c.QLI_Label__c',
+                'Metadata': {
+                    'label': 'QLI Label',
+                    'length': 255,
+                    'type': 'Text',
+                    "description": "Quote Line Item Label for taxes"
+                }
+            }
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=QLI_Label_field_metadata)
+            print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__QuoteLineItem__c',
+                'Field': f'SCLP__QuoteLineItem__c.QLI_Label__c',
+                'PermissionsRead': True,
+                'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Label is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Label field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #Tax Amount Formula
+        try:
+            Tax_Amount_Formula_field_metadata = {
+            "FullName": "SCLP__QuoteLineItem__c.Tax_Amount_Formula__c",
+            "Metadata": {
+                "label": "Tax Amount Formula",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__CustomerPrice__c * Vat_Percent__c',         
+                "description": "Tax Amount formula for QLI",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+            
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
+            print(f"✅ Label is created for SCLP__QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__QuoteLineItem__c',
+                'Field': f'SCLP__QuoteLineItem__c.Tax_Amount_Formula__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Tax Amount formula is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Tax Amount formula field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #Total With Tax
+        try:
+            Total_With_tax_field_metadata = {
+            "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
+            "Metadata": {
+                "label": "Total With Tax",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__CustomerPrice__c + Tax_Amount_Formula__c',         
+                "description": "Total With Tax for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__QuoteLineItem__c',
+                'Field': f'SCLP__QuoteLineItem__c.Total_With_Tax__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax field already exists")
             elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
                 print("❌ Missing required parameter")
                 raise  
@@ -3214,102 +3285,532 @@ def QLI_Vat(sf):
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
 
-#custom setting update
-    print("➡ Creating Custom Setting record...")
+    #Rollup summary next step
+        try:
+            Taxes_rollup_field_metadata = {
+            "FullName": "SCLP__Quote__c.Total_of_VATs__c",
+            "Metadata": {
+                "label": "Total of VATs",
+                "type": "Summary",
+                "summaryForeignKey": "SCLP__QuoteLineItem__c.SCLP__Quote__c",
+                "description": "Total of vats for taxes",
+                "summarizedField" : "SCLP__QuoteLineItem__c.Total_With_Tax__c",
+                "summaryOperation": "SUM"
+            }}
+            
+            
 
-    setting_record = {
-        'Name': 'Default',
-        'SCLP__QuoteTotalWithTax__c': 'Total_With_Tax_with_rollup__c',
-        'SCLP__LineItemTaxFieldLabel__c': 'QLI VAT',
-        'SCLP__LineItemTaxAmountField__c': 'Tax_Amount__c',
-        'SCLP__LineItemTaxPercentField__c': 'VAT_Percent__c',
-        'SCLP__LineItemTotalWithTax__c': 'Total_With_Tax__c'
-    }
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Taxes_rollup_field_metadata)
+            print(f"✅ Rollup is created for SCLP__Quote__c!")
+            print(f"Result: {result}")
 
-    try:
-        result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
-        print("🆕 Custom Setting created")
-        print(result)
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.Total_of_VATs__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
 
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Rollup is added for read Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Rollup field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+            #Total With Tax
+            try:
+                Total_With_tax_field_with_rollup_metadata = {
+                "FullName": "SCLP__Quote__c.Total_With_Tax_with_rollup__c",
+                "Metadata": {
+                    "label": "Total With Tax with rollup",
+                    "type": "Currency",
+                    "precision": 18,
+                    "scale": 2,
+                    "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
+                    "description": "Total With Tax with rollup for taxes",
+                    "formulaTreatBlanksAs": "BlankAsZero"
+                }}
+                        
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
+                print(f"✅ Total With Tax is created!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'SCLP__Quote__c',
+                    'Field': f'SCLP__Quote__c.Total_With_Tax_with_rollup__c',
+                    'PermissionsRead': True,
+                    # 'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Total With Tax with rollup field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+    #custom setting update
+        print("➡ Creating Custom Setting record...")
+
+        setting_record = {
+            'Name': 'Default',
+            'SCLP__QuoteTotalWithTax__c': 'Total_With_Tax_with_rollup__c',
+            'SCLP__LineItemTaxFieldLabel__c': 'QLI VAT',
+            'SCLP__LineItemTaxAmountField__c': 'Tax_Amount__c',
+            'SCLP__LineItemTaxPercentField__c': 'VAT_Percent__c',
+            'SCLP__LineItemTotalWithTax__c': 'Total_With_Tax__c'
+        }
+
+        try:
+            result = sf.SCLP__SculptorTaxSettings__c.create(setting_record)
+            print("🆕 Custom Setting created")
+            print(result)
+
+        except SalesforceError as e:
+            err = str(e)
+            print(f"⚠ Create failed: {err}")
+            print("➡ Trying to update...")
+
+
+            existing = sf.query("""
+                SELECT Id 
+                FROM SCLP__SculptorTaxSettings__c 
+                WHERE Name = 'Default'
+                LIMIT 1
+            """)
+
+            if existing['totalSize'] == 0:
+                raise Exception("❌ Record not found to update")
+
+            rec_id = existing['records'][0]['Id']
+
+            sf.SCLP__SculptorTaxSettings__c.update(rec_id, setting_record)
+
+            print("♻ Custom Setting updated")
+
+
+    #adding VAT to Quote Builder
+        with sync_playwright() as p:
+        # Connect to the existing browser instance
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context()  # Using the first context
+            page = context.new_page()  # Taking the first tab
+
+            page.goto(SITE_URL)
+            username_input = page.locator('input[id="username"]')
+            password_input = page.locator('input[id="password"]')
+            username_input.fill(USERNAME)
+            password_input.fill(PASSWORD)
+            page.press('input[id="password"]', 'Enter')
+
+
+            page.wait_for_selector('button[title="App Launcher"]', state='visible')
+            time.sleep(1)
+            page.click('button[title="App Launcher"]')
+
+            page.fill('input.slds-input[placeholder="Search apps and items..."]', 'Sculptor CPQ')
+            page.wait_for_selector('text="Sculptor CPQ"', state='visible')
+            time.sleep(1)
+            page.click('text="Sculptor CPQ"')
+
+            Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
+            Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
+            Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+            Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+            
+            Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+            Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
+            
+            Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
+            Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
+            page.wait_for_selector(Sculptor_settings_tab, state='visible')
+            page.click(Sculptor_settings_tab)
+
+            page.wait_for_selector(Fields_and_layouts, state='visible')
+            page.click(Fields_and_layouts)
+            
+            page.wait_for_selector(Sculptor_settings_QLI_VAT, state='visible')
+            page.click(Sculptor_settings_QLI_VAT)
+
+            page.wait_for_selector(Sculptor_settings_QLI_VAT_move_right, state='visible')
+            page.click(Sculptor_settings_QLI_VAT_move_right)
+
+            page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
+            page.click(Sculptor_settings_Quote_VAT)
+            page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
+            page.click(Sculptor_settings_Quote_VAT_move_right)
+
+            page.wait_for_selector(Save_Button, state='visible')
+            page.click(Save_Button)
+
+            page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
     except SalesforceError as e:
-        err = str(e)
-        print(f"⚠ Create failed: {err}")
-        print("➡ Trying to update...")
+        "INVALID_TYPE" in str(e)
+        print("no SCLP__")
+        print(f'Start creating Vat field for QuoteLineItem__c object')
+        #vat percent
+        try:
+            Vat_Percent_field_metadata = {
+                'FullName': 'QuoteLineItem__c.VAT_Percent__c',
+                'Metadata': {
+                    "label": "VAT Percent",
+                    "type": "Percent",
+                    "precision": 18,
+                    "scale": 2,
+                    "description": "VAT for taxes for QLI"
+                }
+            }
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Vat_Percent_field_metadata)
+            print(f"✅ Field Percent is created for QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'QuoteLineItem__c',
+                'Field': f'QuoteLineItem__c.VAT_Percent__c',
+                'PermissionsRead': True,
+                'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Percent is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Vat Percent field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #QLI Label
+        try:
+            QLI_Label_field_metadata = {
+                'FullName': 'QuoteLineItem__c.QLI_Label__c',
+                'Metadata': {
+                    'label': 'QLI Label',
+                    'length': 255,
+                    'type': 'Text',
+                    "description": "Quote Line Item Label for taxes"
+                }
+            }
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=QLI_Label_field_metadata)
+            print(f"✅ Label is created for QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'QuoteLineItem__c',
+                'Field': f'QuoteLineItem__c.QLI_Label__c',
+                'PermissionsRead': True,
+                'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Label is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Label field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #Tax Amount Formula
+        try:
+            Tax_Amount_Formula_field_metadata = {
+            "FullName": "QuoteLineItem__c.Tax_Amount_Formula__c",
+            "Metadata": {
+                "label": "Tax Amount Formula",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'CustomerPrice__c * Vat_Percent__c',         
+                "description": "Tax Amount formula for QLI",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+            
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Tax_Amount_Formula_field_metadata)
+            print(f"✅ Label is created for QuoteLineItem__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'QuoteLineItem__c',
+                'Field': f'QuoteLineItem__c.Tax_Amount_Formula__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Tax Amount formula is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Tax Amount formula field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+    #Total With Tax
+        try:
+            Total_With_tax_field_metadata = {
+            "FullName": "QuoteLineItem__c.Total_With_Tax__c",
+            "Metadata": {
+                "label": "Total With Tax",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'CustomerPrice__c + Tax_Amount_Formula__c',         
+                "description": "Total With Tax for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'QuoteLineItem__c',
+                'Field': f'QuoteLineItem__c.Total_With_Tax__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax is added for read Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+
+    #Rollup summary next step
+        try:
+            Taxes_rollup_field_metadata = {
+            "FullName": "Quote__c.Total_of_VATs__c",
+            "Metadata": {
+                "label": "Total of VATs",
+                "type": "Summary",
+                "summaryForeignKey": "QuoteLineItem__c.Quote__c",
+                "description": "Total of vats for taxes",
+                "summarizedField" : "QuoteLineItem__c.Total_With_Tax__c",
+                "summaryOperation": "SUM"
+            }}
+            
+            
+
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Taxes_rollup_field_metadata)
+            print(f"✅ Rollup is created for Quote__c!")
+            print(f"Result: {result}")
+
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'Quote__c',
+                'Field': f'Quote__c.Total_of_VATs__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
+
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Rollup is added for read Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
+
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Rollup field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
+            #Total With Tax
+            try:
+                Total_With_tax_field_with_rollup_metadata = {
+                "FullName": "Quote__c.Total_With_Tax_with_rollup__c",
+                "Metadata": {
+                    "label": "Total With Tax with rollup",
+                    "type": "Currency",
+                    "precision": 18,
+                    "scale": 2,
+                    "formula": 'TotalAmount__c + (TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
+                    "description": "Total With Tax with rollup for taxes",
+                    "formulaTreatBlanksAs": "BlankAsZero"
+                }}
+                        
+                
+
+                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
+                print(f"✅ Total With Tax is created!")
+                print(f"Result: {result}")
+
+                field_perm_data = {
+                    'ParentId': permission_set_id,
+                    'SobjectType': f'Quote__c',
+                    'Field': f'Quote__c.Total_With_Tax_with_rollup__c',
+                    'PermissionsRead': True,
+                    # 'PermissionsEdit': True
+                }
+
+                result = sf.FieldPermissions.create(field_perm_data)
+                print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+                print(f"Result: {result}")
+            except SalesforceError as e:
+                error_text = str(e)
+
+                if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                    print("👌 Total With Tax with rollup field already exists")
+                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                    print("❌ Missing required parameter")
+                    raise  
+                else:
+                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                    raise
+
+    #custom setting update
+        print("➡ Creating Custom Setting record...")
+
+        setting_record = {
+            'Name': 'Default',
+            'QuoteTotalWithTax__c': 'Total_With_Tax_with_rollup__c',
+            'LineItemTaxFieldLabel__c': 'QLI VAT',
+            'LineItemTaxAmountField__c': 'Tax_Amount__c',
+            'LineItemTaxPercentField__c': 'VAT_Percent__c',
+            'LineItemTotalWithTax__c': 'Total_With_Tax__c'
+        }
+
+        try:
+            result = sf.SculptorTaxSettings__c.create(setting_record)
+            print("🆕 Custom Setting created")
+            print(result)
+
+        except SalesforceError as e:
+            err = str(e)
+            print(f"⚠ Create failed: {err}")
+            print("➡ Trying to update...")
 
 
-        existing = sf.query("""
-            SELECT Id 
-            FROM SCLP__SculptorTaxSettings__c 
-            WHERE Name = 'Default'
-            LIMIT 1
-        """)
+            existing = sf.query("""
+                SELECT Id 
+                FROM SculptorTaxSettings__c 
+                WHERE Name = 'Default'
+                LIMIT 1
+            """)
 
-        if existing['totalSize'] == 0:
-            raise Exception("❌ Record not found to update")
+            if existing['totalSize'] == 0:
+                raise Exception("❌ Record not found to update")
 
-        rec_id = existing['records'][0]['Id']
+            rec_id = existing['records'][0]['Id']
 
-        sf.SCLP__SculptorTaxSettings__c.update(rec_id, setting_record)
+            sf.SculptorTaxSettings__c.update(rec_id, setting_record)
 
-        print("♻ Custom Setting updated")
-
-
-#adding VAT to Quote Builder
-    with sync_playwright() as p:
-    # Connect to the existing browser instance
-        browser = p.chromium.launch(headless=False)
-        context = browser.new_context()  # Using the first context
-        page = context.new_page()  # Taking the first tab
-
-        page.goto(SITE_URL)
-        username_input = page.locator('input[id="username"]')
-        password_input = page.locator('input[id="password"]')
-        username_input.fill(USERNAME)
-        password_input.fill(PASSWORD)
-        page.press('input[id="password"]', 'Enter')
+            print("♻ Custom Setting updated")
 
 
-        page.wait_for_selector('button[title="App Launcher"]', state='visible')
-        time.sleep(1)
-        page.click('button[title="App Launcher"]')
+    #adding VAT to Quote Builder
+        with sync_playwright() as p:
+        # Connect to the existing browser instance
+            browser = p.chromium.launch(headless=False)
+            context = browser.new_context()  # Using the first context
+            page = context.new_page()  # Taking the first tab
 
-        page.fill('input.slds-input[placeholder="Search apps and items..."]', 'Sculptor CPQ')
-        page.wait_for_selector('text="Sculptor CPQ"', state='visible')
-        time.sleep(1)
-        page.click('text="Sculptor CPQ"')
+            page.goto(SITE_URL)
+            username_input = page.locator('input[id="username"]')
+            password_input = page.locator('input[id="password"]')
+            username_input.fill(USERNAME)
+            password_input.fill(PASSWORD)
+            page.press('input[id="password"]', 'Enter')
 
-        Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
-        Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
-        Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
-        Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
-        
-        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
-        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
-        
-        Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
-        Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
-        page.wait_for_selector(Sculptor_settings_tab, state='visible')
-        page.click(Sculptor_settings_tab)
 
-        page.wait_for_selector(Fields_and_layouts, state='visible')
-        page.click(Fields_and_layouts)
-        
-        page.wait_for_selector(Sculptor_settings_QLI_VAT, state='visible')
-        page.click(Sculptor_settings_QLI_VAT)
+            page.wait_for_selector('button[title="App Launcher"]', state='visible')
+            time.sleep(1)
+            page.click('button[title="App Launcher"]')
 
-        page.wait_for_selector(Sculptor_settings_QLI_VAT_move_right, state='visible')
-        page.click(Sculptor_settings_QLI_VAT_move_right)
+            page.fill('input.slds-input[placeholder="Search apps and items..."]', 'Sculptor CPQ')
+            page.wait_for_selector('text="Sculptor CPQ"', state='visible')
+            time.sleep(1)
+            page.click('text="Sculptor CPQ"')
 
-        page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
-        page.click(Sculptor_settings_Quote_VAT)
-        page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
-        page.click(Sculptor_settings_Quote_VAT_move_right)
+            Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
+            Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
+            Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+            Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
+            
+            Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
+            Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
+            
+            Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
+            Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
+            page.wait_for_selector(Sculptor_settings_tab, state='visible')
+            page.click(Sculptor_settings_tab)
 
-        page.wait_for_selector(Save_Button, state='visible')
-        page.click(Save_Button)
+            page.wait_for_selector(Fields_and_layouts, state='visible')
+            page.click(Fields_and_layouts)
+            
+            page.wait_for_selector(Sculptor_settings_QLI_VAT, state='visible')
+            page.click(Sculptor_settings_QLI_VAT)
 
-        page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+            page.wait_for_selector(Sculptor_settings_QLI_VAT_move_right, state='visible')
+            page.click(Sculptor_settings_QLI_VAT_move_right)
 
+            page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
+            page.click(Sculptor_settings_Quote_VAT)
+            page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
+            page.click(Sculptor_settings_Quote_VAT_move_right)
+
+            page.wait_for_selector(Save_Button, state='visible')
+            page.click(Save_Button)
+
+            page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
    
 
 
@@ -3343,11 +3844,11 @@ def QLI_Vat(sf):
 # print('Multiple Quotes created')
 # create_blocks(sf)
 # print('create_blocks ended')
-create_Pricing_Rule(sf)
-print('create_Pricing_Rule ended')
+# create_Pricing_Rule(sf)
+# print('create_Pricing_Rule ended')
 # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
 # print('all records deleted')
-# Quote_Vat(sf)
-# print('Quote VAT is set')
-# QLI_Vat(sf)
-# print('QLI vat ended')
+Quote_Vat(sf)
+print('Quote VAT is set')
+QLI_Vat(sf)
+print('QLI vat ended')

@@ -13,7 +13,6 @@ import shutil
 import time
 import pytest
 from playwright.sync_api import sync_playwright, Page
-from salesforce_utils import *
 
 session_id, instance = SalesforceLogin(
 
