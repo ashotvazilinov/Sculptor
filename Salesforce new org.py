@@ -2,13 +2,14 @@ from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError, Sale
 from datetime import datetime
 import random
 import time
+import config
 from playwright.sync_api import sync_playwright, expect, Page
 
 USERNAME='test-cvuxkuy6hua0@example.com'
 PASSWORD='#lmyu6olLwrth'
 SECURITE_TOKEN='jQtYddA6Lw5txX4oMKTW3eEr'
 DOMAIN='test' 
-
+SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
 
     username=USERNAME, 
@@ -3260,7 +3261,7 @@ def QLI_Vat(sf):
         context = browser.new_context()  # Using the first context
         page = context.new_page()  # Taking the first tab
 
-        page.goto(config.SITE_URL)
+        page.goto(SITE_URL)
         username_input = page.locator('input[id="username"]')
         password_input = page.locator('input[id="password"]')
         username_input.fill(USERNAME)

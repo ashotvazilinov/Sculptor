@@ -22,8 +22,6 @@ print("Connected!")
 
 def start(page):
     page.goto(config.SITE_URL)
-
-    page.goto(config.SITE_URL)
     username_input = page.locator('input[id="username"]')
     password_input = page.locator('input[id="password"]')
     username_input.fill(config.LOGIN)

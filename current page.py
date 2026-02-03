@@ -9,7 +9,6 @@ import shutil
 import time
 import pytest
 from playwright.sync_api import sync_playwright, Page
-from salesforce_utils import *
 
 # "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --remote-debugging-address=127.0.0.1 --no-first-run --user-data-dir="C:\Temp\ChromeDebugProfile"
 
