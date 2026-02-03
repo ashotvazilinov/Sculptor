@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright, expect, Page
-from playwright_utils import *
+from Demo import *
 from simple_salesforce import Salesforce  
 from html_elements import *
 import config
@@ -27,27 +27,18 @@ def run_current_tasks(unique_number: int = 33):
         page = context.pages[0]  # Taking the first tab
         '''write here'''
 
+        accordion_buttons = page.locator('button[aria-controls^="lgt-accordion-section-"]')
 
-        Sculptor_settings_tab = ('//span[contains(text(), "Sculptor Settings")]')
-        Fields_and_layouts = ('//a[contains(text(), "Fields and Layouts")]')
-        Sculptor_settings_QLI_VAT = ("//div[@role='group' and .//*[text()='Quote Builder Fields']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
-        Sculptor_settings_QLI_VAT_move_right = ("//div[text()='Quote Builder Fields']//following::button[contains(@title, 'Move')][1]")
-        
-        Sculptor_settings_Quote_VAT = ("//div[@role='group' and .//*[text()='Quote Fields for Quote Details']]//*[text()='VAT Percent']") # ('//div[normalize-space(text())="Sidebar Product Fields"]/ancestor::div[contains(@part, "dual-listbox")]//span[text()="Active"]')
-        Sculptor_settings_Quote_VAT_move_right = ("//div[text()='Quote Fields for Quote Details']//following::button[contains(@title, 'Move')][1]")
-        
-        Sculptor_settings_Save_Success_message = ("//*[text()='Configurations successfully updated']")
-        Save_Button = ("(//button[contains(text(), 'Save')])[last()]")
-        page.wait_for_selector(Sculptor_settings_Quote_VAT, state='visible')
-        page.click(Sculptor_settings_Quote_VAT)
-        page.wait_for_selector(Sculptor_settings_Quote_VAT_move_right, state='visible')
-        page.click(Sculptor_settings_Quote_VAT_move_right)
-        
+        for i in range(accordion_buttons.count()):
+            btn = accordion_buttons.nth(i)
 
-        page.wait_for_selector(Save_Button, state='visible')
-        page.click(Save_Button)
+            btn.wait_for(state="visible")
 
-        page.wait_for_selector(Sculptor_settings_Save_Success_message, state='visible')
+            if btn.get_attribute("aria-expanded") == "false":
+                btn.click()
+
+                
+            print("accordeons are oppened")
 
 
 

@@ -1,6 +1,6 @@
 # test_main.py
 import pytest
-from playwright_utils import (
+from Demo import (
     open_sculptor_cpq, create_bundle, 
     drag_and_drop_product1, drag_and_drop_product2, 
     create_opportunity, Add_Product_to_the_Opportunity, 

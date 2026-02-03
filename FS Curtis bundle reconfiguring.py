@@ -3,7 +3,7 @@ from datetime import datetime
 import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
-from playwright_utils import *
+from old_playwright_utils import *
 
 USERNAME='serge@twistellar.com.sculptorqa'
 PASSWORD='2K23workhard!'

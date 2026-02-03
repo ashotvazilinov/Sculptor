@@ -3,11 +3,10 @@ from datetime import datetime
 import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
-from playwright_utils import *
 
-USERNAME='test-s3g5e1zsiup8@example.com'
-PASSWORD='zjxeabsGm9a_u'
-SECURITE_TOKEN='gXnmHXsa6QRIymnJT4W6pJ27Z'
+USERNAME='test-cvuxkuy6hua0@example.com'
+PASSWORD='#lmyu6olLwrth'
+SECURITE_TOKEN='jQtYddA6Lw5txX4oMKTW3eEr'
 DOMAIN='test' 
 
 session_id, instance = SalesforceLogin(
@@ -34,7 +33,7 @@ timestamp_for_SF_date_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000+0000
 timestamp_for_SF_time = datetime.now().strftime("%H:%M:%S.000Z")
 print(timestamp)
 
-RECORDS_QTY = 10
+RECORDS_QTY = 400
 def permission_set_creation(sf):
     # 1. Create Permission Set
     perm_set_data = {
@@ -2662,8 +2661,8 @@ def create_blocks(sf):
         for i in range(1, 6):
             sf.SculptorPDFTemplateBlock__c.create({
             'Name': f'{i:03d} Test Block {timestamp}',
-            'SCLP__IsActive__c': True,
-            'SCLP__Content__c': (
+            'IsActive__c': True,
+            'Content__c': (
                 f'<p>Test Content for Block {i:03d}</p>'
                 '<p>{!test_Auto_Number__c}</p>'
                 '<p>{!test_Checkbox__c}</p>'
@@ -2736,48 +2735,49 @@ def create_Pricing_Rule(sf):
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        try:
-            sf.query(f"select id from Rule__c where name like '{z:03d} Test Rule Number%'")['records'][0]['Id']
-            print(f'Pricing Rule Number {z:03d} already exists')
+        for z in range(1, RECORDS_QTY):
+            try:
+                sf.query(f"select id from Rule__c where name like '{z:03d} Test Rule Number%'")['records'][0]['Id']
+                print(f'Pricing Rule Number {z:03d} already exists')
 
-        except IndexError:
-            print(f'Creating Pricing Rule Number {z:03d}')
-            sf.Rule__c.create({
-            'Name': f'{z:03d} Test Rule Number {timestamp}',
-            'Active__c': False,
-            'ExecutionOrder__c': z
-            })
-            print(f'Rule number {z:03d} is created')
-            name = f'{z:03d} Test Rule Number {timestamp}'
-            rule = sf.query(f"select name, id from Rule__c where Name  = '{name}'")['records'][0]
-            ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
-            sf.RuleAction__c.create({
-            'Name': 'Make a line absolute discount',
-            'Action__c': '=',
-            'Calc__c': f"- {z:03d}",
-            'Order__c': 1,
-            'SourceField__c': 'OriginalPrice__c',
-            'SourceObject__c': 'QuoteLineItem__c',
-            'TargetField__c': 'RulePrice__c',
-            'TargetObject__c': 'QuoteLineItem__c',
-            'Rule__c': 'EDITING',
-            'Rule__c': rule['Id'],
-            'ExtendedValue__c': ExtendedValue__c_data,
-            'Type__c': 'EDITING',
-
-            }) 
-            print(f'Action for Rule number {z:03d} is created')
-            sf.RuleCondition__c.create({
+            except IndexError:
+                print(f'Creating Pricing Rule Number {z:03d}')
+                sf.Rule__c.create({
+                'Name': f'{z:03d} Test Rule Number {timestamp}',
+                'Active__c': False,
+                'ExecutionOrder__c': z
+                })
+                print(f'Rule number {z:03d} is created')
+                name = f'{z:03d} Test Rule Number {timestamp}'
+                rule = sf.query(f"select name, id from Rule__c where Name  = '{name}'")['records'][0]
+                ExtendedValue__c_data = """{"ranges":{"bounds":[],"prices":[100]},"pricingMethod":null,"notification":{}}"""
+                sf.RuleAction__c.create({
+                'Name': 'Make a line absolute discount',
+                'Action__c': '=',
+                'Calc__c': f"- {z:03d}",
+                'Order__c': 1,
+                'SourceField__c': 'OriginalPrice__c',
+                'SourceObject__c': 'QuoteLineItem__c',
+                'TargetField__c': 'RulePrice__c',
+                'TargetObject__c': 'QuoteLineItem__c',
+                'Rule__c': 'EDITING',
                 'Rule__c': rule['Id'],
-                'Operator__c': 'CONTAINS',
-                'TargetField__c': 'Name',
-                'TargetObject__c': 'Account',
-                'Type__c': 'FIELD',
-                'Value__c': 'partner',
-                'Not__c': False
+                'ExtendedValue__c': ExtendedValue__c_data,
+                'Type__c': 'EDITING',
 
-            }) 
-            print(f'Condition for Rule number {z:03d} is created')
+                }) 
+                print(f'Action for Rule number {z:03d} is created')
+                sf.RuleCondition__c.create({
+                    'Rule__c': rule['Id'],
+                    'Operator__c': 'CONTAINS',
+                    'TargetField__c': 'Name',
+                    'TargetObject__c': 'Account',
+                    'Type__c': 'FIELD',
+                    'Value__c': 'partner',
+                    'Not__c': False
+
+                }) 
+                print(f'Condition for Rule number {z:03d} is created')
 def delete_all_records(sf, x):
     try:
         records_query = sf.query(f"select id, name from {x}")
@@ -3338,14 +3338,14 @@ def QLI_Vat(sf):
 # print("normal bundle ended")
 # Community_Cost_Price_enabling(sf)
 # print('Cost Price enabled')
-create_multiple_quotes(sf)  
-print('Multiple Quotes created')
+# create_multiple_quotes(sf)  
+# print('Multiple Quotes created')
 # create_blocks(sf)
 # print('create_blocks ended')
-# create_Pricing_Rule(sf)
-# print('create_Pricing_Rule ended')
-# # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
-# # print('all records deleted')
+create_Pricing_Rule(sf)
+print('create_Pricing_Rule ended')
+# delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
+# print('all records deleted')
 # Quote_Vat(sf)
 # print('Quote VAT is set')
 # QLI_Vat(sf)
