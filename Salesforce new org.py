@@ -6,9 +6,9 @@ import config
 from playwright.sync_api import sync_playwright, expect, Page
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-USERNAME='test-cvuxkuy6hua0@example.com'
-PASSWORD='gbqzftH0n(qrv'
-SECURITE_TOKEN='TyyIvvBPAzJzcHQF33zfdjfs'
+USERNAME='test-zw54isibqvak@example.com'
+PASSWORD='ttyk|ate6Dnpw'
+SECURITE_TOKEN='VSu5W89l5JnP1XjQ2rlXYrSS'
 DOMAIN='test' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
@@ -1592,7 +1592,7 @@ def create_products_and_pricebook_entries():
     pricebook = sf.query("SELECT Id FROM Pricebook2 WHERE name = 'Standard Price Book'")
     if not pricebook['records']:
         print("Standard Price Book not found!")
-        return
+        raise
 
     pricebook_id = pricebook['records'][0]['Id']
 
@@ -1608,29 +1608,53 @@ def create_products_and_pricebook_entries():
             print(f"{product_name} exists")
             return
 
-        product = sf.Product2.create({
-            'Name': product_name,
-            'IsActive': True, 
-            'Description': f'This is a test description for Product {i:03d}', 
-            'ProductCode': f'SO-{i:03d}', 
-            'test_Checkbox__c': random.choice([True, False]), 
-            'test_Currency__c': i*0.3, 
-            'test_Date__c': '1997-10-06', 
-            'test_DateTime__c': '1997-10-06T18:05:43.000+0000', 
-            'test_Email__c': f'test{i:03d}@test.test', 
-            'test_Number__c': i*0.4, 
-            'test_Percent__c': i*0.2, 
-            'test_Phone__c': random.randint(10000000, 99999999), 
-            'test_Picklist__c': random.randrange(1, 4), 
-            'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']), 
-            'test_Text__c': f'Test Text {i:03d}', 
-            'test_Text_Area__c': f'Test Text Area {i:03d}', 
-            'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}', 
-            'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>', 
-            'test_Time__c': '15:16:08.000Z', 
-            'test_URL__c': 'www.youtube.com'
-        })
-
+        if i != 4:
+            product = sf.Product2.create({
+                'Name': product_name,
+                'IsActive': True, 
+                'Description': f'This is a test description for Product {i:03d}', 
+                'ProductCode': f'SO-{i:03d}', 
+                'test_Checkbox__c': random.choice([True, False]), 
+                'test_Currency__c': i*0.3, 
+                'test_Date__c': '1997-10-06', 
+                'test_DateTime__c': '1997-10-06T18:05:43.000+0000', 
+                'test_Email__c': f'test{i:03d}@test.test', 
+                'test_Number__c': i*0.4, 
+                'test_Percent__c': i*0.2, 
+                'test_Phone__c': random.randint(10000000, 99999999), 
+                'test_Picklist__c': random.randrange(1, 4), 
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']), 
+                'test_Text__c': f'Test Text {i:03d}', 
+                'test_Text_Area__c': f'Test Text Area {i:03d}', 
+                'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}', 
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>', 
+                'test_Time__c': '15:16:08.000Z', 
+                'test_URL__c': 'www.youtube.com'
+            })
+        else:
+                product = sf.Product2.create({
+                'Name': f'{product_name} test test test test test test test test test test test test test',
+                'IsActive': True, 
+                'Description': f'This is a test description for Product {i:03d}', 
+                'ProductCode': f'SO-{i:03d}', 
+                'test_Checkbox__c': random.choice([True, False]), 
+                'test_Currency__c': i*0.3, 
+                'test_Date__c': '1997-10-06', 
+                'test_DateTime__c': '1997-10-06T18:05:43.000+0000', 
+                'test_Email__c': f'test{i:03d}@test.test', 
+                'test_Number__c': i*0.4, 
+                'test_Percent__c': i*0.2, 
+                'test_Phone__c': random.randint(10000000, 99999999), 
+                'test_Picklist__c': random.randrange(1, 4), 
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']), 
+                'test_Text__c': f'Test Text {i:03d}', 
+                'test_Text_Area__c': f'Test Text Area {i:03d}', 
+                'test_Text_Area_Long__c': f'Test Text Area Long {i:03d}', 
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>', 
+                'test_Time__c': '15:16:08.000Z', 
+                'test_URL__c': 'www.youtube.com',
+                'SCLPCE__ManualCostForCommunity__c': True
+            })
         price = i * 100
 
         existing_entry = sf.query(
@@ -1660,16 +1684,17 @@ def create_products_and_pricebook_entries():
 
 def delete_test_product_salesforce():
     print("Start Product Deleting...")
-    for i in range(1, RECORDS_QTY):
+    def worker(i):
         query = f"SELECT Name, Id FROM Product2 WHERE Name like 'Test Product {i:03d}%'"
-        results = sf.query(query) 
+        results = sf.query(query)
+
         while results.get('records'):
             for record in results['records']:
                 product_id = record['Id']
                 product_name = record['Name']
 
                 try:
-                    sf.Product2.delete(product_id) 
+                    sf.Product2.delete(product_id)
                     print(f"product Deleted '{product_name}' with ID {product_id}")
                 except Exception as e:
                     print(f"Error deleting '{product_name}': {e}")
@@ -1678,6 +1703,15 @@ def delete_test_product_salesforce():
                 results = sf.query_more(results['nextRecordsUrl'], True)
             else:
                 break
+    with ThreadPoolExecutor(max_workers=25) as executor:
+        futures = [
+            executor.submit(worker, i)
+            for i in range(1, RECORDS_QTY)
+        ]
+
+        for f in as_completed(futures):
+            f.result()
+
 
     print("All product are deleted.")
 
@@ -2613,7 +2647,7 @@ def Community_Cost_Price_enabling():
                     'CommunityCostPriceEnabled__c': True
                 })
                 print("Created successfully!")        
-def create_multiple_quotes():
+def create_multiple_quotes_core():
     print('Start creating Multiple Quotes')
     Standard_Price_book_query = sf.query("select name, id from pricebook2 where name = 'Standard Price Book'")['records'][0]
     print(f"pricebook {Standard_Price_book_query['Name']} with id {Standard_Price_book_query['Id']} is found")
@@ -2623,12 +2657,11 @@ def create_multiple_quotes():
     print(f"opportunity {opp['Name']} with id {opp['Id']} is found")    
     print('queries ended')
     try:
-        sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Created {timestamp}',
-                # 'SCLP__Opportunity__c': opp['Id'],
+        sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Core Created {timestamp}',
+                'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
                 # 'SCLP__Account__c': '001In00000BR0MAIA1',
-                # 'OwnerId': '005In000001jl0ZIAQ',
                 'test_Checkbox__c': random.choice([True, False]),
                 'test_Currency__c': 1*0.3,
                 'test_Date__c': '1997-10-06',
@@ -2662,12 +2695,11 @@ def create_multiple_quotes():
                 new_timestamp = timestamp
 
                 sf.sclp__quote__c.create({
-                    'Name': f'{z:03d} Test Quote Created {timestamp}',
-                    # 'SCLP__Opportunity__c': opp['Id'],
+                    'Name': f'{z:03d} Test Quote Core Created {timestamp}',
+                    'SCLP__Opportunity__c': opp['Id'],
                     'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
-                    # 'SCLP__Account__c': account_query['Id'],
-                    'SCLP__Account__c': '001In00000BR0MAIA1',
-                    'OwnerId': '005In000001jl0ZIAQ',
+                    'SCLP__Account__c': account_query['Id'],
+                    # 'OwnerId': '005In000001jl0ZIAQ',
                     'test_Checkbox__c': random.choice([True, False]),
                     'test_Currency__c': z*0.3,
                     'test_Date__c': '1997-10-06',
@@ -2689,12 +2721,12 @@ def create_multiple_quotes():
 
 
                     })
-                print(f'Quote number {z:03d} is created')
+                print(f'Quote number Core {z:03d} is created')
             else:
                 new_timestamp = timestamp
 
                 sf.quote__c.create({
-                    'Name': f'{z:03d} Test Quote Created {new_timestamp}',
+                    'Name': f'{z:03d} Test Quote Core Created {new_timestamp}',
                     'Opportunity__c': opp['Id'],
                     'Pricebook__c': Standard_Price_book_query['Id'],
                     'Account__c': account_query['Id'],
@@ -2719,7 +2751,7 @@ def create_multiple_quotes():
 
 
                     })
-                print(f'Quote number {z:03d} is created')
+                print(f'Quote number Core {z:03d} is created')
 
         except Exception as e:
             print(f'Error in Quote {z:03d}: {e}')
@@ -2728,6 +2760,122 @@ def create_multiple_quotes():
 
         for f in as_completed(futures):
             f.result()
+
+def create_multiple_quotes_community_no_opportunities():
+    print('Start creating Multiple Quotes')
+    Standard_Price_book_query = sf.query("select name, id from pricebook2 where name = 'Standard Price Book'")['records'][0]
+    print(f"pricebook {Standard_Price_book_query['Name']} with id {Standard_Price_book_query['Id']} is found")
+    account_query = sf.query("select name, id from account where name = 'Partner Account'")['records'][0]
+    print(f"account {account_query['Name']} with id {account_query['Id']} is found")
+    opp = sf.query("select name, id from opportunity where name like 'test opportunity created %'")['records'][0]
+    owner = sf.query("SELECT Id, Name from user where ContactId !=null and name = 'One Partner'")['records'][0]['Id']
+    print(f"opportunity {opp['Name']} with id {opp['Id']} is found")    
+    print('queries ended')
+    try:
+        sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Community Created {timestamp}',
+                # 'SCLP__Opportunity__c': opp['Id'],
+                'OwnerId': owner,
+                'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
+                'SCLP__Account__c': account_query['Id'],
+                'test_Checkbox__c': random.choice([True, False]),
+                'test_Currency__c': 1*0.3,
+                'test_Date__c': '1997-10-06',
+                'test_DateTime__c': '1997-10-06T18:18:43.000+0000',
+                'test_Email__c': f'test001@test.test',
+                'test_Number__c': 1*0.4,
+                'test_Percent__c': 1*0.2,
+                'test_Phone__c': random.randint(10000000, 99999999), 
+                'test_Picklist__c': random.randrange(1, 4),
+                'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                'test_Text__c': f'Test Text 001',
+                'test_Text_Area__c': f'Test Text Area 001',
+                'test_Text_Area_Long__c': f'Test Text Area Long 001',
+                'test_Text_Area_Rich__c': f'<p>Test Text Rich 001</p>',
+                'test_Time__c': '15:16:08.000Z',
+                'test_URL__c': 'www.youtube.com',
+                'SCLP__DescriptionHeader__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>",
+                'SCLP__DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
+                })['id']
+        use_sclp = True
+        print('Quote is created for SCLP')
+    except SalesforceError as e:
+        if "NOT_FOUND" in str(e):
+            print(f'No SCLP')
+            use_sclp = False
+        else:
+            raise
+    def worker(z):
+        try:
+            if use_sclp:
+                new_timestamp = timestamp
+
+                sf.sclp__quote__c.create({
+                    # 'SCLP__Opportunity__c': opp['Id'],
+                    'OwnerId': owner,
+                    'Name': f'{z:03d} Test Quote Community Created {timestamp}',
+                    'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
+                    'SCLP__Account__c': account_query['Id'],
+                    'test_Checkbox__c': random.choice([True, False]),
+                    'test_Currency__c': z*0.3,
+                    'test_Date__c': '1997-10-06',
+                    'test_DateTime__c': '1997-10-06T18:18:43.000+0000',
+                    'test_Email__c': f'test{z:03d}@test.test',
+                    'test_Number__c': z*0.4,
+                    'test_Percent__c': z*0.2,
+                    'test_Phone__c': random.randint(10000000, 99999999), 
+                    'test_Picklist__c': random.randrange(1, 4),
+                    'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                    'test_Text__c': f'Test Text {z:03d}',
+                    'test_Text_Area__c': f'Test Text Area {z:03d}',
+                    'test_Text_Area_Long__c': f'Test Text Area Long {z:03d}',
+                    'test_Text_Area_Rich__c': f'<p>Test Text Rich {z:03d}</p>',
+                    'test_Time__c': '15:16:08.000Z',
+                    'test_URL__c': 'www.youtube.com',
+                    'SCLP__DescriptionHeader__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>",
+                    'SCLP__DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
+
+
+                    })
+                print(f'Quote number Community {z:03d} is created')
+            else:
+                new_timestamp = timestamp
+
+                sf.quote__c.create({
+                    # 'Opportunity__c': opp['Id'],
+                    'Name': f'{z:03d} Test Quote Community Created {new_timestamp}',
+                    'Pricebook__c': Standard_Price_book_query['Id'],
+                    'Account__c': account_query['Id'],
+                    'test_Checkbox__c': random.choice([True, False]),
+                    'test_Currency__c': z*0.3,
+                    'test_Date__c': '1997-10-06',
+                    'test_DateTime__c': '1997-10-06T18:18:43.000+0000',
+                    'test_Email__c': f'test{z:03d}@test.test',
+                    'test_Number__c': z*0.4,
+                    'test_Percent__c': z*0.2,
+                    'test_Phone__c': random.randint(10000000, 99999999), 
+                    'test_Picklist__c': random.randrange(1, 4),
+                    'test_Multi_Picklist__c': random.choice(['one', 'two', 'three', 'two;three', 'one;three', 'one;two;three']),
+                    'test_Text__c': f'Test Text {z:03d}',
+                    'test_Text_Area__c': f'Test Text Area {z:03d}',
+                    'test_Text_Area_Long__c': f'Test Text Area Long {z:03d}',
+                    'test_Text_Area_Rich__c': f'<p>Test Text Rich {z:03d}</p>',
+                    'test_Time__c': '15:16:08.000Z',
+                    'test_URL__c': 'www.youtube.com',
+                    'DescriptionHeader__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>",
+                    'DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
+
+
+                    })
+                print(f'Quote number Community {z:03d} is created')
+
+        except Exception as e:
+            print(f'Error in Quote {z:03d}: {e}')
+    with ThreadPoolExecutor(max_workers=25) as executor:
+        futures = [executor.submit(worker, z) for z in range(1, RECORDS_QTY)]
+
+        for f in as_completed(futures):
+            f.result()
+
 def create_blocks():
     try:
         for i in range(1, 6):
@@ -2795,14 +2943,17 @@ def create_blocks():
 
 def create_Pricing_Rule():
     Is_Active = False
-    # try:
-    #     sf.query("select id from SCLP__Rule__c limit 1")
-    #     use_sclp = True
-    #     print("Using SCLP__ objects")
-    # except Exception:
-    #     use_sclp = False
-    #     print("Using non-SCLP objects")
+
+
+
     try:
+        folders = sf.query("select name, id from SCLP__RuleFolder__c where name = 'SO Test Rules'")
+        if folders['records']:
+            folder = folders['records'][0]['Id']
+        else:
+            folder = sf.SCLP__RuleFolder__c.create({
+                'Name': 'SO Test Rules'
+            })['id']
         sf.SCLP__Rule__c.create({'Name': f'001 Test Rule Number {timestamp}',
                     'SCLP__Active__c': Is_Active,
                     'SCLP__ExecutionOrder__c': 1
@@ -2812,6 +2963,15 @@ def create_Pricing_Rule():
     except SalesforceError as e:
         if "NOT_FOUND" in str(e):
             print(f'No SCLP')
+            folders = sf.query("select name, id from RuleFolder__c where name = 'SO Test Rules'")
+            if folders['records']:
+                folder = folders['records'][0]['Id']
+            else:
+                folder = sf.RuleFolder__c.create({
+                    'Name': 'SO Test Rules'
+                })['id']
+
+    
             use_sclp = False
         else:
             raise
@@ -2831,7 +2991,8 @@ def create_Pricing_Rule():
                 rule_id = sf.SCLP__Rule__c.create({
                     'Name': f'{z:03d} Test Rule Number {timestamp}',
                     'SCLP__Active__c': Is_Active,
-                    'SCLP__ExecutionOrder__c': z
+                    'SCLP__ExecutionOrder__c': z,
+                    'SCLP__RuleFolder__c': folder
                 })['id']
 
                 sf.SCLP__RuleAction__c.create({
@@ -2871,7 +3032,8 @@ def create_Pricing_Rule():
                 rule_id = sf.Rule__c.create({
                     'Name': f'{z:03d} Test Rule Number {timestamp}',
                     'Active__c': Is_Active,
-                    'ExecutionOrder__c': z
+                    'ExecutionOrder__c': z,
+                    'RuleFolder__c': folder
                 })['id']
 
                 sf.RuleAction__c.create({
@@ -2910,26 +3072,28 @@ def create_Pricing_Rule():
         for f in as_completed(futures):
             f.result()
         
-def delete_all_records(sf, x):
-    try:
-        records_query = sf.query(f"select id, name from {x}")
-        while records_query.get('records'):
-            for record in records_query['records']:
-                sobject = getattr(sf, x)
-                sobject.delete(record['Id'])
-                print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
-                records_query = sf.query(f"select id from {x} where isDeleted = false")
-    except SalesforceError as e:
-        "INVALID_TYPE" in str(e)
-        print("no SCLP__")
-        records_query = sf.query(f"select id, name from {x}")
-        while records_query.get('records'):
-            for record in records_query['records']:
-                sobject = getattr(sf, x)
-                sobject.delete(record['Id'])
-                print(f"Deleted record with ID: {record['Id']} with name {record['Name']}")
-                records_query = sf.query(f"select id from {x} where isDeleted = false")
+def delete_all_records(object_name):
+    print(f"Deleting all records from {object_name}")
 
+    results = sf.query(f"SELECT Id, Name FROM {object_name}")
+
+    records = results['records']
+
+    def worker(record):
+        try:
+            getattr(sf, object_name).delete(record['Id'])
+            print(f"Deleted {record['Name']} ({record['Id']})")
+        except Exception as e:
+            print(f"Error deleting {record['Name']}: {e}")
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [
+            executor.submit(worker, record)
+            for record in records
+        ]
+
+        for f in as_completed(futures):
+            f.result()
 
 def test():
     print('1')
@@ -3960,10 +4124,10 @@ def test():
 # print('Permission set ended')
 # create_fields()
 # print('Product fields ended')
-create_products_and_pricebook_entries()
-print("Product added ended")
-# # delete_test_product_salesforce()
-# # print("products deleted")
+# create_products_and_pricebook_entries()
+# print("Product added ended")
+# delete_test_product_salesforce()
+# print("products deleted")
 # Standard_PriceBook_activation()
 # print('PB ended')
 # create_account()
@@ -3982,17 +4146,19 @@ print("Product added ended")
 # print("normal bundle ended")
 # Community_Cost_Price_enabling()
 # print('Cost Price enabled')
-# create_multiple_quotes()  
-# print('Multiple Quotes created')
+# create_multiple_quotes_core()  
+# print('Multiple Quotes core created')
+# create_multiple_quotes_community_no_opportunities()  
+# print('Multiple Quotes for community created')
 # create_blocks()
 # print('create_blocks ended')
-# create_Pricing_Rule()
-# print('create Pricing Rule ended')
-# # # # delete_all_records(sf, 'SCLP__SculptorPDFTemplateBlock__c')
-# # # # print('all records deleted')
-# # Quote_Vat()
-# # print('Quote VAT is set')
-# # QLI_Vat()
-# # print('QLI vat ended')
+create_Pricing_Rule()
+print('create Pricing Rule ended')
+# delete_all_records('sclp__rule__c')
+# print('all records deleted')
+# Quote_Vat()
+# print('Quote VAT is set')
+# QLI_Vat()
+# print('QLI vat ended')
 # test()
 # print('test')
