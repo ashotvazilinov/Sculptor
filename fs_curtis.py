@@ -3,7 +3,7 @@ from datetime import datetime
 import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
-from Demo import *
+
 from simple_salesforce import Salesforce  
 from html_elements import *
 import config
@@ -14,11 +14,12 @@ import time
 import pytest
 from playwright.sync_api import sync_playwright, Page
 
+
 session_id, instance = SalesforceLogin(
 
     username='serge@twistellar.com.sculptorqa', 
     password='2K23workhard!',
-    security_token='EeIdYKjLdwQVsQFuEryL87e7g',
+    security_token='LdBcgrnZfVf4sL0PU3TzqXX0A',
     domain='test' 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
@@ -52,8 +53,8 @@ def run_current_tasks(unique_number: int = 33):
         page = context.pages[0]  # Taking the first tab
         '''write here'''
         
-        product_record = sf.query("SELECT Id, Name, FS_Curtis_Policy_Product_Type__c, FS_Curtis_Product_Division__c from Product2 where id = '01tUY000007szthYAA'")['records'][0]
-        core_account_record = sf.query("SELECT Id, Name from account where id = '001cY00000LgtqQQAR'")['records'][0]
+        product_record = sf.query("SELECT Id, Name, FS_Curtis_Policy_Product_Type__c, FS_Curtis_Product_Division__c from Product2 where id = '01tUY0000055IsWYAU'")['records'][0]
+        core_account_record = sf.query("SELECT Id, Name from account where id = '001cY00000FWcT0QAL'")['records'][0]
         community_account_record = sf.query("SELECT Id, Name from account where id = '001cY00000FWcT0QAL'")['records'][0]
 
         product_type = ['Equipment', #0
@@ -66,12 +67,13 @@ def run_current_tasks(unique_number: int = 33):
             'Large Oil Flooded Rotary Compressors', #3
             'Oil Free Compressors', #4
             'Blowers and Vaccuums',#5
-            'Aftermarket and Service']#6
+            'Aftermarket and Service',#6
+            'Air Treatment',]#7
 
         core_ranks = ['Bronze', 'Silver', 'Gold', 'Platinum']
 
         itteration = 6
-        core_rank = "Bronze"
+        core_rank = "Platinum"
         community_rank = "Platinum"
         type = 'Part'
 
@@ -88,7 +90,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
             sf.account.update(core_account_record['Id'], {
@@ -98,7 +101,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -115,7 +119,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
             sf.account.update(core_account_record['Id'], {
@@ -125,7 +130,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -144,7 +150,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
             sf.account.update(core_account_record['Id'], {
@@ -154,7 +161,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -171,7 +179,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': community_rank, #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
 
@@ -182,7 +191,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': core_rank, #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -200,7 +210,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': community_rank,#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
             sf.account.update(core_account_record['Id'], {
@@ -210,7 +221,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': core_rank,#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -226,7 +238,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': community_rank, #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
 
             sf.account.update(core_account_record['Id'], {
@@ -236,7 +249,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': core_rank, #5
-                'Aftermarket_and_Service__c': ""#6
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': ""#7
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()
@@ -253,7 +267,8 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': community_rank#6
+                'Aftermarket_and_Service__c': community_rank,#6
+                'Air_Treatment__c': "", #7
             })
             sf.account.update(core_account_record['Id'], {
                 'Toledo_Tools__c': "", #0
@@ -262,7 +277,35 @@ def run_current_tasks(unique_number: int = 33):
                 'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
                 'Oil_Free_Compressors__c': "",#4
                 'Blowers_and_Vaccuums__c': "", #5
-                'Aftermarket_and_Service__c': core_rank#6
+                'Aftermarket_and_Service__c': core_rank,#6
+                'Air_Treatment__c': "" #7
+            })
+            recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
+            recalculate_button.click()
+        elif itteration == 7:
+            sf.product2.update(product_record['Id'], {
+                'FS_Curtis_Product_Division__c': divisions_apis[7],
+                'FS_Curtis_Policy_Product_Type__c': type
+            })
+            sf.account.update(community_account_record['Id'], {
+                'Toledo_Tools__c': "", #0
+                'Reciprocating_Compressors__c': "",  #1
+                'Small_Oil_Flooded_Rotary_Compressors__c': "",  #2
+                'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
+                'Oil_Free_Compressors__c': "",#4
+                'Blowers_and_Vaccuums__c': "", #5
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': community_rank #7
+            })
+            sf.account.update(core_account_record['Id'], {
+                'Toledo_Tools__c': "", #0
+                'Reciprocating_Compressors__c': "",  #1
+                'Small_Oil_Flooded_Rotary_Compressors__c': "",  #2
+                'Large_Oil_Flooded_Rotary_Compressors__c': "", #3
+                'Oil_Free_Compressors__c': "",#4
+                'Blowers_and_Vaccuums__c': "", #5
+                'Aftermarket_and_Service__c': "",#6
+                'Air_Treatment__c': core_rank#6
             })
             recalculate_button = page.locator("(//button[contains(text(), 'Recalculate')])[last()]")
             recalculate_button.click()

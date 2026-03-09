@@ -2,13 +2,12 @@ from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError, Sale
 from datetime import datetime
 import random
 import time
-import config
 from playwright.sync_api import sync_playwright, expect, Page
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-USERNAME='test-zw54isibqvak@example.com'
-PASSWORD='ttyk|ate6Dnpw'
-SECURITE_TOKEN='VSu5W89l5JnP1XjQ2rlXYrSS'
+USERNAME='test-uv4yfxsmdgrr@example.com'
+PASSWORD='ia9%xlifpgaJa'
+SECURITE_TOKEN='Z3rOUPyYw5eWOCcUkVOXdjOLX'
 DOMAIN='test' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
@@ -18,7 +17,9 @@ session_id, instance = SalesforceLogin(
     security_token=SECURITE_TOKEN,
     domain=DOMAIN 
 )
+
 sf = Salesforce(instance=instance, session_id=session_id)
+
 print("Connected!")
 # git add .
 
@@ -1653,7 +1654,7 @@ def create_products_and_pricebook_entries():
                 'test_Text_Area_Rich__c': f'<p>Test Text Rich {i:03d}</p>', 
                 'test_Time__c': '15:16:08.000Z', 
                 'test_URL__c': 'www.youtube.com',
-                'SCLPCE__ManualCostForCommunity__c': True
+                # 'SCLPCE__ManualCostForCommunity__c': True
             })
         price = i * 100
 
@@ -2508,7 +2509,7 @@ def delete_bundle():
     print('Start Bundle deletion')
 
     try:
-        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c WHERE SCLP__Bundle__r.name LIKE '%Test Bundle Created%' ORDER BY SCLP__Product__r.name DESC")
+        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c ORDER BY SCLP__Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -2621,6 +2622,7 @@ def Community_Cost_Price_enabling():
                         print("Created successfully with local field")
                     else:
                         raise
+                
 
             except SalesforceError as e:
                 msg = str(e)
@@ -2657,7 +2659,7 @@ def create_multiple_quotes_core():
     print(f"opportunity {opp['Name']} with id {opp['Id']} is found")    
     print('queries ended')
     try:
-        sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Core Created {timestamp}',
+        first_quote = sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Core Created {timestamp}',
                 'SCLP__Opportunity__c': opp['Id'],
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
                 'SCLP__Account__c': account_query['Id'],
@@ -2683,6 +2685,8 @@ def create_multiple_quotes_core():
                 })['id']
         use_sclp = True
         print('Quote is created for SCLP')
+        sf.SCLP__Quote__c.delete(first_quote['Id'])
+        print('and the quote is deleted')
     except SalesforceError as e:
         if "NOT_FOUND" in str(e):
             print(f'No SCLP')
@@ -2772,7 +2776,7 @@ def create_multiple_quotes_community_no_opportunities():
     print(f"opportunity {opp['Name']} with id {opp['Id']} is found")    
     print('queries ended')
     try:
-        sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Community Created {timestamp}',
+        is_sclp_quote_community = sf.SCLP__Quote__c.create({'Name': f'001 Test Quote Community Created {timestamp}',
                 # 'SCLP__Opportunity__c': opp['Id'],
                 'OwnerId': owner,
                 'SCLP__Pricebook__c': Standard_Price_book_query['Id'],
@@ -2797,6 +2801,7 @@ def create_multiple_quotes_community_no_opportunities():
                 'SCLP__DescriptionFooter__c': "<p>{!test_Auto_Number__c}</p><p> {!test_Checkbox__c} </p><p>{!test_Currency__c}</p><p>{!test_Date__c}</p><p>{!test_DateTime__c}</p><p>{!test_Email__c}</p><p>{!test_formula__c}</p><p>{!test_Multi_Picklist__c}</p><p>{!test_Number__c}</p><p>{!test_Percent__c}</p><p>{!test_Phone__c}</p><p>{!test_Picklist__c}</p><p>{!test_Text__c}</p><p>{!test_Text_Area__c}</p><p>{!test_Text_Area_Long__c}</p><p>{!test_Text_Area_Rich__c}</p><p>{!test_Time__c}</p><p>{!test_URL__c}</p>"
                 })['id']
         use_sclp = True
+        sf.SCLP__Quote__c.delete(is_sclp_quote_community)
         print('Quote is created for SCLP')
     except SalesforceError as e:
         if "NOT_FOUND" in str(e):
@@ -2954,14 +2959,16 @@ def create_Pricing_Rule():
             folder = sf.SCLP__RuleFolder__c.create({
                 'Name': 'SO Test Rules'
             })['id']
-        sf.SCLP__Rule__c.create({'Name': f'001 Test Rule Number {timestamp}',
+        first_rule = sf.SCLP__Rule__c.create({'Name': f'001 Test Rule Number {timestamp}',
                     'SCLP__Active__c': Is_Active,
-                    'SCLP__ExecutionOrder__c': 1
+                    'SCLP__ExecutionOrder__c': 1,
+                    'SCLP__RuleFolder__c': folder
                         })['id']
         use_sclp = True
         print('Rule is created for SCLP')
+        sf.SCLP__Rule__c.delete(first_rule)
     except SalesforceError as e:
-        if "NOT_FOUND" in str(e):
+        if "INVALID_TYPE" in str(e):
             print(f'No SCLP')
             folders = sf.query("select name, id from RuleFolder__c where name = 'SO Test Rules'")
             if folders['records']:
@@ -3495,7 +3502,7 @@ def QLI_Vat():
             else:
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
-    #Tax Amount Formula
+        #Tax Amount Formula
         try:
             Tax_Amount_Formula_field_metadata = {
             "FullName": "SCLP__QuoteLineItem__c.Tax_Amount_Formula__c",
@@ -3537,7 +3544,7 @@ def QLI_Vat():
             else:
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
-    #Total With Tax
+        #Total With Tax
         try:
             Total_With_tax_field_metadata = {
             "FullName": "SCLP__QuoteLineItem__c.Total_With_Tax__c",
@@ -3580,7 +3587,7 @@ def QLI_Vat():
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
 
-    #Rollup summary next step
+        #Rollup summary next step
         try:
             Taxes_rollup_field_metadata = {
             "FullName": "SCLP__Quote__c.Total_of_VATs__c",
@@ -3622,49 +3629,49 @@ def QLI_Vat():
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
             #Total With Tax
-            try:
-                Total_With_tax_field_with_rollup_metadata = {
-                "FullName": "SCLP__Quote__c.Total_With_Tax_with_rollup__c",
-                "Metadata": {
-                    "label": "Total With Tax with rollup",
-                    "type": "Currency",
-                    "precision": 18,
-                    "scale": 2,
-                    "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
-                    "description": "Total With Tax with rollup for taxes",
-                    "formulaTreatBlanksAs": "BlankAsZero"
-                }}
-                        
-                
+        try:
+            Total_With_tax_field_with_rollup_metadata = {
+            "FullName": "SCLP__Quote__c.Total_With_Tax_with_rollup__c",
+            "Metadata": {
+                "label": "Total With Tax with rollup",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'SCLP__TotalAmount__c + (SCLP__TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
+                "description": "Total With Tax with rollup for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
 
-                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
-                print(f"✅ Total With Tax is created!")
-                print(f"Result: {result}")
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
 
-                field_perm_data = {
-                    'ParentId': permission_set_id,
-                    'SobjectType': f'SCLP__Quote__c',
-                    'Field': f'SCLP__Quote__c.Total_With_Tax_with_rollup__c',
-                    'PermissionsRead': True,
-                    # 'PermissionsEdit': True
-                }
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'SCLP__Quote__c',
+                'Field': f'SCLP__Quote__c.Total_With_Tax_with_rollup__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
 
-                result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
-                print(f"Result: {result}")
-            except SalesforceError as e:
-                error_text = str(e)
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
 
-                if "DUPLICATE_DEVELOPER_NAME" in error_text:
-                    print("👌 Total With Tax with rollup field already exists")
-                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-                    print("❌ Missing required parameter")
-                    raise  
-                else:
-                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
-                    raise
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax with rollup field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
 
-    #custom setting update
+        #custom setting update
         print("➡ Creating Custom Setting record...")
 
         setting_record = {
@@ -3969,47 +3976,47 @@ def QLI_Vat():
                 print(f"⚠️ Unhandled Salesforce error: {error_text}")
                 raise
             #Total With Tax
-            try:
-                Total_With_tax_field_with_rollup_metadata = {
-                "FullName": "Quote__c.Total_With_Tax_with_rollup__c",
-                "Metadata": {
-                    "label": "Total With Tax with rollup",
-                    "type": "Currency",
-                    "precision": 18,
-                    "scale": 2,
-                    "formula": 'TotalAmount__c + (TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
-                    "description": "Total With Tax with rollup for taxes",
-                    "formulaTreatBlanksAs": "BlankAsZero"
-                }}
-                        
-                
+        try:
+            Total_With_tax_field_with_rollup_metadata = {
+            "FullName": "Quote__c.Total_With_Tax_with_rollup__c",
+            "Metadata": {
+                "label": "Total With Tax with rollup",
+                "type": "Currency",
+                "precision": 18,
+                "scale": 2,
+                "formula": 'TotalAmount__c + (TotalAmount__c * VAT_Percent__c) + Total_of_VATs__c',         
+                "description": "Total With Tax with rollup for taxes",
+                "formulaTreatBlanksAs": "BlankAsZero"
+            }}
+                    
+            
 
-                result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
-                print(f"✅ Total With Tax is created!")
-                print(f"Result: {result}")
+            result = sf.toolingexecute('sobjects/CustomField/', method='POST', data=Total_With_tax_field_with_rollup_metadata)
+            print(f"✅ Total With Tax is created!")
+            print(f"Result: {result}")
 
-                field_perm_data = {
-                    'ParentId': permission_set_id,
-                    'SobjectType': f'Quote__c',
-                    'Field': f'Quote__c.Total_With_Tax_with_rollup__c',
-                    'PermissionsRead': True,
-                    # 'PermissionsEdit': True
-                }
+            field_perm_data = {
+                'ParentId': permission_set_id,
+                'SobjectType': f'Quote__c',
+                'Field': f'Quote__c.Total_With_Tax_with_rollup__c',
+                'PermissionsRead': True,
+                # 'PermissionsEdit': True
+            }
 
-                result = sf.FieldPermissions.create(field_perm_data)
-                print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
-                print(f"Result: {result}")
-            except SalesforceError as e:
-                error_text = str(e)
+            result = sf.FieldPermissions.create(field_perm_data)
+            print("✅ Total With Tax with rollup is added for read/edit Permission Set 'SO Sculptor Permission Set'")
+            print(f"Result: {result}")
+        except SalesforceError as e:
+            error_text = str(e)
 
-                if "DUPLICATE_DEVELOPER_NAME" in error_text:
-                    print("👌 Total With Tax with rollup field already exists")
-                elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
-                    print("❌ Missing required parameter")
-                    raise  
-                else:
-                    print(f"⚠️ Unhandled Salesforce error: {error_text}")
-                    raise
+            if "DUPLICATE_DEVELOPER_NAME" in error_text:
+                print("👌 Total With Tax with rollup field already exists")
+            elif "FIELD_INTEGRITY_EXCEPTION" in error_text:
+                print("❌ Missing required parameter")
+                raise  
+            else:
+                print(f"⚠️ Unhandled Salesforce error: {error_text}")
+                raise
 
     #custom setting update
         print("➡ Creating Custom Setting record...")
@@ -4126,8 +4133,8 @@ def test():
 # print('Product fields ended')
 # create_products_and_pricebook_entries()
 # print("Product added ended")
-# delete_test_product_salesforce()
-# print("products deleted")
+# # # delete_test_product_salesforce()
+# # # print("products deleted")
 # Standard_PriceBook_activation()
 # print('PB ended')
 # create_account()
@@ -4138,8 +4145,8 @@ def test():
 # # print('Quote ended')
 # # delete_all_quotes()
 # # print('all quotes deleted')
-# delete_bundle()
-# print('Bundle deleted')
+delete_bundle()
+print('Bundle deleted')
 # create_big_bundle()
 # print("big bundle ended")
 # create_normal_bundle()
@@ -4148,14 +4155,14 @@ def test():
 # print('Cost Price enabled')
 # create_multiple_quotes_core()  
 # print('Multiple Quotes core created')
-# create_multiple_quotes_community_no_opportunities()  
-# print('Multiple Quotes for community created')
+# # create_multiple_quotes_community_no_opportunities()  
+# # print('Multiple Quotes for community created')
 # create_blocks()
 # print('create_blocks ended')
-create_Pricing_Rule()
-print('create Pricing Rule ended')
-# delete_all_records('sclp__rule__c')
+# delete_all_records('rule__c')
 # print('all records deleted')
+# create_Pricing_Rule()
+# print('create Pricing Rule ended')
 # Quote_Vat()
 # print('Quote VAT is set')
 # QLI_Vat()
