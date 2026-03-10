@@ -5,10 +5,10 @@ import time
 from playwright.sync_api import sync_playwright, expect, Page
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-USERNAME='test-uv4yfxsmdgrr@example.com'
-PASSWORD='ia9%xlifpgaJa'
-SECURITE_TOKEN='Z3rOUPyYw5eWOCcUkVOXdjOLX'
-DOMAIN='test' 
+USERNAME='sculptortso@twistellar.trail'
+PASSWORD='WorkhardTSO2k26!'
+SECURITE_TOKEN='UTwEmaQqXfdSL1bvJ9gvsvr4'
+DOMAIN='login' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
 
