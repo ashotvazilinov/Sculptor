@@ -5,10 +5,10 @@ import time
 from playwright.sync_api import sync_playwright, expect, Page
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-USERNAME='sculptortso@twistellar.trail'
-PASSWORD='WorkhardTSO2k26!'
-SECURITE_TOKEN='UTwEmaQqXfdSL1bvJ9gvsvr4'
-DOMAIN='login' 
+USERNAME='test-uv4yfxsmdgrr@example.com'
+PASSWORD='ia9%xlifpgaJa'
+SECURITE_TOKEN='Z3rOUPyYw5eWOCcUkVOXdjOLX'
+DOMAIN='test' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
 
@@ -2509,7 +2509,7 @@ def delete_bundle():
     print('Start Bundle deletion')
 
     try:
-        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c ORDER BY SCLP__Product__r.name DESC")
+        options = sf.query("SELECT Id, SCLP__Product__r.Name, SCLP__Bundle__r.Name FROM SCLP__ProductOption__c where name like 'test bundle created%' ORDER BY SCLP__Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -4145,12 +4145,12 @@ def test():
 # # print('Quote ended')
 # # delete_all_quotes()
 # # print('all quotes deleted')
-delete_bundle()
-print('Bundle deleted')
-# create_big_bundle()
-# print("big bundle ended")
-# create_normal_bundle()
-# print("normal bundle ended")
+# delete_bundle()
+# print('Bundle deleted')
+create_big_bundle()
+print("big bundle ended")
+create_normal_bundle()
+print("normal bundle ended")
 # Community_Cost_Price_enabling()
 # print('Cost Price enabled')
 # create_multiple_quotes_core()  
