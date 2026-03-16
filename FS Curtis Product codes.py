@@ -127,13 +127,11 @@ def set_product_option_addition_and_location():
                 print(f'the product {option_result['records'][0]['SCLP__Product__r']['Name']} code Addition and location  is set to {code_addition} and {code_location}')
 
 # set_product_option_addition_and_location()
-def create_codes_combination_records():
+def create_codes_combination_records_for_one():
     Bundle_Full_name = ["ZZZ - 001 Test Bundle Created 2026-03-14_19-30-46",
                         "ZZZ - 002 Test Bundle Created 2026-03-14_19-30-46"]
-    product_codes = ['SO-001', 'SO-003']
-    feature_name = 'Feature Number One'
-    Code_sequence__for_one = 'FXX'
-    Code_sequence__for_two = 'FPC'
+    product_codes = ['SO-001']
+    Code_sequence__for_one = 'SPC'
     for x in Bundle_Full_name:
         print(f"\n=== Processing bundle mask: {x} ===")
         bundles = sf.query( f"SELECT Id, Name FROM Product2 WHERE Name = '{x}' and RecordType.name = 'Product Bundle' and IsActive = true")
@@ -166,7 +164,17 @@ def create_codes_combination_records():
                 except SalesforceError as e:
                     "FIELD_CUSTOM_VALIDATION_EXCEPTION" in str(e)
                     print('such a combination already exists')
-                                
+create_codes_combination_records_for_one()
+def create_codes_combination_records_for_two():
+    Bundle_Full_name = ["ZZZ - 001 Test Bundle Created 2026-03-14_19-30-46",
+                        "ZZZ - 002 Test Bundle Created 2026-03-14_19-30-46"]
+    product_codes = ['SO-001', 'SO-003']
+    Code_sequence__for_two = 'FPC'
+    for x in Bundle_Full_name:
+        print(f"\n=== Processing bundle mask: {x} ===")
+        bundles = sf.query( f"SELECT Id, Name FROM Product2 WHERE Name = '{x}' and RecordType.name = 'Product Bundle' and IsActive = true")
+        for bundle in bundles["records"]:
+            bundle_id = bundle["Id"]
             option_result_for_two_options = sf.query(f"""
             SELECT
                 Id,
@@ -197,7 +205,4 @@ def create_codes_combination_records():
             except SalesforceError as e:
                 "FIELD_CUSTOM_VALIDATION_EXCEPTION" in str(e)
                 print('such a combination already exists')
-
-
-
-create_codes_combination_records()
+create_codes_combination_records_for_two()
