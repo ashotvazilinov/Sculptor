@@ -3,9 +3,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import random
 
-USERNAME='sculptortso@twistellar.trail'
-PASSWORD='WorkhardTSO2k26!'
-SECURITE_TOKEN='UTwEmaQqXfdSL1bvJ9gvsvr4'
+USERNAME='sculptordemo@twistellar.demo'
+PASSWORD='Workhard2k26!'
+SECURITE_TOKEN='iCoE3eJQAjtjApUOqkQJ3C8I'
 DOMAIN='login' 
 SITE_URL = f'https://{DOMAIN}.salesforce.com/'
 session_id, instance = SalesforceLogin(
@@ -1948,10 +1948,10 @@ def create_account():
             'AccountId': sf.query(f"select id from account where name = 'BlueOcean Services'")['records'][0]['Id'],
             # 'CleanStatus': 'Pending',
             'Email': 't.davist2121@gmail.com',
-            'MailingCity': 'Binghamton',
-            'MailingPostalCode': '13904',
-            'MailingState': 'New York',
-            'MailingStreet': '1252  Hinkle Deegan Lake Road',
+            # 'MailingCity': 'Binghamton',
+            # 'MailingPostalCode': '13904',
+            # 'MailingState': 'New York',
+            # 'MailingStreet': '1252  Hinkle Deegan Lake Road',
             'Phone': '(212) 942-5611'
         })
     print('Timothy Davis contant is created')
@@ -2043,11 +2043,11 @@ def create_opportunity():
     #         })
     #     print('Recurring Cleaning opportunity is created')          
 
-# create_products()
-# print('Product, Price Book and Price Book Entreis are created')
+create_products()
+print('Product, Price Book and Price Book Entreis are created')
 create_bundle()
 print('Bundles are created')
-# create_account()
-# print('Account created')
-# create_opportunity()
-# print('Opportunity created')
+create_account()
+print('Account created')
+create_opportunity()
+print('Opportunity created')
