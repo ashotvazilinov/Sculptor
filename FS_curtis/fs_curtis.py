@@ -13,14 +13,15 @@ import shutil
 import time
 import pytest
 from playwright.sync_api import sync_playwright, Page
+from creds_for_new_orgs import *
 
 
 session_id, instance = SalesforceLogin(
 
-    username='serge@twistellar.com.sculptorqa', 
-    password='2K23workhard!',
-    security_token='LdBcgrnZfVf4sL0PU3TzqXX0A',
-    domain='test' 
+    username=FEUSERNAME, 
+    password=FEPASSWORD,
+    security_token=FESECURITE_TOKEN,
+    domain=FEDOMAIN 
 )
 sf = Salesforce(instance=instance, session_id=session_id)
 print("Connected!")

@@ -4,12 +4,9 @@ import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from creds_for_new_orgs import *
 
-USERNAME='test-uv4yfxsmdgrr@example.com'
-PASSWORD='ia9%xlifpgaJa'
-SECURITE_TOKEN='Z3rOUPyYw5eWOCcUkVOXdjOLX'
-DOMAIN='test' 
-SITE_URL = f'https://{DOMAIN}.salesforce.com/'
+
 session_id, instance = SalesforceLogin(
 
     username=USERNAME, 
@@ -2533,7 +2530,7 @@ def delete_bundle():
     except SalesforceError as e:
         "INVALID_TYPE" in str(e)
         print("no SCLP__")
-        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c WHERE Bundle__r.name LIKE '%Test Bundle Created%' ORDER BY Product__r.name DESC")
+        options = sf.query("SELECT Id, Product__r.Name, Bundle__r.Name FROM ProductOption__c ORDER BY Product__r.name DESC")
         
         for o in options['records']:
             try:
@@ -2544,7 +2541,7 @@ def delete_bundle():
                 product_name = o['Product__r']['Name']
                 print(f"Failed to delete option for product {product_name} (ID: {o['Id']}): {e}")
 
-        bundles = sf.query(f"select name, id from product2 where name LIKE '%Test Bundle Created%'")
+        bundles = sf.query(f"select name, id from product2")
         if bundles['records']:
             for b in bundles['records']:
                 try:
@@ -4145,12 +4142,12 @@ def test():
 # # print('Quote ended')
 # # delete_all_quotes()
 # # print('all quotes deleted')
-# delete_bundle()
-# print('Bundle deleted')
-create_big_bundle()
-print("big bundle ended")
-create_normal_bundle()
-print("normal bundle ended")
+delete_bundle()
+print('Bundle deleted')
+# create_big_bundle()
+# print("big bundle ended")
+# create_normal_bundle()
+# print("normal bundle ended")
 # Community_Cost_Price_enabling()
 # print('Cost Price enabled')
 # create_multiple_quotes_core()  

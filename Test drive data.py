@@ -2,12 +2,9 @@ from simple_salesforce import Salesforce, SalesforceLogin, SalesforceError, Sale
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import random
+from creds_for_new_orgs import *
 
-USERNAME='sculptordemo@twistellar.demo'
-PASSWORD='Workhard2k26!'
-SECURITE_TOKEN='iCoE3eJQAjtjApUOqkQJ3C8I'
-DOMAIN='login' 
-SITE_URL = f'https://{DOMAIN}.salesforce.com/'
+
 session_id, instance = SalesforceLogin(
 
     username=USERNAME, 
@@ -169,9 +166,16 @@ def create_bundle():
     rt_id = Rt_bundle_in_qurey['records'][0]['Id']
     print(f"Bundle Record Type id is {rt_id}")
     try:
+        print('try to create an SCLP pricing Rule')
+        is_it_SCLP = sf.SCLP__Rule__c.create({
+            'Name': 'Test Rule to be deleted',
+            'SCLP__Active__c': 'true'
+        })['id']
+        print('SCLP pricing rule is created')
+        sf.SCLP__Rule__c.delete(is_it_SCLP)
         smarphone_bundle_query_result = sf.query(f"select name, id from product2 where name like 'Smartphone Bundle Test'")
         if len(smarphone_bundle_query_result.get('records')) >= 1:
-            print('Smartphone Bundle already created')
+            print('Smartphone Bundle TEST already created')
         else:
             print('Smartphone bundle to be created')
             created_bundle_id = sf.product2.create({
@@ -1043,10 +1047,15 @@ def create_bundle():
 
     except SalesforceError as e:
             "INVALID_TYPE" in str(e)
-            print("no SCLP__")            
+            print("no SCLP__")   
+            is_it_SCLP = sf.Rule__c.create({
+            'Name': 'Test Rule to be deleted',
+            'Active__c': 'true'
+            })['id']
+            sf.Rule__c.delete(is_it_SCLP)         
             smarphone_bundle_query_result = sf.query(f"select name, id from product2 where name like 'Smartphone Bundle Test'")
             if len(smarphone_bundle_query_result.get('records')) >= 1:
-                print('Smartphone Bundle already created')
+                print('Smartphone Bundle TEST already created')
             else:
                 print('Smartphone bundle to be created')
                 created_bundle_id = sf.product2.create({

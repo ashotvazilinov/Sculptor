@@ -3,18 +3,15 @@ from datetime import datetime
 import random
 import time
 from playwright.sync_api import sync_playwright, expect, Page
+from creds_for_new_orgs import *
 
-USERNAME='serge@twistellar.com.sculptorqa'
-PASSWORD='2K23workhard!'
-SECURITE_TOKEN='LdBcgrnZfVf4sL0PU3TzqXX0A'
-DOMAIN='test' 
-SITE_URL = f'https://{DOMAIN}.salesforce.com/'
+
 session_id, instance = SalesforceLogin(
 
-    username=USERNAME, 
-    password=PASSWORD,
-    security_token=SECURITE_TOKEN,
-    domain=DOMAIN 
+    username=FEUSERNAME, 
+    password=FEPASSWORD,
+    security_token=FESECURITE_TOKEN,
+    domain=FEDOMAIN 
 )
 
 sf = Salesforce(instance=instance, session_id=session_id)

@@ -3,19 +3,16 @@ import time
 from playwright.sync_api import sync_playwright, expect, Page
 import config
 import random
+from creds_for_new_orgs import *
 
 
-USERNAME='test-cvuxkuy6hua0@example.com'
-PASSWORD='#lmyu6olLwrth'
-SECURITE_TOKEN='jQtYddA6Lw5txX4oMKTW3eEr'
-DOMAIN='test' 
 
 session_id, instance = SalesforceLogin(
 
     username=USERNAME, 
     password=PASSWORD,
     security_token=SECURITE_TOKEN,
-    domain=DOMAIN 
+    domain=DOMAIN
 )
 sf = Salesforce(instance=instance, session_id=session_id)
 print("Connected!")

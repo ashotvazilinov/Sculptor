@@ -32,3 +32,4 @@ videos/
 tracing/
 .sfdx/
 Reports/
+creds_for_new_orgs.py
